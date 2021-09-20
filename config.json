@@ -1,0 +1,10 @@
+{
+    "DEBUG": "TRUE",
+    "DATABASE": {
+        "name": "automation_build",
+        "engine": "peewee.PostgresqlDatabase",
+        "password": "masterkey",
+        "user": "sysdba"
+    },
+    "SECRET_KEY": "fdsf"
+}
