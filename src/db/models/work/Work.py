@@ -1,12 +1,12 @@
 from peewee import CharField, ForeignKeyField, DoubleField
 
-from src.db.models.BaseModel import BaseModel
+from app import db
 from src.db.models.base.BaseUnit import BaseUnit
 from src.db.models.work.WorkGroup import WorkGroup
 
 
 # Работа
-class Work(BaseModel):
+class Work(db.Model):
     name = CharField(unique=True)
     work_coefficient = DoubleField(default=0)                   # коэффицент для работы
     client_price = DoubleField(default=0)                       # тариф клиента

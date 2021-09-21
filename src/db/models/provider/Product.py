@@ -1,12 +1,12 @@
 from peewee import ForeignKeyField, DoubleField, DateField
 
-from src.db.models.BaseModel import BaseModel
+from app import db
 from src.db.models.material.Material import Material
 from src.db.models.provider.Provider import Provider
 
 
 # Товар
-class Product(BaseModel):
+class Product(db.Model):
     price = DoubleField(default=0)                              # цена
     amount_for_one = DoubleField(default=0)                     # количество материала за 1 шт
     provider = ForeignKeyField(Provider, backref='products')    # поставщик

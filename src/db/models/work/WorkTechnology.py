@@ -1,11 +1,11 @@
 from peewee import CharField, ForeignKeyField
 
-from src.db.models.BaseModel import BaseModel
+from app import db
 from src.db.models.work.WorkStage import WorkStage
 
 
 # Технология работ
-class WorkTechnology(BaseModel):
+class WorkTechnology(db.Model):
     name = CharField(unique=True)
     work_stage = ForeignKeyField(WorkStage, backref='work_technologies')  # этап работ
 

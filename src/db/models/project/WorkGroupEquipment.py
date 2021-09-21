@@ -1,12 +1,12 @@
 from peewee import ForeignKeyField
 
-from src.db.models.BaseModel import BaseModel
+from app import db
 from src.db.models.project.Equipment import Equipment
 from src.db.models.work.WorkGroup import WorkGroup
 
 
 # ManyToMany Группы работ для данной комплектации
-class WorkGroupEquipment(BaseModel):
+class WorkGroupEquipment(db.Model):
     work_group = ForeignKeyField(WorkGroup, backref='equipments')
     equipment = ForeignKeyField(Equipment, backref='work_groups')
 

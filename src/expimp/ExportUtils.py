@@ -1,7 +1,5 @@
 from openpyxl import Workbook
 
-from src.db.models.BaseModel import BaseModel
-
 
 def export_table(model):
     model_meta = model._meta
@@ -18,8 +16,7 @@ def export_table(model):
     for attribute in data:
         for col in range(len(fields)):
             val = getattr(attribute, fields[col])
-            if isinstance(val, BaseModel):
-                val = getattr(val, 'uuid')
+            val = getattr(val, 'uuid')
             ws.cell(row=row, column=col + 1, value=str(val))
         row += 1
     wb.save(f'expimp/{table_name}.xlsx')

@@ -1,10 +1,9 @@
 from peewee import CharField
-
-from src.db.models.BaseModel import BaseModel
+from app import db
 
 
 # Город
-class City(BaseModel):
+class City(db.Model):
     name = CharField(unique=True)
 
     class Meta:

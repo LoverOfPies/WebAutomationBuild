@@ -1,10 +1,10 @@
 from peewee import CharField
 
-from src.db.models.BaseModel import BaseModel
+from app import db
 
 
 # Категория
-class MaterialCategory(BaseModel):
+class MaterialCategory(db.Model):
     name = CharField(unique=True)
 
     class Meta:

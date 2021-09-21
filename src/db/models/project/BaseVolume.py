@@ -1,12 +1,12 @@
 from peewee import ForeignKeyField, DoubleField
 
-from src.db.models.BaseModel import BaseModel
+from app import db
 from src.db.models.base.BaseUnit import BaseUnit
 from src.db.models.project.Project import Project
 
 
 # Базовый объём
-class BaseVolume(BaseModel):
+class BaseVolume(db.Model):
     amount = DoubleField(unique=True)
     project = ForeignKeyField(Project, backref='base_volumes')
     base_unit = ForeignKeyField(BaseUnit, backref='base_volumes')
