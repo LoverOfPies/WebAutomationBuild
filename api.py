@@ -1,4 +1,5 @@
-from flask import jsonify, make_response, request
+from flask import jsonify, make_response, request, send_from_directory
+from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
 from app import app
@@ -10,7 +11,13 @@ def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
 
+@app.route('/', methods=['GET'])
+def index():
+    return send_from_directory('static', 'index.html')
+
+
 @app.route('/api/v0.1/get/<string:collection>', methods=['GET'])
+@cross_origin()
 def get_data(collection):
     model = get_model_by_name(collection)
     if model is None:

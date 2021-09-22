@@ -1,9 +1,10 @@
 {
     "DEBUG": "TRUE",
+    "USE_RELOADER": "FALSE",
     "DATABASE": {
         "name": "automation_build",
         "engine": "peewee.PostgresqlDatabase",
-        "password": "masterkey",
+        "password": "uwotmate",
         "user": "sysdba"
     },
     "SECRET_KEY": "fdsf"

@@ -1,3 +1,31 @@
+# API Model
+
+## get data
+```
+method: get | optional
+
+/:collection/
+/:collection/:id
+```
+## set data
+```
+method: put
+
+/:collection/:id
+```
+## del data
+```
+method: del
+
+/:collection/:id
+```
+
+```
+/sidebar
+
+```
+
+
 # sidebar.json
 Пример выдачи элементов меню
 
@@ -106,3 +134,19 @@
     }
 ]
 ```
+
+# /providers/:id/products
+```json
+[
+  {
+    "price": "Int",
+    "amount": "Int",
+    "material": "String"
+  },
+  {
+    "price": "Int",
+    "amount": "Int",
+    "material": "String"
+  },
+  ...
+]
