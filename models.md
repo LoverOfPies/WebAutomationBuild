@@ -2,10 +2,24 @@
 
 ## get data
 ```
-method: get | optional
+method: get
 
-/:collection/
-/:collection/:id
+/:collection
+```
+## add data
+```
+method: post
+
+/:collection
+```
+```json
+{
+  "field1": "String (field1 value)",
+  "field2": "String (field2 value)",
+  "foreign_uuid1": "String (value)",
+  "foreign_uuid2": "String (value)",
+  ...
+}
 ```
 ## set data
 ```
@@ -13,14 +27,23 @@ method: put
 
 /:collection/:id
 ```
+```json
+{
+  "field": "String (field name)",
+  "value": "String (value)"
+}
+```
 ## del data
 ```
-method: del
+method: delete
 
 /:collection/:id
 ```
 
+## sidebar
 ```
+method: get
+
 /sidebar
 
 ```

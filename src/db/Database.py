@@ -3,7 +3,7 @@ from uuid import uuid4
 import peewee
 from peewee import ImproperlyConfigured
 
-from src.db.DbUtils import load_class
+from src.db.utils import load_class
 
 
 class Database(object):

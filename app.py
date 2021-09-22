@@ -9,6 +9,5 @@ app = Flask(__name__, static_url_path='')
 CORS(app)
 
 app.config.from_file("config.json", load=json.load)
-app.config['CORS_HEADERS'] = 'Content-Type'
 
 db = Database(app)

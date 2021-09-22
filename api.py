@@ -3,7 +3,9 @@ from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
 from app import app
-from src.db.DbUtils import get_model_by_name
+from src.db.utils import get_model_by_name, sidebar, delete_row, update_row, add_row
+
+api_version = '/api/v0.1/'
 
 
 @app.errorhandler(404)
@@ -16,7 +18,7 @@ def index():
     return send_from_directory('static', 'index.html')
 
 
-@app.route('/api/v0.1/get/<string:collection>', methods=['GET'])
+@app.route(f'{api_version}get/<string:collection>', methods=['GET'])
 @cross_origin()
 def get_data(collection):
     model = get_model_by_name(collection)
@@ -26,23 +28,32 @@ def get_data(collection):
     return jsonify(data)
 
 
-@app.route('/api/v0.1/add', methods=['POST'])
-def add_value():
+@app.route(f'{api_version}add/<string:collection>', methods=['POST'])
+def add_value(collection):
+    result = add_row(collection, request.json)
+    if result:
+        return jsonify('True', 201)
+    return abort(404)
+
+
+@app.route(f'{api_version}update/<string:collection>/<int:id_row>', methods=['PUT'])
+def edit_value(collection, id_row):
     if not request.json:
         abort(400)
-    print(request.json['city'])  # формат какой?
-    return jsonify('test', 201)
+    result = update_row(collection, id_row, request.json)
+    if result:
+        return jsonify({'result': True})
+    return abort(404)
 
 
-@app.route('/api/v0.1/update', methods=['PUT'])
-def edit_value():
-    # Если такой записи в таблице нет, то abort(400)
-    # Всё норм? Вставляем значения полученные. Согласовать формат данных
-    return jsonify({'result': True})  # что возвращаем?
+@app.route(f'{api_version}delete/<string:collection>/<int:id_row>', methods=['DELETE'])
+def delete_value(collection, id_row):
+    result = delete_row(collection, id_row)
+    if result:
+        return jsonify({'result': True})
+    return abort(404)
 
 
-@app.route('/api/v0.1/delete', methods=['DELETE'])
-def delete_value():
-    # Если записей в таблице нет, то abort(400)
-    # Всё норм? удаляем запись. Согласовать формат данных
-    return jsonify({'result': True})
+@app.route(f'{api_version}sidebar', methods=['GET'])
+def get_sidebar():
+    return jsonify(sidebar)
