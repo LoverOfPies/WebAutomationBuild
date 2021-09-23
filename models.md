@@ -16,8 +16,7 @@ method: post
 {
   "field1": "String (field1 value)",
   "field2": "String (field2 value)",
-  "foreign_uuid1": "String (value)",
-  "foreign_uuid2": "String (value)",
+  "field3": "String (value)",
   ...
 }
 ```

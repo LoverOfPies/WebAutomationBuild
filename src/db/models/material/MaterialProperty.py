@@ -8,10 +8,10 @@ from src.db.models.base.Unit import Unit
 
 # Свойство и параметры для конкретного материала
 class MaterialProperty(db.Model):
-    amount = DoubleField(default=0)                                      # число для свойства данного материала
-    material = ForeignKeyField(Material, backref='material_properties')  # материал
-    prop = ForeignKeyField(Prop, backref='material_properties')  # свойство
-    unit = ForeignKeyField(Unit, backref='material_properties')          # единицы измерения
+    amount = DoubleField(default=0, verbose_name='Число')
+    material = ForeignKeyField(Material, backref='material_properties', verbose_name='Материал')
+    prop = ForeignKeyField(Prop, backref='material_properties', verbose_name='Свойство')
+    unit = ForeignKeyField(Unit, backref='material_properties', verbose_name='Единица измерения')
 
     class Meta:
         db_table = "ab_material_property"

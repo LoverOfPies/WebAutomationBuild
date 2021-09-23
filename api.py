@@ -3,7 +3,7 @@ from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
 from app import app
-from src.db.utils import get_model_by_name, sidebar, delete_row, update_row, add_row
+from src.db.utils import get_model_by_name, delete_row, update_row, add_row, create_sidebar
 
 api_version = '/api/v0.1/'
 
@@ -56,4 +56,5 @@ def delete_value(collection, id_row):
 
 @app.route(f'{api_version}sidebar', methods=['GET'])
 def get_sidebar():
+    sidebar = create_sidebar()
     return jsonify(sidebar)

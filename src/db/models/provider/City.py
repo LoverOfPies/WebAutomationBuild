@@ -4,7 +4,7 @@ from app import db
 
 # Город
 class City(db.Model):
-    name = CharField(unique=True)
+    name = CharField(unique=True, verbose_name='Наименование')
 
     class Meta:
         db_table = "ab_city"

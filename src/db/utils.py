@@ -1,73 +1,38 @@
+import json
 import sys
 
-models_paths = {
-    'base_unit': 'src.db.models.base.BaseUnit.BaseUnit',
-    'prop': 'src.db.models.base.Prop.Prop',
-    'unit': 'src.db.models.base.Unit.Unit',
+# 'table_name': (path, icon, table_name (Понятное человеку)),
+models_info = {
+    'base_unit': ('src.db.models.base.BaseUnit.BaseUnit', 'box', 'Базовые единицы'),
+    'prop': ('src.db.models.base.Prop.Prop', 'box', 'Свойства'),
+    'unit': ('src.db.models.base.Unit.Unit', 'box', 'Единицы измерения'),
 
-    'material': 'src.db.models.material.Material.Material',
-    'material_category': 'src.db.models.material.MaterialCategory.MaterialCategory',
-    'material_group': 'src.db.models.material.MaterialGroup.MaterialGroup',
-    'material_subgroup': 'src.db.models.material.MaterialSubgroup.MaterialSubgroup',
+    'material': ('src.db.models.material.Material.Material', 'box', 'Материалы'),
+    'material_category': ('src.db.models.material.MaterialCategory.MaterialCategory', 'box', 'Категории материалов'),
+    'material_group': ('src.db.models.material.MaterialGroup.MaterialGroup', 'box', 'Группы материалов'),
+    'material_subgroup': ('src.db.models.material.MaterialSubgroup.MaterialSubgroup', 'box', 'Подгруппы материалов'),
 
-    'base_volume': 'src.db.models.project.BaseVolume.BaseVolume',
-    'equipment': 'src.db.models.project.Equipment.Equipment',
-    'estimate': 'src.db.models.project.Estimate.Estimate',
-    'project': 'src.db.models.project.Project.Project',
+    'base_volume': ('src.db.models.project.BaseVolume.BaseVolume', 'box', 'Базовый объём'),
+    'equipment': ('src.db.models.project.Equipment.Equipment', 'box', 'Комплектации'),
+    'estimate': ('src.db.models.project.Estimate.Estimate', 'box', 'Расчёты'),
+    'project': ('src.db.models.project.Project.Project', 'box', 'Проекты'),
 
-    'city': 'src.db.models.provider.City.City',
-    'product': 'src.db.models.provider.Product.Product',
-    'provider': 'src.db.models.provider.Provider.Provider',
+    'city': ('src.db.models.provider.City.City', 'box', 'Города'),
+    'product': ('src.db.models.provider.Product.Product', 'box', 'Товары'),
+    'provider': ('src.db.models.provider.Provider.Provider', 'box', 'Поставщики'),
 
-    'work': 'src.db.models.work.Work.Work',
-    'work_group': 'src.db.models.work.WorkGroup.WorkGroup',
-    'work_material': 'src.db.models.work.WorkMaterial.WorkMaterial',
-    'work_stage': 'src.db.models.work.WorkStage.WorkStage',
-    'work_technology': 'src.db.models.work.WorkTechnology.WorkTechnology'
+    'work': ('src.db.models.work.Work.Work', 'box', 'Работы'),
+    'work_group': ('src.db.models.work.WorkGroup.WorkGroup', 'box', 'Группы работ'),
+    'work_material': ('src.db.models.work.WorkMaterial.WorkMaterial', 'box', 'Материалы для работы'),
+    'work_stage': ('src.db.models.work.WorkStage.WorkStage', 'box', 'Стадии работ'),
+    'work_technology': ('src.db.models.work.WorkTechnology.WorkTechnology', 'box', 'Технологии работ')
 }
 
-
-sidebar = [
-    {
-        "title": "Базовые единицы",
-        "icon": "box",
-        "name": "base_unit"
-    },
-    {
-        "title": "Свойства",
-        "icon": "box",
-        "name": "prop"
-    },
-    {
-        "title": "Единицы измерения",
-        "icon": "box",
-        "name": "unit"
-    },
-    {
-        "title": "Поставщики",
-        "icon": "box",
-        "name": "provider"
-    },
-    {
-        "title": "Материалы",
-        "icon": "box",
-        "name": "material"
-    },
-    {
-        "title": "Работы",
-        "icon": "box",
-        "name": "work"
-    },
-    {
-        "title": "Проекты",
-        "icon": "box",
-        "name": "project"
-    }
-]
+sidebar_fields = ("base_unit", "prop", "unit", "provider", "material", "work", "project")
 
 
 def get_model_by_name(name):
-    model_path = models_paths.get(name)
+    model_path, _, _ = models_info.get(name)
     if model_path is None:
         return model_path
     return load_class(model_path)
@@ -81,8 +46,13 @@ def load_class(s):
 
 
 def add_row(collection, data):
-
-    return False
+    model = get_model_by_name(collection)
+    if model is None:
+        return False
+    decoded_data = json.loads(data)
+    if check_data(decoded_data, model):
+        model.insert(decoded_data).execute()
+    return True
 
 
 def delete_row(collection, id_row):
@@ -123,3 +93,18 @@ def update_row(collection, id_row, data):
     if query.execute() == 0:
         return False
     return True
+
+
+def check_data(data, model):
+    for field in data.keys():
+        if not hasattr(model, field):
+            return False
+    return True
+
+
+def create_sidebar():
+    data = []
+    for table_name in sidebar_fields:
+        _, icon, title = models_info.get(table_name)
+        data.append({"title": title, "icon": icon, "name": table_name})
+    return data
