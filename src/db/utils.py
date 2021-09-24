@@ -1,3 +1,4 @@
+import configparser
 import json
 
 from app import db
@@ -76,7 +77,13 @@ def create_sidebar():
 
 
 def init_base():
-    # Проверка на first_init
+    config = configparser.ConfigParser()
+    config.read('first.ini')
+    if not config['BASE']['FIRST_INIT']:
+        return
+    config['BASE']['FIRST_INIT'] = 'False'
+    with open('first.ini', 'w') as configfile:
+        config.write(configfile)
     table_info_model = cache.get_table_info_model()
     table_info_model.create_table()
     with open('table_info.json', 'r', encoding='utf-8') as f:
