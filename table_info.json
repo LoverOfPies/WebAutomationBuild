@@ -9,19 +9,19 @@
     {
       "name": "prop",
       "path": "src.db.models.base.Prop.Prop",
-      "icon": "box",
+      "icon": "info-circle",
       "title": "Свойства"  
     },
     {
       "name": "unit",
       "path": "src.db.models.base.Unit.Unit",
-      "icon": "box",
+      "icon": "bounding-box",
       "title": "Единицы измерения"
     },
     {
       "name": "material",
       "path": "src.db.models.material.Material.Material",
-      "icon": "box",
+      "icon": "bricks",
       "title": "Материалы"
     },
     {
@@ -51,7 +51,7 @@
     {
       "name": "equipment",
       "path": "src.db.models.project.Equipment.Equipment",
-      "icon": "box",
+      "icon": "wrench",
       "title": "Комплектации"
     },
     {
@@ -63,7 +63,7 @@
     {
       "name": "project",
       "path": "src.db.models.project.Project.Project",
-      "icon": "box",
+      "icon": "building",
       "title": "Проекты"
     },
     {
@@ -81,13 +81,13 @@
     {
       "name": "provider",
       "path": "src.db.models.provider.Provider.Provider",
-      "icon": "box",
+      "icon": "truck",
       "title": "Поставщики"
     },
     {
       "name": "work",
       "path": "src.db.models.work.Work.Work",
-      "icon": "box",
+      "icon": "hammer",
       "title": "Работы"
     },
     {
@@ -122,6 +122,7 @@
     "provider",
     "material",
     "work",
+    "equipment",
     "project"
   ]
 }
