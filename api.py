@@ -5,7 +5,7 @@ from werkzeug.exceptions import abort
 from app import app
 from src.db.utils import get_model, delete_row, update_row, add_row, create_sidebar
 
-api_version = '/api/v0.1/'
+api_version = '/api/v0.1'
 
 
 @app.errorhandler(404)
@@ -18,7 +18,7 @@ def index():
     return send_from_directory('static', 'index.html')
 
 
-@app.route(f'{api_version}get/<string:collection>', methods=['GET'])
+@app.route(f'{api_version}/get/<string:collection>', methods=['GET'])
 @cross_origin()
 def get_data(collection):
     model = get_model(collection)
@@ -28,7 +28,7 @@ def get_data(collection):
     return jsonify(data)
 
 
-@app.route(f'{api_version}add/<string:collection>', methods=['POST'])
+@app.route(f'{api_version}/add/<string:collection>', methods=['POST'])
 def add_value(collection):
     result = add_row(collection, request.json)
     if result:
@@ -36,7 +36,7 @@ def add_value(collection):
     return abort(404)
 
 
-@app.route(f'{api_version}update/<string:collection>/<int:id_row>', methods=['PUT'])
+@app.route(f'{api_version}/update/<string:collection>/<int:id_row>', methods=['PUT'])
 def edit_value(collection, id_row):
     if not request.json:
         abort(400)
@@ -46,7 +46,7 @@ def edit_value(collection, id_row):
     return abort(404)
 
 
-@app.route(f'{api_version}delete/<string:collection>/<int:id_row>', methods=['DELETE'])
+@app.route(f'{api_version}/delete/<string:collection>/<int:id_row>', methods=['DELETE'])
 def delete_value(collection, id_row):
     result = delete_row(collection, id_row)
     if result:
@@ -54,7 +54,7 @@ def delete_value(collection, id_row):
     return abort(404)
 
 
-@app.route(f'{api_version}sidebar', methods=['GET'])
+@app.route(f'{api_version}/sidebar', methods=['GET'])
 def get_sidebar():
     sidebar = create_sidebar()
     return jsonify(sidebar)
