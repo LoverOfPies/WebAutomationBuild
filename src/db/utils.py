@@ -4,31 +4,31 @@ import sys
 # 'table_name': (path, icon, table_name (Понятное человеку)),
 models_info = {
     'base_unit': ('src.db.models.base.BaseUnit.BaseUnit', 'box', 'Базовые единицы'),
-    'prop': ('src.db.models.base.Prop.Prop', 'box', 'Свойства'),
-    'unit': ('src.db.models.base.Unit.Unit', 'box', 'Единицы измерения'),
+    'prop': ('src.db.models.base.Prop.Prop', 'info-circle', 'Свойства'),
+    'unit': ('src.db.models.base.Unit.Unit', 'bounding-box', 'Единицы измерения'),
 
-    'material': ('src.db.models.material.Material.Material', 'box', 'Материалы'),
+    'material': ('src.db.models.material.Material.Material', 'bricks', 'Материалы'),
     'material_category': ('src.db.models.material.MaterialCategory.MaterialCategory', 'box', 'Категории материалов'),
     'material_group': ('src.db.models.material.MaterialGroup.MaterialGroup', 'box', 'Группы материалов'),
     'material_subgroup': ('src.db.models.material.MaterialSubgroup.MaterialSubgroup', 'box', 'Подгруппы материалов'),
 
     'base_volume': ('src.db.models.project.BaseVolume.BaseVolume', 'box', 'Базовый объём'),
-    'equipment': ('src.db.models.project.Equipment.Equipment', 'box', 'Комплектации'),
+    'equipment': ('src.db.models.project.Equipment.Equipment', 'wrench', 'Комплектации'),
     'estimate': ('src.db.models.project.Estimate.Estimate', 'box', 'Расчёты'),
-    'project': ('src.db.models.project.Project.Project', 'box', 'Проекты'),
+    'project': ('src.db.models.project.Project.Project', 'building', 'Проекты'),
 
     'city': ('src.db.models.provider.City.City', 'box', 'Города'),
     'product': ('src.db.models.provider.Product.Product', 'box', 'Товары'),
-    'provider': ('src.db.models.provider.Provider.Provider', 'box', 'Поставщики'),
+    'provider': ('src.db.models.provider.Provider.Provider', 'truck', 'Поставщики'),
 
-    'work': ('src.db.models.work.Work.Work', 'box', 'Работы'),
+    'work': ('src.db.models.work.Work.Work', 'hammer', 'Работы'),
     'work_group': ('src.db.models.work.WorkGroup.WorkGroup', 'box', 'Группы работ'),
     'work_material': ('src.db.models.work.WorkMaterial.WorkMaterial', 'box', 'Материалы для работы'),
     'work_stage': ('src.db.models.work.WorkStage.WorkStage', 'box', 'Стадии работ'),
     'work_technology': ('src.db.models.work.WorkTechnology.WorkTechnology', 'box', 'Технологии работ')
 }
 
-sidebar_fields = ("base_unit", "prop", "unit", "provider", "material", "work", "project")
+sidebar_fields = ("base_unit", "unit", "prop", "provider", "material", "work", "equipment", "project")
 
 
 def get_model_by_name(name):
