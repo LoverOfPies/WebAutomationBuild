@@ -3,7 +3,7 @@ from uuid import uuid4
 import peewee
 from peewee import ImproperlyConfigured
 
-from src.db.utils import load_class
+from src.Cache import load_class
 
 
 class Database(object):
@@ -14,8 +14,6 @@ class Database(object):
         if self.database is None:
             self.load_database()
 
-        self.register_handlers()
-
         self.Model = self.get_model_class()
 
     def load_database(self):
@@ -25,7 +23,6 @@ class Database(object):
             self.database_engine = self.database_config.pop('engine')
         except KeyError:
             raise ImproperlyConfigured('Please specify a "name" and "engine" for your database')
-
         try:
             self.database_class = load_class(self.database_engine)
             assert issubclass(self.database_class, peewee.Database)
@@ -47,15 +44,3 @@ class Database(object):
                 database = self.database
                 order_by = 'id'
         return BaseModel
-
-    def connect_db(self):
-        if self.database.is_closed():
-            self.database.connect()
-
-    def close_db(self, exc):
-        if not self.database.is_closed():
-            self.database.close()
-
-    def register_handlers(self):
-        self.app.before_request(self.connect_db)
-        self.app.teardown_request(self.close_db)

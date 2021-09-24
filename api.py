@@ -3,7 +3,7 @@ from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
 from app import app
-from src.db.utils import get_model_by_name, delete_row, update_row, add_row, create_sidebar
+from src.db.utils import get_model, delete_row, update_row, add_row, create_sidebar
 
 api_version = '/api/v0.1/'
 
@@ -21,7 +21,7 @@ def index():
 @app.route(f'{api_version}get/<string:collection>', methods=['GET'])
 @cross_origin()
 def get_data(collection):
-    model = get_model_by_name(collection)
+    model = get_model(collection)
     if model is None:
         abort(404)
     data = [row for row in model.select().dicts()]
@@ -32,7 +32,7 @@ def get_data(collection):
 def add_value(collection):
     result = add_row(collection, request.json)
     if result:
-        return jsonify('True', 201)
+        return jsonify('True')
     return abort(404)
 
 

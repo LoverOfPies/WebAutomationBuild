@@ -1,52 +1,17 @@
 import json
-import sys
 
-# 'table_name': (path, icon, table_name (Понятное человеку)),
-models_info = {
-    'base_unit': ('src.db.models.base.BaseUnit.BaseUnit', 'box', 'Базовые единицы'),
-    'prop': ('src.db.models.base.Prop.Prop', 'box', 'Свойства'),
-    'unit': ('src.db.models.base.Unit.Unit', 'box', 'Единицы измерения'),
+from app import db
+from src.Cache import Cache
 
-    'material': ('src.db.models.material.Material.Material', 'box', 'Материалы'),
-    'material_category': ('src.db.models.material.MaterialCategory.MaterialCategory', 'box', 'Категории материалов'),
-    'material_group': ('src.db.models.material.MaterialGroup.MaterialGroup', 'box', 'Группы материалов'),
-    'material_subgroup': ('src.db.models.material.MaterialSubgroup.MaterialSubgroup', 'box', 'Подгруппы материалов'),
-
-    'base_volume': ('src.db.models.project.BaseVolume.BaseVolume', 'box', 'Базовый объём'),
-    'equipment': ('src.db.models.project.Equipment.Equipment', 'box', 'Комплектации'),
-    'estimate': ('src.db.models.project.Estimate.Estimate', 'box', 'Расчёты'),
-    'project': ('src.db.models.project.Project.Project', 'box', 'Проекты'),
-
-    'city': ('src.db.models.provider.City.City', 'box', 'Города'),
-    'product': ('src.db.models.provider.Product.Product', 'box', 'Товары'),
-    'provider': ('src.db.models.provider.Provider.Provider', 'box', 'Поставщики'),
-
-    'work': ('src.db.models.work.Work.Work', 'box', 'Работы'),
-    'work_group': ('src.db.models.work.WorkGroup.WorkGroup', 'box', 'Группы работ'),
-    'work_material': ('src.db.models.work.WorkMaterial.WorkMaterial', 'box', 'Материалы для работы'),
-    'work_stage': ('src.db.models.work.WorkStage.WorkStage', 'box', 'Стадии работ'),
-    'work_technology': ('src.db.models.work.WorkTechnology.WorkTechnology', 'box', 'Технологии работ')
-}
-
-sidebar_fields = ("base_unit", "prop", "unit", "provider", "material", "work", "project")
+cache = Cache()
 
 
-def get_model_by_name(name):
-    model_path, _, _ = models_info.get(name)
-    if model_path is None:
-        return model_path
-    return load_class(model_path)
-
-
-def load_class(s):
-    path, klass = s.rsplit('.', 1)
-    __import__(path)
-    mod = sys.modules[path]
-    return getattr(mod, klass)
+def get_model(name):
+    return cache.get_model_by_name(name)
 
 
 def add_row(collection, data):
-    model = get_model_by_name(collection)
+    model = cache.get_model_by_name(collection)
     if model is None:
         return False
     decoded_data = json.loads(data)
@@ -56,7 +21,7 @@ def add_row(collection, data):
 
 
 def delete_row(collection, id_row):
-    model = get_model_by_name(collection)
+    model = cache.get_model_by_name(collection)
     if model is None:
         return False
     row = model.get_or_none(id=id_row)
@@ -75,7 +40,7 @@ def delete_row(collection, id_row):
 
 
 def update_row(collection, id_row, data):
-    model = get_model_by_name(collection)
+    model = cache.get_model_by_name(collection)
     if model is None:
         return False
     row = model.get_or_none(id=id_row)
@@ -104,7 +69,36 @@ def check_data(data, model):
 
 def create_sidebar():
     data = []
-    for table_name in sidebar_fields:
-        _, icon, title = models_info.get(table_name)
-        data.append({"title": title, "icon": icon, "name": table_name})
+    for table_name in cache.get_sidebar_fields():
+        table_info = cache.get_table_info(table_name)
+        data.append({"title": table_info.title, "icon": table_info.icon, "name": table_info.name})
     return data
+
+
+def init_base():
+    # Проверка на first_init
+    table_info_model = cache.get_table_info_model()
+    table_info_model.create_table()
+    with open('table_info.json', 'r', encoding='utf-8') as f:
+        data = json.load(f)['models_info']
+        for value in data:
+            with db.database.atomic() as transaction:  # Opens new transaction.
+                try:
+                    table_info_model.insert(value).execute()
+                except:
+                    transaction.rollback()
+                    continue
+    table_info_all = (table_info_model.select())
+    for table_info in table_info_all:
+        table_model = get_model(table_info.name)
+        create_table_with_backref(table_model)
+
+
+def create_table_with_backref(model):
+    backref_tables = model._meta.model_backrefs
+    for ref in model._meta.refs:
+        if not ref.rel_model.table_exists():
+            create_table_with_backref(ref.rel_model)
+    model.create_table()
+    for backref_table in backref_tables:
+        create_table_with_backref(backref_table)

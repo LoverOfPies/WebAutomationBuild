@@ -1,0 +1,127 @@
+{
+  "models_info": [
+    {
+      "name": "base_unit",
+      "path": "src.db.models.base.BaseUnit.BaseUnit",
+      "icon": "box",
+      "title": "Базовые единицы"
+    },
+    {
+      "name": "prop",
+      "path": "src.db.models.base.Prop.Prop",
+      "icon": "box",
+      "title": "Свойства"  
+    },
+    {
+      "name": "unit",
+      "path": "src.db.models.base.Unit.Unit",
+      "icon": "box",
+      "title": "Единицы измерения"
+    },
+    {
+      "name": "material",
+      "path": "src.db.models.material.Material.Material",
+      "icon": "box",
+      "title": "Материалы"
+    },
+    {
+      "name": "material_category",
+      "path": "src.db.models.material.MaterialCategory.MaterialCategory",
+      "icon": "box",
+      "title": "Категории материалов"
+    },
+    {
+      "name": "material_group",
+      "path": "src.db.models.material.MaterialGroup.MaterialGroup",
+      "icon": "box",
+      "title": "Группы материалов"
+    },
+    {
+      "name": "material_subgroup",
+      "path": "src.db.models.material.MaterialSubgroup.MaterialSubgroup",
+      "icon": "box",
+      "title": "Подгруппы материалов"
+    },
+    {
+      "name": "base_volume",
+      "path": "src.db.models.project.BaseVolume.BaseVolume",
+      "icon": "box",
+      "title": "Базовый объём"
+    },
+    {
+      "name": "equipment",
+      "path": "src.db.models.project.Equipment.Equipment",
+      "icon": "box",
+      "title": "Комплектации"
+    },
+    {
+      "name": "estimate",
+      "path": "src.db.models.project.Estimate.Estimate",
+      "icon": "box",
+      "title": "Расчёты"
+    },
+    {
+      "name": "project",
+      "path": "src.db.models.project.Project.Project",
+      "icon": "box",
+      "title": "Проекты"
+    },
+    {
+      "name": "city",
+      "path": "src.db.models.provider.City.City",
+      "icon": "box",
+      "title": "Города"
+    },
+    {
+      "name": "product",
+      "path": "src.db.models.provider.Product.Product",
+      "icon": "box",
+      "title": "Товары"
+    },
+    {
+      "name": "provider",
+      "path": "src.db.models.provider.Provider.Provider",
+      "icon": "box",
+      "title": "Поставщики"
+    },
+    {
+      "name": "work",
+      "path": "src.db.models.work.Work.Work",
+      "icon": "box",
+      "title": "Работы"
+    },
+    {
+      "name": "work_group",
+      "path": "src.db.models.work.WorkGroup.WorkGroup",
+      "icon": "box",
+      "title": "Группы работ"
+    },
+    {
+      "name": "work_material",
+      "path": "src.db.models.work.WorkMaterial.WorkMaterial",
+      "icon": "box",
+      "title": "Материалы для работы"
+    },
+    {
+      "name": "work_stage",
+      "path": "src.db.models.work.WorkStage.WorkStage",
+      "icon": "box",
+      "title": "Стадии работ"
+    },
+    {
+      "name": "work_technology",
+      "path": "src.db.models.work.WorkTechnology.WorkTechnology",
+      "icon": "box",
+      "title": "Технологии работ"
+    }
+  ],
+  "sidebar_fields": [
+    "base_unit",
+    "prop",
+    "unit",
+    "provider",
+    "material",
+    "work",
+    "project"
+  ]
+}
