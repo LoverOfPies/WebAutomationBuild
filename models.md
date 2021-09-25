@@ -4,7 +4,7 @@
 ```
 method: get
 
-/get/:collection
+/get/:collection?filter_field1=2&filter_field2=33
 ```
 ## add data
 ```
