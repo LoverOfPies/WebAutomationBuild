@@ -3,7 +3,9 @@ from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
 from app import app
-from src.db.utils import get_model, delete_row, update_row, add_row, create_sidebar, get_dict_info, save_file
+from src.utils import get_model, delete_row, update_row, add_row, create_sidebar, get_dict_info, save_file, \
+    create_file
+from src.expimp.ImportUtils import import_single_table, import_custom_data
 
 api_version = '/api/v0.1'
 
@@ -97,7 +99,10 @@ def file_import(collection):
     if model is None:
         abort(404)
     if request.method == 'POST':
-        res = save_file(model, request.files)
+        path = save_file(request.files)
+        if path is None:
+            abort(404)
+        res = import_single_table(model, path)
         if not res:
             abort(404)
     return jsonify('True')
@@ -106,8 +111,19 @@ def file_import(collection):
 @app.route(f'{api_version}/export/<string:collection>', methods=['GET'])
 @cross_origin()
 def file_export(collection):
-    path = collection
+    path = create_file(collection)
     try:
         return send_file(path, as_attachment=True)
     except FileNotFoundError:
         abort(404)
+
+
+@app.route(f'{api_version}/import', methods=['POST'])
+@cross_origin()
+def file_custom_import():
+    if request.method == 'POST':
+        path = save_file(request.files)
+        if path is None:
+            abort(404)
+        res = import_custom_data(path)
+    return jsonify('True')

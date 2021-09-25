@@ -1,8 +1,10 @@
 from openpyxl import load_workbook
 
+from src.utils import get_file_name
 
-def import_single_row(model, file_name):
-    wb = load_workbook(file_name)
+
+def import_single_table(model, file_path):
+    wb = load_workbook(file_path)
     sheet = wb.active
     fields = {}
     data = []
@@ -19,3 +21,19 @@ def import_single_row(model, file_name):
             data.append(value)
     model.insert(data).execute()
     return True
+
+
+def import_custom_data(file_path):
+    file_name = get_file_name(file_path)
+    if file_name.lower() == 'Материалы'.lower():
+        import_material_table(file_path)
+        return True
+    return False
+
+
+def import_material_table(file_path):
+    wb = load_workbook(file_path)
+    sheet = wb.active
+    for row in sheet:
+        for cell in row:
+            print(cell)

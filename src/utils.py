@@ -9,7 +9,6 @@ from werkzeug.utils import secure_filename
 
 from app import db, app
 from src.Cache import Cache
-from src.expimp.ImportUtils import import_single_row
 
 cache = Cache()
 
@@ -183,23 +182,39 @@ def create_table_with_backref(model):
         create_table_with_backref(backref_table)
 
 
-def allowed_file(filename, extensions):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config[extensions]
-
-
-def save_file(model, files):
-    if 'file' not in files:
-        return False
-    file = files['file']
-    if file.filename == '':
-        return False
-    if file and allowed_file(file.filename, 'EXCEL_EXTENSIONS'):
-        filename = secure_filename(file.filename)
-        path = get_path(filename)
-        file.save(path)
-        res = import_single_row(model, path)
-        return res
+def allowed_file(file_ext, extensions):
+    return '.' in file_ext and file_ext in app.config[extensions]
 
 
 def get_path(filename):
     return safe_join(app.config['UPLOAD_FOLDER'], filename)
+
+
+def get_file_name(path):
+    f_name, _ = os.path.splitext(os.path.basename(path))
+    return f_name
+
+
+def get_file_ext(path):
+    _, f_ext = os.path.splitext(os.path.basename(path))
+    return f_ext
+
+
+def save_file(files):
+    if 'file' not in files:
+        return None
+    file = files['file']
+    if file.filename == '':
+        return None
+    if file and allowed_file(get_file_ext(file.filename), 'EXCEL_EXTENSIONS'):
+        filename = secure_filename(file.filename)
+        path = get_path(filename)
+        file.save(path)
+        return path
+    return None
+
+
+def create_file(collection):
+    path = collection
+    return path
+

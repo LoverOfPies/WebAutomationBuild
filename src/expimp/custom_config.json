@@ -1,0 +1,12 @@
+{
+  "Материалы": [
+    "base_unit",
+    "prop",
+    "unit",
+    "provider",
+    "material",
+    "work",
+    "equipment",
+    "project"
+  ]
+}
