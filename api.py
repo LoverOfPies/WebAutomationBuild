@@ -3,7 +3,7 @@ from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
 from app import app
-from src.db.utils import get_model, delete_row, update_row, add_row, create_sidebar
+from src.db.utils import get_model, delete_row, update_row, add_row, create_sidebar, get_dict_info
 
 api_version = '/api/v0.1'
 
@@ -58,3 +58,10 @@ def delete_value(collection, id_row):
 def get_sidebar():
     sidebar = create_sidebar()
     return jsonify(sidebar)
+
+
+@app.route(f'{api_version}/get_dict/<string:collection>', methods=['GET'])
+@cross_origin()
+def get_dict(collection):
+    data = get_dict_info(collection)
+    return jsonify(data)

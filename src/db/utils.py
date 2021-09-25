@@ -2,6 +2,8 @@ import configparser
 import json
 import ast
 
+from peewee import ForeignKeyField, DoubleField, IntegerField
+
 from app import db
 from src.Cache import Cache
 
@@ -74,6 +76,45 @@ def create_sidebar():
     for table_name in cache.get_sidebar_fields():
         table_info = cache.get_table_info(table_name).get()
         data.append({"title": table_info.title, "icon": table_info.icon, "name": table_info.name})
+    return data
+
+
+def get_dict_info(collection):
+    table_info = cache.get_table_info(collection).get()
+    data = {"title": table_info.title}
+
+    fields = []
+    model = get_model(collection)
+    for field_name in model._meta.fields:
+        if field_name == 'id' or field_name == 'uuid':
+            continue
+        value = getattr(model, field_name)
+        field_info = {"key": field_name, "label": value.verbose_name}
+        if field_name == 'name':
+            field_info["sortable"] = True
+        if isinstance(value, ForeignKeyField):
+            field_info["type"] = "selectable"
+        if isinstance(value, DoubleField):
+            field_info["type"] = "float"
+        if isinstance(value, IntegerField):
+            field_info["type"] = "integer"
+        fields.append(field_info)
+    data["fields"] = fields
+
+    filters = []
+    filter_info_model = cache.get_filter_info_model()
+    filters_info = filter_info_model.select().where(filter_info_model.table == table_info)
+    for filter_info in filters_info:
+        filters.append({"key": filter_info.key, "label": filter_info.label, "multiple": filter_info.multiple})
+    data["filters"] = filters
+
+    actions = []
+    action_info_model = cache.get_action_info_model()
+    actions_info = action_info_model.select().where(action_info_model.table == table_info)
+    for action_info in actions_info:
+        actions.append({"action": action_info.action, "label": action_info.label, "to": action_info.to})
+    data["actions"] = actions
+
     return data
 
 
