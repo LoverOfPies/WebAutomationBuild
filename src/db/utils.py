@@ -12,7 +12,7 @@ def get_model(name):
 
 
 def add_row(collection, data):
-    model = cache.get_model_by_name(collection)
+    model = get_model(collection)
     if model is None:
         return False
     decoded_data = json.loads(data)
@@ -22,7 +22,7 @@ def add_row(collection, data):
 
 
 def delete_row(collection, id_row):
-    model = cache.get_model_by_name(collection)
+    model = get_model(collection)
     if model is None:
         return False
     row = model.get_or_none(id=id_row)
@@ -41,7 +41,7 @@ def delete_row(collection, id_row):
 
 
 def update_row(collection, id_row, data):
-    model = cache.get_model_by_name(collection)
+    model = get_model(collection)
     if model is None:
         return False
     row = model.get_or_none(id=id_row)
@@ -71,7 +71,7 @@ def check_data(data, model):
 def create_sidebar():
     data = []
     for table_name in cache.get_sidebar_fields():
-        table_info = cache.get_table_info(table_name)
+        table_info = cache.get_table_info(table_name).get()
         data.append({"title": table_info.title, "icon": table_info.icon, "name": table_info.name})
     return data
 
@@ -79,22 +79,45 @@ def create_sidebar():
 def init_base():
     config = configparser.ConfigParser()
     config.read('first.ini')
-    if not config['BASE']['FIRST_INIT']:
+    if config['BASE']['first_init'] == 'False':
         return
-    config['BASE']['FIRST_INIT'] = 'False'
+    config['BASE']['first_init'] = 'False'
     with open('first.ini', 'w') as configfile:
         config.write(configfile)
     table_info_model = cache.get_table_info_model()
     table_info_model.create_table()
+    filter_info_model = cache.get_filter_info_model()
+    filter_info_model.create_table()
+    action_info_model = cache.get_action_info_model()
+    action_info_model.create_table()
     with open('table_info.json', 'r', encoding='utf-8') as f:
-        data = json.load(f)['models_info']
-        for value in data:
-            with db.database.atomic() as transaction:  # Opens new transaction.
-                try:
-                    table_info_model.insert(value).execute()
-                except:
-                    transaction.rollback()
-                    continue
+        encode_json = json.load(f)
+    data_models_data = encode_json['models_info']
+    for value in data_models_data:
+        with db.database.atomic() as transaction:  # Opens new transaction.
+            try:
+                table_info_model.insert(value).execute()
+                transaction.commit()
+            except:
+                transaction.rollback()
+    data_filter_data = encode_json['filters_info']
+    for value in data_filter_data:
+        value["table"] = table_info_model.select().where(table_info_model.name == value["table"]).get()
+        with db.database.atomic() as transaction:  # Opens new transaction.
+            try:
+                filter_info_model.insert(value).execute()
+                transaction.commit()
+            except:
+                transaction.rollback()
+    data_action_data = encode_json['actions_info']
+    for value in data_action_data:
+        value["table"] = table_info_model.select().where(table_info_model.name == value["table"]).get()
+        with db.database.atomic() as transaction:  # Opens new transaction.
+            try:
+                action_info_model.insert(value).execute()
+                transaction.commit()
+            except:
+                transaction.rollback()
     table_info_all = (table_info_model.select())
     for table_info in table_info_all:
         table_model = get_model(table_info.name)

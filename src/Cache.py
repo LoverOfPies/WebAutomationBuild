@@ -12,6 +12,8 @@ def load_class(s):
 class Cache(object):
 
     _table_info_model = None
+    _filter_info_model = None
+    _action_info_model = None
     _sidebar_fields = None
 
     def __new__(cls):
@@ -26,6 +28,16 @@ class Cache(object):
 
     def get_table_info(self, name):
         return self.get_table_info_model().select().where(self.get_table_info_model().name == name)
+
+    def get_filter_info_model(self):
+        if not self._filter_info_model:
+            self._filter_info_model = load_class("src.db.models.info.FilterInfo.FilterInfo")
+        return self._filter_info_model
+
+    def get_action_info_model(self):
+        if not self._action_info_model:
+            self._action_info_model = load_class("src.db.models.info.ActionInfo.ActionInfo")
+        return self._action_info_model
 
     def get_sidebar_fields(self):
         if not self._sidebar_fields:

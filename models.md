@@ -4,7 +4,7 @@
 ```
 method: get
 
-/:collection
+/get/:collection
 ```
 ## add data
 ```
@@ -64,42 +64,32 @@ method: get
 
 # /info/route-name.json
 Пример выдачи информации о разделе справочника по его `name`.
+```
+method: get
 
-`mode` определяет вид таблицы
-
-`simple` -- обычная таблица
-
-`extended` -- таблица с настраиваемыми полями и фильтрами
-
-Возможно есть смысл разделить фильтры? Я их еще не имплементировал. Но скорее всего обработка будет на серве, мозги уже есть. Так что нужно придумать как правильно посылать запросы на бэк :)
-
-```json
-[
-    {
-        "title": "String",
-        "mode": "simple"
-    },
-    ...
-]
+/get_dict/<string:collection>
 ```
 
 ```json
 [
   {
-    "title": "String",
-    "mode": "extended",
+    "title": "TableInfo - title",
     "fields": [
-      { "key": "String (Table Row Key)", "label": "String", "sortable": false },
-      { "key": "city", "label": "String", "sortable": true },
-      { "key": "products", "label": "String" },
-      { "key": "actions", "label": "String" }
+      { "key": "String (Table Column Key)", "label": "String", "sortable": false },
+      { "key": "name", "label": "String", "sortable": true },
+      { "key": "products", "label": "String" }
     ],
     "filters": [
       {
         "key": "String (route name)",
         "label": "String",
         "multiple": "String во множественном числе"
-      }
+      },
+      {
+        "key": "city",
+        "label": "Город",
+        "multiple": "Города"
+      },
     ],
     "actions": [
       {
