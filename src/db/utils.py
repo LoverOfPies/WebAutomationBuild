@@ -4,6 +4,7 @@ import ast
 import os
 
 from peewee import ForeignKeyField, DoubleField, IntegerField
+from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
 
 from app import db, app
@@ -108,7 +109,8 @@ def get_dict_info(collection):
 
     filters = []
     filter_info_model = cache.get_filter_info_model()
-    filters_info = filter_info_model.select().where(filter_info_model.table == table_info)
+    filters_info = filter_info_model.select().where(filter_info_model.table == table_info)\
+        .order_by(filter_info_model.id.asc())
     for filter_info in filters_info:
         filters.append({"key": filter_info.key, "label": filter_info.label, "multiple": filter_info.multiple})
     data["filters"] = filters
@@ -193,7 +195,11 @@ def save_file(model, files):
         return False
     if file and allowed_file(file.filename, 'EXCEL_EXTENSIONS'):
         filename = secure_filename(file.filename)
-        path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        path = get_path(filename)
         file.save(path)
         res = import_single_row(model, path)
         return res
+
+
+def get_path(filename):
+    return safe_join(app.config['UPLOAD_FOLDER'], filename)

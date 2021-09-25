@@ -1,4 +1,4 @@
-from flask import jsonify, make_response, request, send_from_directory
+from flask import jsonify, make_response, request, send_from_directory, send_file
 from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
@@ -101,3 +101,13 @@ def file_import(collection):
         if not res:
             abort(404)
     return jsonify('True')
+
+
+@app.route(f'{api_version}/export/<string:collection>', methods=['GET'])
+@cross_origin()
+def file_export(collection):
+    path = collection
+    try:
+        return send_file(path, as_attachment=True)
+    except FileNotFoundError:
+        abort(404)
