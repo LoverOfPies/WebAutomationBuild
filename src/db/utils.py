@@ -4,6 +4,7 @@ import ast
 import os
 
 from peewee import ForeignKeyField, DoubleField, IntegerField
+from werkzeug.utils import secure_filename
 
 from app import db, app
 from src.Cache import Cache
@@ -191,6 +192,8 @@ def save_file(model, files):
     if file.filename == '':
         return False
     if file and allowed_file(file.filename, 'EXCEL_EXTENSIONS'):
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
-        res = import_single_row(model, file.filename)
+        filename = secure_filename(file.filename)
+        path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(path)
+        res = import_single_row(model, path)
         return res
