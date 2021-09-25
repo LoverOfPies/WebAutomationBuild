@@ -24,7 +24,13 @@ def add_row(collection, data):
     decoded_data = ast.literal_eval(str(data))
     if not check_data(decoded_data, model):
         return None
-    new_id = model.insert(decoded_data).execute()
+    with db.database.atomic() as transaction:
+        try:
+            new_id = model.insert(decoded_data).execute()
+            transaction.commit()
+        except:
+            transaction.rollback()
+            return None
     res = model.select().where(model.id == new_id)
     return res
 
@@ -76,6 +82,22 @@ def check_data(data, model):
     return True
 
 
+def get_condition(model, values):
+    filters = []
+    for value in values:
+        if hasattr(model, value):
+            filter_field = getattr(model, value)
+            filter_value = values[value]
+            filters.append(filter_field == filter_value)
+    condition = None
+    for i in range(len(values)):
+        if i == 0:
+            condition = filters[i]
+            continue
+        condition = condition & filters[i]
+    return condition
+
+
 def create_sidebar():
     data = []
     for table_name in cache.get_sidebar_fields():
@@ -91,7 +113,7 @@ def get_dict_info(collection):
     fields = []
     model = get_model(collection)
     for field_name in model._meta.fields:
-        if field_name == 'id' or field_name == 'uuid':
+        if field_name == 'id' or field_name == 'uuid' or field_name == 'version_number':
             continue
         value = getattr(model, field_name)
         field_info = {"key": field_name, "label": value.verbose_name}

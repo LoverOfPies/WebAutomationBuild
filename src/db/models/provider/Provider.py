@@ -6,7 +6,7 @@ from src.db.models.provider.City import City
 
 # Поставщик
 class Provider(db.Model):
-    name = CharField(unique=True, verbose_name='Наименование')
+    name = CharField(verbose_name='Наименование')
     city = ForeignKeyField(City, backref='providers', verbose_name='Город')
 
     class Meta:
