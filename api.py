@@ -76,6 +76,13 @@ def delete_value(collection, id_row):
     return abort(404)
 
 
+@app.route(f'{api_version}/get_dict/<string:collection>', methods=['GET'])
+@cross_origin()
+def get_dict(collection):
+    data = get_dict_info(collection)
+    return jsonify(data)
+
+
 @app.route(f'{api_version}/sidebar', methods=['GET'])
 @cross_origin()
 def get_sidebar():
