@@ -26,6 +26,9 @@ def get_data(collection):
     model = get_model(collection)
     if model is None:
         abort(404)
+    if request.args["advanced_filter"]:
+        # передаётся только верхушка
+        pass
     condition = get_condition(model, request.args)
     if condition:
         data = [row for row in model.select().where(condition).dicts()]

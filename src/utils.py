@@ -109,10 +109,8 @@ def create_sidebar():
 def get_dicts_info():
     all_table_info = cache.get_table_info_model().select()
     data = []
-    value = {}
     for table_info in all_table_info:
-        value["name"] = table_info.name
-        value["title"] = table_info.title
+        value = {"name": table_info.name, "title": table_info.title}
         data.append(value)
     return data
 
@@ -124,7 +122,7 @@ def get_dict_info(collection):
     fields = []
     model = get_model(collection)
     for field_name in model._meta.fields:
-        if field_name == 'id' or field_name == 'uuid' or field_name == 'version_number':
+        if field_name in ('id', 'uuid', 'version_number'):
             continue
         value = getattr(model, field_name)
         field_info = {"key": field_name, "label": value.verbose_name}
