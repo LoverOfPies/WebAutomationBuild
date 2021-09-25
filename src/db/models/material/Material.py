@@ -9,7 +9,7 @@ from src.db.models.base.Unit import Unit
 
 # Материал
 class Material(db.Model, ClsIdExtender):
-    name = CharField(unique=True, verbose_name='Наименование')
+    name = CharField(verbose_name='Наименование')
     articul = CharField(verbose_name='Артикул')
     unit = ForeignKeyField(Unit, backref='materials', verbose_name='Единицы измерения')
     material_subgroup = ForeignKeyField(MaterialSubgroup, backref='materials', verbose_name='Подгруппа')

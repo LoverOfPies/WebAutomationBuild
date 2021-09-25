@@ -4,7 +4,7 @@ from werkzeug.exceptions import abort
 
 from app import app
 from src.utils import get_model, delete_row, update_row, add_row, create_sidebar, get_dict_info, save_file, \
-    create_file
+    create_file, get_condition
 from src.expimp.ImportUtils import import_single_table, import_custom_data
 
 api_version = '/api/v0.1'
@@ -26,21 +26,7 @@ def get_data(collection):
     model = get_model(collection)
     if model is None:
         abort(404)
-    filters = []
-    if request.args:
-        for arg in request.args:
-            if hasattr(model, arg):
-                filter_field = getattr(model, arg)
-                filter_value = request.args[arg]
-                filters.append(filter_field == filter_value)
-            else:
-                abort(404)
-    condition = None
-    for i in range(len(filters)):
-        if i == 0:
-            condition = filters[i]
-            continue
-        condition = condition & filters[i]
+    condition = get_condition(model, request.args)
     if condition:
         data = [row for row in model.select().where(condition).dicts()]
     else:
@@ -126,4 +112,6 @@ def file_custom_import():
         if path is None:
             abort(404)
         res = import_custom_data(path)
-    return jsonify('True')
+        if res:
+            return jsonify('True')
+    abort(404)
