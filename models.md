@@ -118,58 +118,13 @@ method: get
 
 ```
 
-# /data/base-units.json
-Пример выдачи списка базовых единиц
+# /import
+```
+method: post
 
-```json
-[
-    {
-        "id": "Int",
-        "name": "String"
-    },
-    ...
-]
+/import/<string:collection>
 ```
 
-# /data/city.json example
-Пример выдачи списка городов
-
-```json
-[
-    {
-        "id": "Int",
-        "name": "String"
-    },
-    ...
-]
 ```
-
-# /data/providers.json
-Пример выдачи списка поставщиков 
-
-```json
-[
-    {
-        "id": "Int",
-        "name": "String",
-        "city": "String",
-        ...
-    }
-]
+request.file
 ```
-
-# /providers/:id/products
-```json
-[
-  {
-    "price": "Int",
-    "amount": "Int",
-    "material": "String"
-  },
-  {
-    "price": "Int",
-    "amount": "Int",
-    "material": "String"
-  },
-  ...
-]

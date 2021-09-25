@@ -3,7 +3,7 @@ from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
 from app import app
-from src.db.utils import get_model, delete_row, update_row, add_row, create_sidebar, get_dict_info
+from src.db.utils import get_model, delete_row, update_row, add_row, create_sidebar, get_dict_info, save_file
 
 api_version = '/api/v0.1'
 
@@ -83,8 +83,14 @@ def get_sidebar():
     return jsonify(sidebar)
 
 
-@app.route(f'{api_version}/get_dict/<string:collection>', methods=['GET'])
+@app.route(f'{api_version}/import/<string:collection>', methods=['POST'])
 @cross_origin()
-def get_dict(collection):
-    data = get_dict_info(collection)
-    return jsonify(data)
+def file_import(collection):
+    model = get_model(collection)
+    if model is None:
+        abort(404)
+    if request.method == 'POST':
+        res = save_file(model, request.files)
+        if not res:
+            abort(404)
+    return jsonify('True')

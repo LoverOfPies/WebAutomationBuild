@@ -8,5 +8,6 @@
         "password": "masterkey",
         "user": "sysdba"
     },
-    "SECRET_KEY": "fdsf"
+    "UPLOAD_FOLDER": "/expimp",
+    "EXCEL_EXTENSIONS": ["csv", "xls", "xlsx"]
 }

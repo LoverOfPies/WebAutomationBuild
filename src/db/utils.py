@@ -1,11 +1,13 @@
 import configparser
 import json
 import ast
+import os
 
 from peewee import ForeignKeyField, DoubleField, IntegerField
 
-from app import db
+from app import db, app
 from src.Cache import Cache
+from src.expimp.ImportUtils import import_single_row
 
 cache = Cache()
 
@@ -176,3 +178,19 @@ def create_table_with_backref(model):
     model.create_table()
     for backref_table in backref_tables:
         create_table_with_backref(backref_table)
+
+
+def allowed_file(filename, extensions):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config[extensions]
+
+
+def save_file(model, files):
+    if 'file' not in files:
+        return False
+    file = files['file']
+    if file.filename == '':
+        return False
+    if file and allowed_file(file.filename, 'EXCEL_EXTENSIONS'):
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
+        res = import_single_row(model, file.filename)
+        return res
