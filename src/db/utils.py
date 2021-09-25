@@ -17,11 +17,13 @@ def get_model(name):
 def add_row(collection, data):
     model = get_model(collection)
     if model is None:
-        return False
+        return None
     decoded_data = ast.literal_eval(str(data))
-    if check_data(decoded_data, model):
-        model.insert(decoded_data).execute()
-    return True
+    if not check_data(decoded_data, model):
+        return None
+    new_id = model.insert(decoded_data).execute()
+    res = model.select().where(model.id == new_id)
+    return res
 
 
 def delete_row(collection, id_row):

@@ -12,6 +12,7 @@ method: post
 
 /:collection
 ```
+### get
 ```json
 {
   "field1": "String (field1 value)",
@@ -19,6 +20,17 @@ method: post
   "field3": "String (value)",
   ...
 }
+```
+### return
+```
+json
+[{
+  "id": "String (id)",
+  "field1": "String (field2 value)",
+  "field2": "String (field2 value)",
+  "uuid": "String (uuid)",
+  ...
+}]
 ```
 ## set data
 ```
