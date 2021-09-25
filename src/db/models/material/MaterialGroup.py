@@ -1,11 +1,12 @@
 from peewee import CharField, ForeignKeyField
 
 from app import db
+from src.db.models.extender.ClsIdExtender import ClsIdExtender
 from src.db.models.material.MaterialCategory import MaterialCategory
 
 
 # Группа
-class MaterialGroup(db.Model):
+class MaterialGroup(db.Model, ClsIdExtender):
     name = CharField(unique=True, verbose_name='Наименование')
     material_category = ForeignKeyField(MaterialCategory, backref='material_groups', verbose_name='Категория материала')
 

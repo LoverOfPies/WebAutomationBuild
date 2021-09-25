@@ -1,10 +1,11 @@
 from peewee import CharField
 
 from app import db
+from src.db.models.extender.ClsIdExtender import ClsIdExtender
 
 
 # Категория
-class MaterialCategory(db.Model):
+class MaterialCategory(db.Model, ClsIdExtender):
     name = CharField(unique=True, verbose_name='Наименование')
 
     class Meta:
