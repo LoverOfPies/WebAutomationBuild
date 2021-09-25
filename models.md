@@ -71,13 +71,13 @@ method: get
 ```
 
 ```json
-[
+
   {
     "title": "TableInfo - title",
     "fields": [
       { "key": "String (Table Column Key)", "label": "String", "sortable": false },
       { "key": "name", "label": "String", "sortable": true },
-      { "key": "products", "label": "String" }
+      { "key": "product", "label": "String", "type": "selectable"}
     ],
     "filters": [
       {
@@ -102,9 +102,8 @@ method: get
         "action": "delete"
       }
     ]
-  },
-  ...
-]
+  }
+
 ```
 
 # /data/base-units.json
