@@ -24,11 +24,30 @@ def get_data(collection):
     model = get_model(collection)
     if model is None:
         abort(404)
-    data = [row for row in model.select().dicts()]
+    filters = []
+    if request.args:
+        for arg in request.args:
+            if hasattr(model, arg):
+                filter_field = getattr(model, arg)
+                filter_value = request.args[arg]
+                filters.append(filter_field == filter_value)
+            else:
+                abort(404)
+    condition = None
+    for i in range(len(filters)):
+        if i == 0:
+            condition = filters[i]
+            continue
+        condition = condition & filters[i]
+    if condition:
+        data = [row for row in model.select().where(condition).dicts()]
+    else:
+        data = [row for row in model.select().dicts()]
     return jsonify(data)
 
 
 @app.route(f'{api_version}/add/<string:collection>', methods=['POST'])
+@cross_origin()
 def add_value(collection):
     result = add_row(collection, request.json)
     if result:
@@ -37,6 +56,7 @@ def add_value(collection):
 
 
 @app.route(f'{api_version}/update/<string:collection>/<int:id_row>', methods=['PUT'])
+@cross_origin()
 def edit_value(collection, id_row):
     if not request.json:
         abort(400)
@@ -47,6 +67,7 @@ def edit_value(collection, id_row):
 
 
 @app.route(f'{api_version}/delete/<string:collection>/<int:id_row>', methods=['DELETE'])
+@cross_origin()
 def delete_value(collection, id_row):
     result = delete_row(collection, id_row)
     if result:
@@ -55,6 +76,7 @@ def delete_value(collection, id_row):
 
 
 @app.route(f'{api_version}/sidebar', methods=['GET'])
+@cross_origin()
 def get_sidebar():
     sidebar = create_sidebar()
     return jsonify(sidebar)
