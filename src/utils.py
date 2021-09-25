@@ -106,6 +106,17 @@ def create_sidebar():
     return data
 
 
+def get_dicts_info():
+    all_table_info = cache.get_table_info_model().select()
+    data = []
+    value = {}
+    for table_info in all_table_info:
+        value["name"] = table_info.name
+        value["title"] = table_info.title
+        data.append(value)
+    return data
+
+
 def get_dict_info(collection):
     table_info = cache.get_table_info(collection).get()
     data = {"title": table_info.title}

@@ -4,7 +4,7 @@ from werkzeug.exceptions import abort
 
 from app import app
 from src.utils import get_model, delete_row, update_row, add_row, create_sidebar, get_dict_info, save_file, \
-    create_file, get_condition
+    create_file, get_condition, get_dicts_info
 from src.expimp.ImportUtils import import_single_table, import_custom_data
 
 api_version = '/api/v0.1'
@@ -68,6 +68,13 @@ def delete_value(collection, id_row):
 @cross_origin()
 def get_dict(collection):
     data = get_dict_info(collection)
+    return jsonify(data)
+
+
+@app.route(f'{api_version}/get_dict', methods=['GET'])
+@cross_origin()
+def get_dicts():
+    data = get_dicts_info()
     return jsonify(data)
 
 
