@@ -51,7 +51,8 @@ def get_data(collection):
 def add_value(collection):
     result = add_row(collection, request.json)
     if result:
-        return jsonify('True')
+        data = [row for row in result.dicts()]
+        return jsonify(data)
     return abort(404)
 
 
