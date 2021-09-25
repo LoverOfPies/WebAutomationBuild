@@ -1,5 +1,6 @@
 import configparser
 import json
+import ast
 
 from app import db
 from src.Cache import Cache
@@ -15,7 +16,7 @@ def add_row(collection, data):
     model = cache.get_model_by_name(collection)
     if model is None:
         return False
-    decoded_data = json.loads(data)
+    decoded_data = ast.literal_eval(str(data))
     if check_data(decoded_data, model):
         model.insert(decoded_data).execute()
     return True
