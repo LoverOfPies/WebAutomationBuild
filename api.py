@@ -4,7 +4,7 @@ from werkzeug.exceptions import abort
 
 from app import app
 from src.utils import get_model, delete_row, update_row, add_row, create_sidebar, get_dict_info, save_file, \
-    create_file, get_condition, get_dicts_info
+    create_file, get_condition, get_dicts_info, get_filter_data
 from src.expimp.ImportUtils import import_single_table, import_custom_data
 
 api_version = '/api/v0.1'
@@ -26,9 +26,10 @@ def get_data(collection):
     model = get_model(collection)
     if model is None:
         abort(404)
-    if request.args["advanced_filter"]:
-        # передаётся только верхушка
-        pass
+    if request.args:
+        if "mode" in request.args.keys():
+            data = get_filter_data(model, request.args)
+            return jsonify(data)
     condition = get_condition(model, request.args)
     if condition:
         data = [row for row in model.select().where(condition).dicts()]

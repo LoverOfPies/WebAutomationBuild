@@ -98,6 +98,39 @@ def get_condition(model, values):
     return condition
 
 
+def get_filter_data(model, values):
+    keys = list(values.keys())
+    if "mode" in keys:
+        keys.remove("mode")
+    for i in (range(len(keys))):
+        if i + 1 == len(keys):
+            inner_model_name = keys[i]
+            data = [res for res in model.select().where(getattr(model, inner_model_name) == values[inner_model_name]).dicts()]
+            return data
+        if values[keys[i + 1]] == "":
+            inner_model_name = keys[i + 1]
+            inner_model = get_model(inner_model_name)
+            inner_ids = [id for id in inner_model.select(getattr(inner_model, "id")).where(getattr(inner_model, keys[i]) == values[keys[i]])]
+            data = recursive_test(inner_model_name, keys[i+1:], inner_ids, model)
+            return data
+
+
+def recursive_test(model_name, keys, obj_ids, parent_model):
+    data = []
+    for i in (range(len(keys))):
+        if i + 1 == len(keys):
+            for obj_id in obj_ids:
+                data = data + [res for res in parent_model.select().where(getattr(parent_model, model_name) == obj_id).dicts()]
+            return data
+        inner_model_name = keys[i + 1]
+        inner_model = get_model(inner_model_name)
+        inner_ids = []
+        for obj_id in obj_ids:
+            inner_ids = inner_ids + [res for res in inner_model.select(getattr(inner_model, "id")).where(getattr(inner_model, keys[i]) == obj_id)]
+        data = recursive_test(inner_model_name, keys[i+1:], inner_ids, parent_model)
+        return data
+
+
 def create_sidebar():
     data = []
     for table_name in cache.get_sidebar_fields():
