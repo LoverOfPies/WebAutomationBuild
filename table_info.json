@@ -25,44 +25,14 @@
       "title": "Материалы"
     },
     {
-      "name": "material_category",
-      "path": "src.db.models.material.MaterialCategory.MaterialCategory",
+      "name": "base_size",
+      "path": "src.db.models.project.BaseSize.BaseSize",
       "icon": "box",
-      "title": "Категории материалов"
-    },
-    {
-      "name": "material_group",
-      "path": "src.db.models.material.MaterialGroup.MaterialGroup",
-      "icon": "box",
-      "title": "Группы материалов"
-    },
-    {
-      "name": "material_subgroup",
-      "path": "src.db.models.material.MaterialSubgroup.MaterialSubgroup",
-      "icon": "box",
-      "title": "Подгруппы материалов"
-    },
-    {
-      "name": "material_property",
-      "path": "src.db.models.material.MaterialProperty.MaterialProperty",
-      "icon": "box",
-      "title": "Свойства материалов"
-    },
-    {
-      "name": "base_volume",
-      "path": "src.db.models.project.BaseVolume.BaseVolume",
-      "icon": "box",
-      "title": "Базовый объём"
-    },
-    {
-      "name": "equipment",
-      "path": "src.db.models.project.Equipment.Equipment",
-      "icon": "wrench",
-      "title": "Комплектации"
+      "title": "Базовый размер"
     },
     {
       "name": "estimate",
-      "path": "src.db.models.project.Estimate.Estimate",
+      "path": "src.db.models.estimate.Estimate.Estimate",
       "icon": "box",
       "title": "Расчёты"
     },
@@ -73,22 +43,10 @@
       "title": "Проекты"
     },
     {
-      "name": "city",
-      "path": "src.db.models.provider.City.City",
-      "icon": "box",
-      "title": "Города"
-    },
-    {
       "name": "product",
       "path": "src.db.models.provider.Product.Product",
-      "icon": "box",
+      "icon": "basket3",
       "title": "Товары"
-    },
-    {
-      "name": "provider",
-      "path": "src.db.models.provider.Provider.Provider",
-      "icon": "truck",
-      "title": "Поставщики"
     },
     {
       "name": "work",
@@ -123,61 +81,19 @@
   ],
   "filters_info": [
     {
-      "key": "city",
-      "label": "Город",
-      "multiple": "Города",
-      "table": "provider"
-    },
-    {
       "key": "work_stage",
       "label": "Стадия работ",
       "multiple": "Стадии работ",
-      "table": "work"
-    },
-    {
-      "key": "work_technology",
-      "label": "Технология работ",
-      "multiple": "Технологии работ",
-      "table": "work"
+      "table": "work_technology"
     },
     {
       "key": "work_group",
       "label": "Группа работ",
       "multiple": "Группы работ",
       "table": "work"
-    },
-    {
-      "key": "material_category",
-      "label": "Категория материалов",
-      "multiple": "Категории материалов",
-      "table": "material"
-    },
-    {
-      "key": "material_group",
-      "label": "Группа материалов",
-      "multiple": "Группы материалов",
-      "table": "material"
-    },
-    {
-      "key": "material_subgroup",
-      "label": "Подгруппа материалов",
-      "multiple": "Подгруппы материалов",
-      "table": "material"
     }
   ],
   "actions_info": [
-    {
-      "label": "Товары",
-      "action": "route",
-      "to": "product",
-      "table": "provider"
-    },
-    {
-      "label": "Свойства материалов",
-      "action": "route",
-      "to": "material_property",
-      "table": "material"
-    },
     {
       "label": "Материалы для работы",
       "action": "route",
@@ -186,13 +102,13 @@
     }
   ],
   "sidebar_fields": [
-    "base_unit",
     "prop",
     "unit",
-    "provider",
     "material",
+    "product",
     "work",
-    "equipment",
+    "work_technology",
+    "base_unit",
     "project"
   ]
 }

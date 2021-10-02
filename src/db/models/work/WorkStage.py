@@ -3,7 +3,7 @@ from peewee import CharField
 from app import db
 
 
-# Этап работ
+# Стадии работ
 class WorkStage(db.Model):
     name = CharField(unique=True, verbose_name='Наименование')
 

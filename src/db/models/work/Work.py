@@ -1,4 +1,4 @@
-from peewee import CharField, ForeignKeyField, DoubleField
+from peewee import CharField, ForeignKeyField, DoubleField, BooleanField
 
 from app import db
 from src.db.models.base.BaseUnit import BaseUnit
@@ -11,6 +11,7 @@ class Work(db.Model):
     work_coefficient = DoubleField(default=0, verbose_name='Коэффициэнт')
     client_price = DoubleField(default=0, verbose_name='Тариф клиента')
     work_price = DoubleField(default=0, verbose_name='Тариф себестоимости')
+    work_base = BooleanField(verbose_name='Базовая работа')
     base_unit = ForeignKeyField(BaseUnit, backref='works', verbose_name='Базовая единица')
     work_group = ForeignKeyField(WorkGroup, backref='works', verbose_name='Группа работ')
 
