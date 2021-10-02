@@ -7,8 +7,8 @@ from src.db.models.work.WorkGroup import WorkGroup
 
 # ManyToMany Группы работ для данной технологии
 class WorkGroupWorkTechnology(db.Model):
-    work_group = ForeignKeyField(WorkGroup, backref='work_groups')
-    work_technology = ForeignKeyField(WorkTechnology, backref='work_technologies')
+    work_group = ForeignKeyField(WorkGroup, backref='work_groups', verbose_name='Группа работ')
+    work_technology = ForeignKeyField(WorkTechnology, backref='work_technologies', verbose_name='Технология')
 
     class Meta:
         db_table = "ab_technology_group"

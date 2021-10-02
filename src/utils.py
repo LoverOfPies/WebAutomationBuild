@@ -1,13 +1,10 @@
 import configparser
 import json
 import ast
-import os
 
 from peewee import ForeignKeyField, DoubleField, IntegerField, BooleanField, DateField
-from werkzeug.security import safe_join
-from werkzeug.utils import secure_filename
 
-from app import db, app
+from app import db
 from src.Cache import Cache
 
 cache = Cache()
@@ -17,6 +14,49 @@ def get_model(name):
     return cache.get_model_by_name(name)
 
 
+def get_or_insert(model, values):
+    condition = get_condition(model, values)
+    meth = "error"
+    if condition is None:
+        return None, meth
+    try:
+        obj = model.get(condition)
+        meth = "get"
+    except model.DoesNotExist:
+        with db.database.atomic() as transaction:
+            try:
+                obj = model.insert(values).execute()
+                transaction.commit()
+                meth = "insert"
+            except:
+                transaction.rollback()
+                return None, meth
+    return obj, meth
+
+
+def check_data(data, model):
+    for field in data.keys():
+        if not hasattr(model, field):
+            return False
+    return True
+
+
+def get_condition(model, values):
+    filters = []
+    for value in values:
+        if hasattr(model, value):
+            filter_field = getattr(model, value)
+            filter_value = values[value]
+            filters.append(filter_field == filter_value)
+    condition = None
+    for i in range(len(values)):
+        if i == 0:
+            condition = filters[i]
+            continue
+        condition = condition & filters[i]
+    return condition
+
+
 def add_row(collection, data):
     model = get_model(collection)
     if model is None:
@@ -24,14 +64,10 @@ def add_row(collection, data):
     decoded_data = ast.literal_eval(str(data))
     if not check_data(decoded_data, model):
         return None
-    with db.database.atomic() as transaction:
-        try:
-            new_id = model.insert(decoded_data).execute()
-            transaction.commit()
-        except:
-            transaction.rollback()
-            return None
-    res = model.select().where(model.id == new_id)
+    obj, meth = get_or_insert(model, data)
+    if meth == "get":
+        return None
+    res = model.select().where(model.id == obj)
     return res
 
 
@@ -75,29 +111,6 @@ def update_row(collection, id_row, data):
     return True
 
 
-def check_data(data, model):
-    for field in data.keys():
-        if not hasattr(model, field):
-            return False
-    return True
-
-
-def get_condition(model, values):
-    filters = []
-    for value in values:
-        if hasattr(model, value):
-            filter_field = getattr(model, value)
-            filter_value = values[value]
-            filters.append(filter_field == filter_value)
-    condition = None
-    for i in range(len(values)):
-        if i == 0:
-            condition = filters[i]
-            continue
-        condition = condition & filters[i]
-    return condition
-
-
 def get_filter_data(model, values):
     keys = list(values.keys())
     if "mode" in keys:
@@ -111,11 +124,11 @@ def get_filter_data(model, values):
             inner_model_name = keys[i + 1]
             inner_model = get_model(inner_model_name)
             inner_ids = [id for id in inner_model.select(getattr(inner_model, "id")).where(getattr(inner_model, keys[i]) == values[keys[i]])]
-            data = recursive_test(inner_model_name, keys[i+1:], inner_ids, model)
+            data = recursive_filter(inner_model_name, keys[i+1:], inner_ids, model)
             return data
 
 
-def recursive_test(model_name, keys, obj_ids, parent_model):
+def recursive_filter(model_name, keys, obj_ids, parent_model):
     data = []
     for i in (range(len(keys))):
         if i + 1 == len(keys):
@@ -127,8 +140,32 @@ def recursive_test(model_name, keys, obj_ids, parent_model):
         inner_ids = []
         for obj_id in obj_ids:
             inner_ids = inner_ids + [res for res in inner_model.select(getattr(inner_model, "id")).where(getattr(inner_model, keys[i]) == obj_id)]
-        data = recursive_test(inner_model_name, keys[i+1:], inner_ids, parent_model)
+        data = recursive_filter(inner_model_name, keys[i+1:], inner_ids, parent_model)
         return data
+
+
+def get_many_data(model, values):
+    data = None
+    del values['mode']
+    child_name = values['child']
+    del values['child']
+    child_all_data = None
+    child_select_data = None
+    if hasattr(model, child_name):
+        child_model = getattr(model, child_name).rel_model
+        child_all_data = [row for row in child_model.select().dicts()]
+    condition = get_condition(model, values)
+    if condition:
+        child_select_data = [row for row in model.select().where(condition).dicts()]
+    if child_all_data:
+        data = []
+        for child_data in child_all_data:
+            if child_data in child_select_data:
+                child_data['checked'] = True
+            else:
+                child_data['checked'] = False
+            data.append(child_data)
+    return data
 
 
 def create_sidebar():
@@ -148,15 +185,24 @@ def get_dicts_info():
     return data
 
 
-def get_dict_info(collection):
+def get_dict_info(collection, params):
     table_info = cache.get_table_info(collection).get()
     data = {"title": table_info.title}
 
     fields = []
     model = get_model(collection)
+    if table_info.many_to_many:
+        data['mode'] = 'many_to_many'
     for field_name in model._meta.fields:
         if field_name in ('id', 'uuid', 'version_number'):
             continue
+        if table_info.many_to_many:
+            if params and 'parent' in params.keys():
+                if field_name != params['parent']:
+                    value = getattr(model, field_name)
+                    fields.append({"key": "name", "label": value.verbose_name})
+                    data['child'] = field_name
+                continue
         value = getattr(model, field_name)
         field_info = {"key": field_name, "label": value.verbose_name}
         if field_name == 'name':
@@ -210,30 +256,15 @@ def init_base():
         encode_json = json.load(f)
     data_models_data = encode_json['models_info']
     for value in data_models_data:
-        with db.database.atomic() as transaction:  # Opens new transaction.
-            try:
-                table_info_model.insert(value).execute()
-                transaction.commit()
-            except:
-                transaction.rollback()
+        get_or_insert(table_info_model, value)
     data_filter_data = encode_json['filters_info']
     for value in data_filter_data:
         value["table"] = table_info_model.select().where(table_info_model.name == value["table"]).get()
-        with db.database.atomic() as transaction:  # Opens new transaction.
-            try:
-                filter_info_model.insert(value).execute()
-                transaction.commit()
-            except:
-                transaction.rollback()
+        get_or_insert(filter_info_model, value)
     data_action_data = encode_json['actions_info']
     for value in data_action_data:
         value["table"] = table_info_model.select().where(table_info_model.name == value["table"]).get()
-        with db.database.atomic() as transaction:  # Opens new transaction.
-            try:
-                action_info_model.insert(value).execute()
-                transaction.commit()
-            except:
-                transaction.rollback()
+        get_or_insert(action_info_model, value)
     table_info_all = (table_info_model.select())
     for table_info in table_info_all:
         table_model = get_model(table_info.name)
@@ -248,41 +279,3 @@ def create_table_with_backref(model):
     model.create_table()
     for backref_table in backref_tables:
         create_table_with_backref(backref_table)
-
-
-def allowed_file(file_ext, extensions):
-    return '.' in file_ext and file_ext in app.config[extensions]
-
-
-def get_path(filename):
-    return safe_join(app.config['UPLOAD_FOLDER'], filename)
-
-
-def get_file_name(path):
-    f_name, _ = os.path.splitext(os.path.basename(path))
-    return f_name
-
-
-def get_file_ext(path):
-    _, f_ext = os.path.splitext(os.path.basename(path))
-    return f_ext
-
-
-def save_file(files):
-    if 'file' not in files:
-        return None
-    file = files['file']
-    if file.filename == '':
-        return None
-    if file and allowed_file(get_file_ext(file.filename), 'EXCEL_EXTENSIONS'):
-        filename = secure_filename(file.filename)
-        path = get_path(filename)
-        file.save(path)
-        return path
-    return None
-
-
-def create_file(collection):
-    path = collection
-    return path
-

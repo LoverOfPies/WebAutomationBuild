@@ -108,7 +108,7 @@
       "name": "technology_group",
       "path": "src.db.models.work.WorkGroupWorkTechnology.WorkGroupWorkTechnology",
       "icon": "box",
-      "title": "Технологии работ",
+      "title": "Группы работ для технологий",
       "readonly": "",
       "many_to_many": "True"
     }
@@ -133,6 +133,12 @@
       "action": "route",
       "to": "work_material",
       "table": "work"
+    },
+    {
+      "label": "Группы работ для технологии",
+      "action": "route",
+      "to": "technology_group",
+      "table": "work_technology"
     }
   ],
   "sidebar_fields": [

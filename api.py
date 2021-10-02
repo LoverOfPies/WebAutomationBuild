@@ -3,9 +3,9 @@ from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
 from app import app
-from src.utils import get_model, delete_row, update_row, add_row, create_sidebar, get_dict_info, save_file, \
-    create_file, get_condition, get_dicts_info, get_filter_data
-from src.expimp.ImportUtils import import_single_table, import_custom_data
+from src.utils import get_model, delete_row, update_row, add_row, create_sidebar, get_dict_info, \
+    get_condition, get_dicts_info, get_filter_data, get_many_data
+from src.expimp.ExportImportUtils import import_single_table, import_custom_data, save_file, create_file
 
 api_version = '/api/v0.1'
 
@@ -26,14 +26,19 @@ def get_data(collection):
     model = get_model(collection)
     if model is None:
         abort(404)
+    data = None
     if request.args:
-        if "mode" in request.args.keys():
-            data = get_filter_data(model, request.args)
-            return jsonify(data)
-    condition = get_condition(model, request.args)
-    if condition:
-        data = [row for row in model.select().where(condition).dicts()]
-    else:
+        values = dict(request.args)
+        if 'mode' in values.keys():
+            if values['mode'] == 'advanced_filters':
+                data = get_filter_data(model, values)
+            if values['mode'] == 'many_to_many':
+                data = get_many_data(model, values)
+        else:
+            condition = get_condition(model, values)
+            if condition:
+                data = [row for row in model.select().where(condition).dicts()]
+    if not data:
         data = [row for row in model.select().dicts()]
     return jsonify(data)
 
@@ -71,7 +76,7 @@ def delete_value(collection, id_row):
 @app.route(f'{api_version}/get_dict/<string:collection>', methods=['GET'])
 @cross_origin()
 def get_dict(collection):
-    data = get_dict_info(collection)
+    data = get_dict_info(collection, request.args)
     return jsonify(data)
 
 
