@@ -3,7 +3,7 @@ import json
 import ast
 import os
 
-from peewee import ForeignKeyField, DoubleField, IntegerField
+from peewee import ForeignKeyField, DoubleField, IntegerField, BooleanField, DateField
 from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
 
@@ -167,6 +167,10 @@ def get_dict_info(collection):
             field_info["type"] = "float"
         if isinstance(value, IntegerField):
             field_info["type"] = "integer"
+        if isinstance(value, BooleanField):
+            field_info["type"] = "boolean"
+        if isinstance(value, DateField):
+            field_info["type"] = "date"
         fields.append(field_info)
     data["fields"] = fields
 

@@ -4,79 +4,113 @@
       "name": "base_unit",
       "path": "src.db.models.base.BaseUnit.BaseUnit",
       "icon": "box",
-      "title": "Базовые единицы"
+      "title": "Базовые единицы",
+      "readonly": "",
+      "many_to_many": ""
     },
     {
       "name": "prop",
       "path": "src.db.models.base.Prop.Prop",
       "icon": "info-circle",
-      "title": "Свойства"
+      "title": "Свойства",
+      "readonly": "",
+      "many_to_many": ""
     },
     {
       "name": "unit",
       "path": "src.db.models.base.Unit.Unit",
       "icon": "bounding-box",
-      "title": "Единицы измерения"
+      "title": "Единицы измерения",
+      "readonly": "",
+      "many_to_many": ""
     },
     {
       "name": "material",
       "path": "src.db.models.material.Material.Material",
       "icon": "bricks",
-      "title": "Материалы"
+      "title": "Материалы",
+      "readonly": "True",
+      "many_to_many": ""
     },
     {
       "name": "base_size",
       "path": "src.db.models.project.BaseSize.BaseSize",
       "icon": "box",
-      "title": "Базовый размер"
+      "title": "Базовый размер",
+      "readonly": "",
+      "many_to_many": ""
     },
     {
       "name": "estimate",
       "path": "src.db.models.estimate.Estimate.Estimate",
       "icon": "box",
-      "title": "Расчёты"
+      "title": "Расчёты",
+      "readonly": "",
+      "many_to_many": ""
     },
     {
       "name": "project",
       "path": "src.db.models.project.Project.Project",
       "icon": "building",
-      "title": "Проекты"
+      "title": "Проекты",
+      "readonly": "",
+      "many_to_many": ""
     },
     {
       "name": "product",
       "path": "src.db.models.provider.Product.Product",
       "icon": "basket3",
-      "title": "Товары"
+      "title": "Товары",
+      "readonly": "",
+      "many_to_many": ""
     },
     {
       "name": "work",
       "path": "src.db.models.work.Work.Work",
       "icon": "hammer",
-      "title": "Работы"
+      "title": "Работы",
+      "readonly": "",
+      "many_to_many": ""
     },
     {
       "name": "work_group",
       "path": "src.db.models.work.WorkGroup.WorkGroup",
       "icon": "box",
-      "title": "Группы работ"
+      "title": "Группы работ",
+      "readonly": "",
+      "many_to_many": ""
     },
     {
       "name": "work_material",
       "path": "src.db.models.work.WorkMaterial.WorkMaterial",
       "icon": "box",
-      "title": "Материалы для работы"
+      "title": "Материалы для работы",
+      "readonly": "",
+      "many_to_many": ""
     },
     {
       "name": "work_stage",
       "path": "src.db.models.work.WorkStage.WorkStage",
       "icon": "box",
-      "title": "Стадии работ"
+      "title": "Стадии работ",
+      "readonly": "",
+      "many_to_many": ""
     },
     {
       "name": "work_technology",
       "path": "src.db.models.work.WorkTechnology.WorkTechnology",
       "icon": "box",
-      "title": "Технологии работ"
+      "title": "Технологии работ",
+      "readonly": "",
+      "many_to_many": ""
+    },
+    {
+      "name": "technology_group",
+      "path": "src.db.models.work.WorkGroupWorkTechnology.WorkGroupWorkTechnology",
+      "icon": "box",
+      "title": "Технологии работ",
+      "readonly": "",
+      "many_to_many": "True"
     }
   ],
   "filters_info": [

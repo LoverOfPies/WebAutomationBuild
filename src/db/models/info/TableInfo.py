@@ -8,7 +8,8 @@ class TableInfo(db.Model):
     path = peewee.CharField(verbose_name='Путь к model')
     icon = peewee.CharField(verbose_name='Иконка')
     title = peewee.CharField(verbose_name='Русское наименование таблицы')
-    # readonly = peewee.BooleanField(verbose_name='Только для чтения')
+    readonly = peewee.BooleanField(verbose_name='Только для чтения')
+    many_to_many = peewee.BooleanField(verbose_name='Таблица множественной связки')
 
     class Meta:
         db_table = "ab_table_info"
