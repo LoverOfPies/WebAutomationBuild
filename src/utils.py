@@ -182,27 +182,39 @@ def get_many_data(model, values):
     data = None
     group_field = None
     child_all_data = None
+    select_ids = []
     del values['mode']
     child_name = values['child']
     del values['child']
     if 'group_field' in values.keys():
         group_field = values['group_field']
+        del values['group_field']
     if hasattr(model, child_name):
         child_model = getattr(model, child_name).rel_model
         child_all_data = [row for row in child_model.select().dicts()]
     condition = get_condition(model, values)
-    select_ids = []
     if condition:
         child_select_data = [row for row in model.select(getattr(model, child_name)).where(condition).dicts()]
         select_ids = [row_value[child_name] for row_value in child_select_data]
     if child_all_data:
-        data = []
         for child_data in child_all_data:
             if child_data['id'] in select_ids:
                 child_data['checked'] = True
             else:
                 child_data['checked'] = False
-            data.append(child_data)
+        data = child_all_data
+    if group_field:
+        group_data = [row for row in get_model(group_field).select()]
+        res_data = []
+        for group_row in group_data:
+            items = {"group_label": group_row.name}
+            items_data = []
+            for child_data in child_all_data:
+                if child_data[group_field] == group_row.id:
+                    items_data.append(child_data)
+            items["items"] = items_data
+            res_data.append(items)
+        data = res_data
     return data
 
 
