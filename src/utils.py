@@ -115,14 +115,25 @@ def update_row(collection, id_row, data):
             parent = data['parent']
             parent_id = data['parent_id']
             child = data['child']
-            child_id = id_row
-            checked = data['value']
-            values = {parent: parent_id, child: child_id}
-            if checked:
-                insert_row(model, values)
+            if 'prev' in data.keys():
+                prev = data['prev']
+                current = data['current']
+                if prev != -1:
+                    values = {parent: parent_id, child: prev}
+                    obj = get_row(model, values)
+                    obj.delete_instance()
+                if current != -1:
+                    values = {parent: parent_id, child: current}
+                    insert_row(model, values)
             else:
-                obj = get_row(model, values)
-                obj.delete_instance()
+                child_id = id_row
+                checked = data['value']
+                values = {parent: parent_id, child: child_id}
+                if checked:
+                    insert_row(model, values)
+                else:
+                    obj = get_row(model, values)
+                    obj.delete_instance()
             return True
     row = model.get_or_none(id=id_row)
     if row is None:
@@ -179,10 +190,8 @@ def recursive_filter(model_name, keys, obj_ids, parent_model):
 
 
 def get_many_data(model, values):
-    data = None
     group_field = None
-    child_all_data = None
-    select_ids = []
+    data = []
     del values['mode']
     child_name = values['child']
     del values['child']
@@ -190,32 +199,40 @@ def get_many_data(model, values):
         group_field = values['group_field']
         del values['group_field']
     if hasattr(model, child_name):
-        child_model = getattr(model, child_name).rel_model
-        child_all_data = [row for row in child_model.select().dicts()]
-    condition = get_condition(model, values)
-    if condition:
-        child_select_data = [row for row in model.select(getattr(model, child_name)).where(condition).dicts()]
-        select_ids = [row_value[child_name] for row_value in child_select_data]
+        condition = get_condition(model, values)
+        if condition:
+            data = get_child_data(model, child_name, condition)
+    if group_field:
+        data = get_group_data(group_field, data)
+    return data
+
+
+def get_child_data(model, child_name, condition):
+    child_model = getattr(model, child_name).rel_model
+    child_all_data = [row for row in child_model.select().dicts()]
+    child_select_data = [row for row in model.select(getattr(model, child_name)).where(condition).dicts()]
+    select_ids = [row_value[child_name] for row_value in child_select_data]
     if child_all_data:
         for child_data in child_all_data:
             if child_data['id'] in select_ids:
                 child_data['checked'] = True
             else:
                 child_data['checked'] = False
-        data = child_all_data
-    if group_field:
-        group_data = [row for row in get_model(group_field).select()]
-        res_data = []
-        for group_row in group_data:
-            items = {"group_label": group_row.name}
-            items_data = []
-            for child_data in child_all_data:
-                if child_data[group_field] == group_row.id:
-                    items_data.append(child_data)
-            items["items"] = items_data
-            res_data.append(items)
-        data = res_data
-    return data
+    return child_all_data
+
+
+def get_group_data(group_field, data):
+    group_data = [row for row in get_model(group_field).select()]
+    res_data = []
+    for group_row in group_data:
+        items = {"group_label": group_row.name}
+        items_data = []
+        for child_data in data:
+            if child_data[group_field] == group_row.id:
+                items_data.append(child_data)
+        items["items"] = items_data
+        res_data.append(items)
+    return res_data
 
 
 def create_sidebar():
