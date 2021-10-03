@@ -14,23 +14,37 @@ def get_model(name):
     return cache.get_model_by_name(name)
 
 
-def get_or_insert(model, values):
+def get_row(model, values):
     condition = get_condition(model, values)
-    meth = "error"
     if condition is None:
-        return None, meth
+        return None
     try:
         obj = model.get(condition)
-        meth = "get"
     except model.DoesNotExist:
-        with db.database.atomic() as transaction:
-            try:
-                obj = model.insert(values).execute()
-                transaction.commit()
-                meth = "insert"
-            except:
-                transaction.rollback()
-                return None, meth
+        obj = None
+    return obj
+
+
+def insert_row(model, values):
+    with db.database.atomic() as transaction:
+        try:
+            obj = model.insert(values).execute()
+            transaction.commit()
+        except:
+            transaction.rollback()
+            obj = None
+    return obj
+
+
+def get_or_insert(model, values):
+    meth = "error"
+    obj = get_row(model, values)
+    if obj:
+        meth = "get"
+    else:
+        obj = insert_row(model, values)
+        if obj:
+            meth = "insert"
     return obj, meth
 
 
@@ -94,6 +108,23 @@ def update_row(collection, id_row, data):
     model = get_model(collection)
     if model is None:
         return False
+    if 'params' not in data.keys():
+        return False
+    data = data['params']
+    if 'mode' in data.keys():
+        if data['mode'] == 'many_to_many':
+            parent = data['parent']
+            parent_id = data['parent_id']
+            child = data['child']
+            child_id = id_row
+            checked = data['value']
+            values = {parent: parent_id, child: child_id}
+            if checked:
+                insert_row(model, values)
+            else:
+                obj = get_row(model, values)
+                obj.delete_instance()
+            return True
     row = model.get_or_none(id=id_row)
     if row is None:
         return False
@@ -150,17 +181,18 @@ def get_many_data(model, values):
     child_name = values['child']
     del values['child']
     child_all_data = None
-    child_select_data = None
     if hasattr(model, child_name):
         child_model = getattr(model, child_name).rel_model
         child_all_data = [row for row in child_model.select().dicts()]
     condition = get_condition(model, values)
+    select_ids = []
     if condition:
-        child_select_data = [row for row in model.select().where(condition).dicts()]
+        child_select_data = [row for row in model.select(getattr(model, child_name)).where(condition).dicts()]
+        select_ids = [row_value[child_name] for row_value in child_select_data]
     if child_all_data:
         data = []
         for child_data in child_all_data:
-            if child_data in child_select_data:
+            if child_data['id'] in select_ids:
                 child_data['checked'] = True
             else:
                 child_data['checked'] = False
