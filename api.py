@@ -38,7 +38,7 @@ def get_data(collection):
             condition = get_condition(model, values)
             if condition:
                 data = [row for row in model.select().where(condition).dicts()]
-    if not data:
+    else:
         data = [row for row in model.select().dicts()]
     return jsonify(data)
 
