@@ -9,5 +9,5 @@
         "user": "sysdba"
     },
     "UPLOAD_FOLDER": "expimp",
-    "EXCEL_EXTENSIONS": ["csv", "xls", "xlsx"]
+    "EXCEL_EXTENSIONS": [".csv", ".xls", ".xlsx"]
 }

@@ -10,7 +10,7 @@ from src.utils import get_or_insert
 
 
 def allowed_file(file_ext, extensions):
-    return '.' in file_ext and file_ext in app.config[extensions]
+    return file_ext in app.config[extensions]
 
 
 def get_path(filename):
