@@ -1,6 +1,5 @@
 import configparser
 import json
-import ast
 
 from peewee import ForeignKeyField, DoubleField, IntegerField, BooleanField, DateField
 
@@ -75,8 +74,8 @@ def add_row(collection, data):
     model = get_model(collection)
     if model is None:
         return None
-    decoded_data = ast.literal_eval(str(data))
-    if not check_data(decoded_data, model):
+    data = data['params']
+    if not check_data(data, model):
         return None
     obj, meth = get_or_insert(model, data)
     if meth == "get":
@@ -149,13 +148,15 @@ def get_filter_data(model, values):
     for i in (range(len(keys))):
         if i + 1 == len(keys):
             inner_model_name = keys[i]
-            data = [res for res in model.select().where(getattr(model, inner_model_name) == values[inner_model_name]).dicts()]
+            data = [res for res in
+                    model.select().where(getattr(model, inner_model_name) == values[inner_model_name]).dicts()]
             return data
         if values[keys[i + 1]] == "":
             inner_model_name = keys[i + 1]
             inner_model = get_model(inner_model_name)
-            inner_ids = [id for id in inner_model.select(getattr(inner_model, "id")).where(getattr(inner_model, keys[i]) == values[keys[i]])]
-            data = recursive_filter(inner_model_name, keys[i+1:], inner_ids, model)
+            inner_ids = [inner_id for inner_id in inner_model.select(getattr(inner_model, "id")).where(
+                getattr(inner_model, keys[i]) == values[keys[i]])]
+            data = recursive_filter(inner_model_name, keys[i + 1:], inner_ids, model)
             return data
 
 
@@ -164,23 +165,28 @@ def recursive_filter(model_name, keys, obj_ids, parent_model):
     for i in (range(len(keys))):
         if i + 1 == len(keys):
             for obj_id in obj_ids:
-                data = data + [res for res in parent_model.select().where(getattr(parent_model, model_name) == obj_id).dicts()]
+                data = data + [res for res in
+                               parent_model.select().where(getattr(parent_model, model_name) == obj_id).dicts()]
             return data
         inner_model_name = keys[i + 1]
         inner_model = get_model(inner_model_name)
         inner_ids = []
         for obj_id in obj_ids:
-            inner_ids = inner_ids + [res for res in inner_model.select(getattr(inner_model, "id")).where(getattr(inner_model, keys[i]) == obj_id)]
-        data = recursive_filter(inner_model_name, keys[i+1:], inner_ids, parent_model)
+            inner_ids = inner_ids + [res for res in inner_model.select(getattr(inner_model, "id")).where(
+                getattr(inner_model, keys[i]) == obj_id)]
+        data = recursive_filter(inner_model_name, keys[i + 1:], inner_ids, parent_model)
         return data
 
 
 def get_many_data(model, values):
     data = None
+    group_field = None
+    child_all_data = None
     del values['mode']
     child_name = values['child']
     del values['child']
-    child_all_data = None
+    if 'group_field' in values.keys():
+        group_field = values['group_field']
     if hasattr(model, child_name):
         child_model = getattr(model, child_name).rel_model
         child_all_data = [row for row in child_model.select().dicts()]
@@ -225,16 +231,20 @@ def get_dict_info(collection, params):
     model = get_model(collection)
     if table_info.many_to_many:
         data['mode'] = 'many_to_many'
+    if table_info.group_field:
+        data['group_field'] = table_info.group_field
+    parent_name = None
+    if 'parent' in params.keys():
+        parent_name = params['parent']
     for field_name in model._meta.fields:
-        if field_name in ('id', 'uuid', 'version_number'):
+        if field_name in ('id', 'uuid', 'version_number', parent_name):
             continue
-        if table_info.many_to_many:
-            if params and 'parent' in params.keys():
-                if field_name != params['parent']:
-                    value = getattr(model, field_name)
-                    fields.append({"key": "name", "label": value.verbose_name})
-                    data['child'] = field_name
-                continue
+        if table_info.many_to_many and parent_name:
+            if field_name != parent_name:
+                value = getattr(model, field_name)
+                fields.append({"key": "name", "label": value.verbose_name})
+                data['child'] = field_name
+            continue
         value = getattr(model, field_name)
         field_info = {"key": field_name, "label": value.verbose_name}
         if field_name == 'name':
@@ -254,7 +264,7 @@ def get_dict_info(collection, params):
 
     filters = []
     filter_info_model = cache.get_filter_info_model()
-    filters_info = filter_info_model.select().where(filter_info_model.table == table_info)\
+    filters_info = filter_info_model.select().where(filter_info_model.table == table_info) \
         .order_by(filter_info_model.id.asc())
     for filter_info in filters_info:
         filters.append({"key": filter_info.key, "label": filter_info.label, "multiple": filter_info.multiple})

@@ -10,6 +10,7 @@ class TableInfo(db.Model):
     title = peewee.CharField(verbose_name='Русское наименование таблицы')
     readonly = peewee.BooleanField(verbose_name='Только для чтения')
     many_to_many = peewee.BooleanField(verbose_name='Таблица множественной связки')
+    group_field = peewee.CharField(verbose_name='Поле группировки')
 
     class Meta:
         db_table = "ab_table_info"
