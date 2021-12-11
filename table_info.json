@@ -32,7 +32,34 @@
       "path": "src.db.models.material.Material.Material",
       "icon": "bricks",
       "title": "Материалы",
-      "readonly": "True",
+      "readonly": "",
+      "many_to_many": "",
+      "group_field": ""
+    },
+    {
+      "name": "material_category",
+      "path": "src.db.models.material.MaterialCategory.MaterialCategory",
+      "icon": "box",
+      "title": "Категории материалов",
+      "readonly": "",
+      "many_to_many": "",
+      "group_field": ""
+    },
+    {
+      "name": "material_group",
+      "path": "src.db.models.material.MaterialGroup.MaterialGroup",
+      "icon": "box",
+      "title": "Группы материалов",
+      "readonly": "",
+      "many_to_many": "",
+      "group_field": ""
+    },
+    {
+      "name": "material_subgroup",
+      "path": "src.db.models.material.MaterialSubgroup.MaterialSubgroup",
+      "icon": "box",
+      "title": "Подгруппы материалов",
+      "readonly": "",
       "many_to_many": "",
       "group_field": ""
     },
@@ -148,6 +175,24 @@
       "label": "Группа работ",
       "multiple": "Группы работ",
       "table": "work"
+    },
+    {
+      "key": "material_category",
+      "label": "Категория материалов",
+      "multiple": "Категории материалов",
+      "table": "material"
+    },
+    {
+      "key": "material_group",
+      "label": "Группа материалов",
+      "multiple": "Группы материалов",
+      "table": "material"
+    },
+    {
+      "key": "material_subgroup",
+      "label": "Подгруппа материалов",
+      "multiple": "Подгруппы материалов",
+      "table": "material"
     }
   ],
   "actions_info": [
