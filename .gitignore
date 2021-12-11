@@ -137,4 +137,7 @@ dmypy.json
 ~*.xlsx
 # vscode workspace file
 *.code-workspace
-
+# macos dsstore file
+.DS_Store
+# vscode workspace file
+.vscode
