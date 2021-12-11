@@ -30,9 +30,60 @@ def add_row(collection, data):
             transaction.commit()
         except:
             transaction.rollback()
+<<<<<<< Updated upstream
             return None
     res = model.select().where(model.id == new_id)
     return res
+=======
+            obj = None
+    return obj
+
+
+def get_or_insert(model, values):
+    meth = "error"
+    obj = get_row(model, values)
+    if obj:
+        meth = "get"
+    else:
+        obj = insert_row(model, values)
+        if obj:
+            meth = "insert"
+    return obj, meth
+
+
+def check_data(data, model):
+    return all(hasattr(model, field) for field in data.keys())
+
+
+def get_condition(model, values):
+    filters = []
+    for value in values:
+        if hasattr(model, value):
+            filter_field = getattr(model, value)
+            filter_value = values[value]
+            filters.append(filter_field == filter_value)
+    condition = None
+    for i in range(len(values)):
+        if i == 0:
+            condition = filters[i]
+            continue
+        condition = condition & filters[i]
+    return condition
+
+
+def add_row(collection, data):
+    model = get_model(collection)
+    if model is None:
+        return None
+    if 'params' in data.keys():
+        data = data['params']
+    if not check_data(data, model):
+        return None
+    obj, meth = get_or_insert(model, data)
+    if meth == "get":
+        return None
+    return model.select().where(model.id == obj)
+>>>>>>> Stashed changes
 
 
 def delete_row(collection, id_row):
@@ -58,6 +109,36 @@ def update_row(collection, id_row, data):
     model = get_model(collection)
     if model is None:
         return False
+<<<<<<< Updated upstream
+=======
+    if 'params' not in data.keys():
+        return False
+    data = data['params']
+    if 'mode' in data.keys() and data['mode'] == 'many_to_many':
+        parent = data['parent']
+        parent_id = data['parent_id']
+        child = data['child']
+        if 'prev' in data.keys():
+            prev = data['prev']
+            current = data['current']
+            if prev != -1:
+                values = {parent: parent_id, child: prev}
+                obj = get_row(model, values)
+                obj.delete_instance()
+            if current != -1:
+                values = {parent: parent_id, child: current}
+                insert_row(model, values)
+        else:
+            child_id = id_row
+            checked = data['value']
+            values = {parent: parent_id, child: child_id}
+            if checked:
+                insert_row(model, values)
+            else:
+                obj = get_row(model, values)
+                obj.delete_instance()
+        return True
+>>>>>>> Stashed changes
     row = model.get_or_none(id=id_row)
     if row is None:
         return False
@@ -70,9 +151,7 @@ def update_row(collection, id_row, data):
     field_data = dict(row.__data__)
     field_data[field] = value
     query = model.update(**field_data).where(model.id == row.id)
-    if query.execute() == 0:
-        return False
-    return True
+    return query.execute() != 0
 
 
 def check_data(data, model):
@@ -120,17 +199,86 @@ def recursive_test(model_name, keys, obj_ids, parent_model):
     for i in (range(len(keys))):
         if i + 1 == len(keys):
             for obj_id in obj_ids:
+<<<<<<< Updated upstream
                 data = data + [res for res in parent_model.select().where(getattr(parent_model, model_name) == obj_id).dicts()]
+=======
+                data += [
+                    res
+                    for res in parent_model.select()
+                    .where(getattr(parent_model, model_name) == obj_id)
+                    .dicts()
+                ]
+
+>>>>>>> Stashed changes
             return data
         inner_model_name = keys[i + 1]
         inner_model = get_model(inner_model_name)
         inner_ids = []
         for obj_id in obj_ids:
+<<<<<<< Updated upstream
             inner_ids = inner_ids + [res for res in inner_model.select(getattr(inner_model, "id")).where(getattr(inner_model, keys[i]) == obj_id)]
         data = recursive_test(inner_model_name, keys[i+1:], inner_ids, parent_model)
         return data
 
 
+=======
+            inner_ids += [
+                res
+                for res in inner_model.select(
+                    getattr(inner_model, "id")
+                ).where(getattr(inner_model, keys[i]) == obj_id)
+            ]
+
+        data = recursive_filter(inner_model_name, keys[i + 1:], inner_ids, parent_model)
+        return data
+
+
+def get_many_data(model, values):
+    group_field = None
+    data = []
+    del values['mode']
+    child_name = values['child']
+    del values['child']
+    if 'group_field' in values.keys():
+        group_field = values['group_field']
+        del values['group_field']
+    if hasattr(model, child_name):
+        condition = get_condition(model, values)
+        if condition:
+            data = get_child_data(model, child_name, condition)
+    if group_field:
+        data = get_group_data(group_field, data)
+    return data
+
+
+def get_child_data(model, child_name, condition):
+    child_model = getattr(model, child_name).rel_model
+    child_all_data = [row for row in child_model.select().dicts()]
+    child_select_data = [row for row in model.select(getattr(model, child_name)).where(condition).dicts()]
+    select_ids = [row_value[child_name] for row_value in child_select_data]
+    if child_all_data:
+        for child_data in child_all_data:
+            child_data['checked'] = child_data['id'] in select_ids
+    return child_all_data
+
+
+def get_group_data(group_field, data):
+    group_data = [row for row in get_model(group_field).select()]
+    res_data = []
+    for group_row in group_data:
+        items = {"group_label": group_row.name}
+        items_data = [
+            child_data
+            for child_data in data
+            if child_data[group_field] == group_row.id
+        ]
+
+        items["items"] = items_data
+        res_data.append(items)
+    return res_data
+
+
+>>>>>>> Stashed changes
 def create_sidebar():
     data = []
     for table_name in cache.get_sidebar_fields():
@@ -154,6 +302,14 @@ def get_dict_info(collection):
 
     fields = []
     model = get_model(collection)
+<<<<<<< Updated upstream
+=======
+    if table_info.many_to_many:
+        data['mode'] = 'many_to_many'
+    if table_info.group_field:
+        data['group_field'] = table_info.group_field
+    parent_name = params['parent'] if 'parent' in params.keys() else None
+>>>>>>> Stashed changes
     for field_name in model._meta.fields:
         if field_name in ('id', 'uuid', 'version_number'):
             continue
@@ -174,19 +330,31 @@ def get_dict_info(collection):
         fields.append(field_info)
     data["fields"] = fields
 
-    filters = []
     filter_info_model = cache.get_filter_info_model()
     filters_info = filter_info_model.select().where(filter_info_model.table == table_info)\
         .order_by(filter_info_model.id.asc())
-    for filter_info in filters_info:
-        filters.append({"key": filter_info.key, "label": filter_info.label, "multiple": filter_info.multiple})
+    filters = [
+        {
+            "key": filter_info.key,
+            "label": filter_info.label,
+            "multiple": filter_info.multiple,
+        }
+        for filter_info in filters_info
+    ]
+
     data["filters"] = filters
 
-    actions = []
     action_info_model = cache.get_action_info_model()
     actions_info = action_info_model.select().where(action_info_model.table == table_info)
-    for action_info in actions_info:
-        actions.append({"action": action_info.action, "label": action_info.label, "to": action_info.to})
+    actions = [
+        {
+            "action": action_info.action,
+            "label": action_info.label,
+            "to": action_info.to,
+        }
+        for action_info in actions_info
+    ]
+
     data["actions"] = actions
 
     return data

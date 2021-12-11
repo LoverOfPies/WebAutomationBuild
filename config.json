@@ -5,8 +5,8 @@
     "DATABASE": {
         "name": "automation_build",
         "engine": "peewee.PostgresqlDatabase",
-        "password": "masterkey",
-        "user": "sysdba"
+        "password": "",
+        "user": "d4rkst4r"
     },
     "UPLOAD_FOLDER": "/expimp",
     "EXCEL_EXTENSIONS": ["csv", "xls", "xlsx"]

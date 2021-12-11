@@ -1,0 +1,146 @@
+<template>
+  <div>
+    <b-button
+      @click="showFieldModal($event.target)"
+      :disabled="disabled"
+      class="w-100"
+      v-if="label != ''"
+    >
+      {{ label == "" ? "" : label }}
+      <!-- <shimmer-text>{{
+        labelReplacement == "" ? label : labelReplacement
+      }}</shimmer-text> -->
+    </b-button>
+
+    <b-skeleton v-else type="input"></b-skeleton>
+
+    <b-modal
+      :id="fieldModal.id"
+      :title="fieldModal.title"
+      @hide="resetFieldModal"
+      footer-bg-variant="secondary"
+      centered
+    >
+      <b-table
+        :id="tableId"
+        :items="items"
+        :fields="fields"
+        :per-page="perPage"
+        :current-page="currentPage"
+        sort-icon-left
+        bordered
+        responsive
+        :filter="filter"
+        @filtered="onFiltered"
+      >
+        <template #cell(actions)="row">
+          <b-button variant="primary" @click="selectRow(row.item)">
+            Выбрать
+          </b-button>
+        </template>
+      </b-table>
+
+      <b-row>
+        <b-col>
+          <b-pagination
+            v-model="currentPage"
+            :total-rows="rows"
+            :per-page="perPage"
+            first-number
+            last-number
+            :aria-controls="tableId"
+          ></b-pagination>
+        </b-col>
+
+        <b-col cols="4">
+          <b-button
+            v-if="resetBtn"
+            variant="danger"
+            class="d-block ms-auto"
+            @click="resetFilters"
+          >
+            Сбросить
+          </b-button>
+        </b-col>
+      </b-row>
+
+      <!--  -->
+      <template #modal-footer>
+        <div class="d-none"></div>
+        <!-- <b-button variant="danger" @click="cancel()"> Отмена </b-button>
+                <b-button variant="success" @click="ok()"> OK </b-button> -->
+      </template>
+    </b-modal>
+  </div>
+</template>
+
+<script>
+// import ShimmerText from "../ShimmerText.vue";
+
+let uid = 0;
+
+export default {
+  // components: { ShimmerText },
+  props: ["label", "model", "rowId", "items", "disabled", "resetBtn"],
+  data() {
+    uid += 1;
+    return {
+      fieldModal: {
+        id: `field-modal-${uid}`,
+        title: "Выберите из списка",
+      },
+      tableId: `table-modal-${uid}`,
+      perPage: 10,
+      currentPage: 1,
+      filter: null,
+      labelReplacement: "",
+    };
+  },
+  methods: {
+    showFieldModal(button) {
+      this.$bvModal.show(this.fieldModal.id, button);
+    },
+    onFiltered(filteredItems) {
+      this.rows = filteredItems.length;
+      this.currentPage = 1;
+    },
+    resetFilters() {
+      this.$emit("resetFilters", this.rowId);
+      this.$bvModal.hide(this.fieldModal.id);
+    },
+    resetFieldModal() {},
+    selectRow(item) {
+      let fields = {
+        field: this.model,
+        value: parseInt(item.id),
+      };
+      this.$emit("updateField", {
+        id: this.rowId,
+        fields: fields,
+      });
+      this.$emit("labelChange", {
+        id: parseInt(item.id),
+        model: this.model,
+      });
+      this.$bvModal.hide(this.fieldModal.id);
+    },
+  },
+  computed: {
+    fields() {
+      return [
+        { key: "name", sortable: false },
+        { key: "actions", label: " " },
+      ];
+    },
+    rows() {
+      return this.items ? this.items.length : 0;
+    },
+  },
+};
+</script>
+
+<style>
+.modal-footer.bg-secondary {
+  display: none;
+}
+</style>
