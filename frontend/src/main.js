@@ -13,6 +13,8 @@ Vue.use(IconsPlugin);
 
 Vue.config.productionTip = false;
 
+// TODO: window vue instance reference?
+
 const app = new Vue({
     router,
     store,

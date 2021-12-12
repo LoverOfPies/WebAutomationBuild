@@ -46,7 +46,7 @@
               v-if="action.action == 'route'"
               :to="name + '/' + action.to + '/' + row.item.id"
             >
-              <b-button>{{ action.label }}</b-button>
+              <b-button class="mr-2">{{ action.label }}</b-button>
             </router-link>
             <!-- <b-button
               v-if="action.action == 'delete'"
@@ -109,6 +109,9 @@ export default {
       this.deleteRow({ table_name: this.name, row_id: rowId });
     },
     getFieldById(id, model, field) {
+      // FIXME: THIS LOG OUT ERRORS ON OS X
+      // console.log(this.selectableFields);
+      // console.log(id, model, field);
       if (this.fieldsData.models[model]) {
         return this.fieldsData.models[model].find((x) => x.id == id)[field];
       }

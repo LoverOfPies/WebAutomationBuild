@@ -6,7 +6,7 @@
       <b-row>
         <b-col cols="12" xl="8">
           <!-- search bar -->
-          <serch-bar @filterChange="onFilterChange" :filter="searchFilter" />
+          <search-bar v-if="mode == null" @filterChange="onFilterChange" :filter="searchFilter" />
           <!-- filters -->
           <Filters
             v-if="filtersData.model.length != 0"
@@ -18,6 +18,7 @@
           />
           <!-- table -->
           <Table
+            v-if="mode == null"
             :itemsData="itemsData"
             :fieldsData="fieldsData"
             :filter="searchFilter"
@@ -26,7 +27,11 @@
             :currentPage="currentPage"
             :name="name"
           />
-          <b-row>
+          <!-- select group -->
+          <select-group v-else :items="itemsData" :fields="fieldsData" :id="id" :name="name">
+          </select-group>
+          <!-- bottom navigation  v-if="mode == null"-->
+          <b-row >
             <b-col cols="10">
               <!-- pagination -->
               <Pagination
@@ -59,14 +64,15 @@ import { mapGetters, mapActions, mapMutations } from "vuex";
 import API from "../api/ApiUtils.js";
 
 import Title from "@/components/Title.vue";
-import SerchBar from "../components/tables/SerchBar.vue";
+import SearchBar from "../components/tables/SearchBar.vue";
 import Filters from "../components/tables/Filters.vue";
 import Table from "../components/tables/Table.vue";
 import Pagination from "../components/tables/Pagination.vue";
 import AddDataBtn from "../components/tables/AddDataBtn.vue";
+import SelectGroup from "../components/groups/SelectGroup.vue";
 
 export default {
-  components: { Title, SerchBar, Filters, Table, Pagination, AddDataBtn },
+  components: { Title, SearchBar, Filters, Table, Pagination, AddDataBtn, SelectGroup },
   props: ["name", "id", "parent"],
   data() {
     return {
@@ -80,6 +86,7 @@ export default {
   computed: {
     ...mapGetters([
       "title",
+      "mode",
       "isBusy",
       "isFiltered",
       "itemsData",
@@ -139,14 +146,19 @@ export default {
       this.resetFilters(0);
       this.addNewRow({ table_name: this.name, row: item });
     },
-    init() {
-      this.getTableInfo({ name: this.name });
+    async init() {
+      await this.getTableInfo({ name: this.name });
       let params = {};
       if (this?.parent) {
         params = {
           [this.parent]: this.id,
         };
       }
+      if (this.mode != null) {
+        params["mode"] = this.mode;
+        params["child"] = this.fieldsData.list[0].key;
+      }
+      // console.log(this.mode, params);
       this.getItems({ name: this.name, params });
     },
   },

@@ -10,6 +10,11 @@ export default {
         commit("updateTableTitle", tableInfo.title);
         commit("updateFieldsList", tableInfo.fields);
 
+        commit("resetTableMode");
+        if (tableInfo.mode) {
+          commit("updateTableMode", tableInfo.mode);
+        }
+
         commit("resetFilters");
         if (tableInfo.filters.length > 0) {
           commit("updateFiltersModel", tableInfo.filters);
@@ -67,6 +72,12 @@ export default {
     updateTableTitle(state, title) {
       state.table.title = title;
     },
+    updateTableMode(state, mode) {
+      state.table.mode = mode;
+    },
+    resetTableMode(state) {
+      state.table.mode = null;
+    },
     updateTableItems(state, items) {
       state.table.items.list = items;
     },
@@ -105,6 +116,7 @@ export default {
   state: {
     table: {
       title: "",
+      mode: null,
       isBusy: false,
       isReadOnly: false,
       isFiltered: false,
@@ -130,6 +142,9 @@ export default {
     },
     title(state) {
       return state.table.title;
+    },
+    mode(state) {
+      return state.table.mode;
     },
     itemsData(state, getters) {
       return { list: state.table.items.list, actions: getters.itemsActions };
