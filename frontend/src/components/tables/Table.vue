@@ -78,7 +78,6 @@
 <script>
 import { mapActions, mapMutations } from "vuex";
 
-import API from "../../api/ApiUtils.js";
 import ChangeFieldModal from "./ChangeFieldModal.vue";
 import NameCell from "./NameCell.vue";
 import DeleteRowBtn from "./DeleteRowBtn.vue";
@@ -96,7 +95,6 @@ export default {
   ],
   data() {
     return {
-      API: new API(this),
       SDesc: false,
     };
   },

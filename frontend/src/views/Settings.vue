@@ -7,6 +7,12 @@
         <b-col cols="12" xl="6" class="p-2">
           <b-form @submit.prevent="importTable" class="d-flex flex-wrap">
             <div class="mb-2 fs-5 w-100">Системный импорт</div>
+            <b-form-select
+              id="settings-import"
+              v-model="importForm.selected"
+              :options="importForm.options"
+              class="me-2"
+            ></b-form-select>
             <b-form-file
               v-model="importForm.file"
               :state="Boolean(importForm.file)"
@@ -14,7 +20,7 @@
               drop-placeholder="Перетащите файл сюда..."
               class="me-2 flex-grow-1"
             ></b-form-file>
-            <b-button type="submit" variant="primary">Импорт</b-button>
+            <b-button type="submit" :disabled="importForm.disabled" variant="primary">Импорт</b-button>
           </b-form>
         </b-col>
         <b-col cols="12" xl="5" offset-xl="1" class="p-2">
@@ -49,13 +55,16 @@ export default {
     return {
       API: new API(this),
       title: "Настройки",
+      importForm: {
+        selected: null,
+        options: [{ value: null, text: "Выберите из списка" }],
+        disabled: true,
+        file: null,
+      },
       exportForm: {
         selected: null,
         options: [{ value: null, text: "Выберите из списка" }],
         disabled: true,
-      },
-      importForm: {
-        file: null,
       },
     };
   },
@@ -63,6 +72,10 @@ export default {
     getTablesInfo() {
       this.API.getTablesInfo().then((data) => {
         data.forEach((table) => {
+          this.importForm.options.push({
+            value: table.name,
+            text: table.title,
+          });
           this.exportForm.options.push({
             value: table.name,
             text: table.title,
@@ -72,19 +85,21 @@ export default {
     },
     importTable() {
       console.log(this.importForm);
+      this.API.importTable(this.importForm.selected, this.importForm.file);
     },
     exportTable() {
       console.log(this.exportForm);
-      // this.API.
     },
   },
   watch: {
+    "importForm.selected": function () {
+      this.importForm.disabled = (this.importForm.selected && !this.importForm.file) ? true : false
+    },
+    "importForm.file": function () {
+      this.importForm.disabled = (this.importForm.selected && !this.importForm.file) ? true : false
+    },
     "exportForm.selected": function (selected) {
-      if (selected) {
-        this.exportForm.disabled = false;
-      } else {
-        this.exportForm.disabled = true;
-      }
+      this.exportForm.disabled = !selected;
     },
   },
   mounted() {
@@ -92,5 +107,3 @@ export default {
   },
 };
 </script>
-
-<style></style>

@@ -94,6 +94,16 @@ export default class {
     return data;
   }
 
+  async importTable(collection, file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    const res = await axios
+      .post(`${this.api}/${this.version}/import/${collection}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+      .catch((r) => this.showErrorToast(r));
+
+    return res.data;
+  }
+
   exportTable(collection) {
     axios({
       url: `${this.api}/${this.version}/export/${collection}`,
