@@ -74,7 +74,7 @@ def add_row(collection, data):
     model = get_model(collection)
     if model is None:
         return None
-    data = data['params']
+    # data = data['params']
     if not check_data(data, model):
         return None
     obj, meth = get_or_insert(model, data)
@@ -107,9 +107,9 @@ def update_row(collection, id_row, data):
     model = get_model(collection)
     if model is None:
         return False
-    if 'params' not in data.keys():
-        return False
-    data = data['params']
+    # if 'params' not in data.keys():
+    #     return False
+    # data = data['params']
     if 'mode' in data.keys():
         if data['mode'] == 'many_to_many':
             parent = data['parent']

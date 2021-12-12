@@ -41,10 +41,7 @@
         </template>
 
         <template #cell(actions)="row">
-          <span
-            v-for="action in itemsData.actions"
-            :key="action.id"
-          >
+          <span v-for="action in itemsData.actions" :key="action.id">
             <router-link
               v-if="action.action == 'route'"
               :to="name + '/' + action.to + '/' + row.item.id"
@@ -58,7 +55,12 @@
             >
               {{ action.label ? action.label : "Удалить" }}
             </b-button> -->
-            <delete-row-btn @deleteRow="deleteRow" v-if="action.action == 'delete'" :label="action.label" :rowId="row.item.id"/>
+            <delete-row-btn
+              @deleteRow="onDeleteRow"
+              v-if="action.action == 'delete'"
+              :label="action.label"
+              :rowId="row.item.id"
+            />
           </span>
         </template>
 
@@ -74,6 +76,8 @@
 </template>
 
 <script>
+import { mapActions, mapMutations } from "vuex";
+
 import API from "../../api/ApiUtils.js";
 import ChangeFieldModal from "./ChangeFieldModal.vue";
 import NameCell from "./NameCell.vue";
@@ -97,18 +101,14 @@ export default {
     };
   },
   methods: {
+    ...mapActions(["deleteRow"]),
+    ...mapMutations(["updateTableItem"]),
     onUpdateField({ id, fields: { field, value } }) {
-      console.log("emit upd", id, field, value);
-      let changedField = this.items.find((e) => e.id == id);
-      changedField[field] = value;
-      this.API.updateField(this.name, id, { field, value });
+      console.log("[upd]", this.name, id, field, value);
+      this.updateTableItem({ collection: this.name, id, field, value });
     },
-    deleteRow(rowId) {
-      this.items.splice(
-        this.items.indexOf(this.items.find((e) => e.id == rowId)),
-        1
-      );
-      this.API.deleteRow(this.name, rowId);
+    onDeleteRow(rowId) {
+      this.deleteRow({ table_name: this.name, row_id: rowId });
     },
     getFieldById(id, model, field) {
       if (this.fieldsData.models[model]) {

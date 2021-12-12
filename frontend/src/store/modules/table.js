@@ -51,6 +51,11 @@ export default {
         commit("addTableItem", data[0]);
       });
     },
+    deleteRow({ commit }, { table_name, row_id }) {
+      API.deleteRow(table_name, row_id).then(() => {
+        commit("deleteTableItem", row_id);
+      });
+    }
   },
   mutations: {
     updateTableBusyState(state, isBusy) {
@@ -65,8 +70,21 @@ export default {
     updateTableItems(state, items) {
       state.table.items.list = items;
     },
+    updateTableItem(state, { collection, id, field, value }) {
+      console.log(collection, id, field, value);
+      let changedField = state.table.items.list.find((e) => e.id == id);
+      changedField[field] = value;
+      API.updateField(collection, id, { field, value });
+    },
     addTableItem(state, item) {
       state.table.items.list.push(item);
+    },
+    deleteTableItem(state, row_id) {
+      let items_list = state.table.items.list;
+      items_list.splice(
+        items_list.indexOf(items_list.find((e) => e.id == row_id)),
+        1
+      );
     },
     resetItemsActions(state) {
       state.table.items.actions = [];
