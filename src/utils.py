@@ -10,10 +10,25 @@ cache = Cache()
 
 
 def get_model(name):
+    """
+    Return table object from cache
+
+    :param name: table name
+
+    :return: table object
+    """
     return cache.get_model_by_name(name)
 
 
 def get_row(model, values):
+    """
+    Return record object by filter
+
+    :param model: table object
+    :param values: field values for building the filter
+
+    :return: record object
+    """
     condition = get_condition(model, values)
     if condition is None:
         return None
@@ -71,26 +86,41 @@ def get_condition(model, values):
 
 
 def add_row(collection, data):
+    """
+    Add record in table
+
+    :param collection: table name
+    :param data: fields and values
+
+    :return: new record or None
+    """
     model = get_model(collection)
     if model is None:
         return None
-    # data = data['params']
     if not check_data(data, model):
         return None
     obj, meth = get_or_insert(model, data)
     if meth == "get":
         return None
-    res = model.select().where(model.id == obj)
-    return res
+    return obj
 
 
 def delete_row(collection, id_row):
+    """
+    Delete record from a table by id
+
+    :param collection: table name
+    :param id_row: record id
+
+    :return:
+    """
     model = get_model(collection)
     if model is None:
         return False
     row = model.get_or_none(id=id_row)
     if row is None:
         return False
+    # check delete row for constraints
     foreign_tables = [table for table in row._meta.model_backrefs]
     for foreign_table in foreign_tables:
         foreign_keys = [key for key in foreign_table._meta.refs]
@@ -103,18 +133,28 @@ def delete_row(collection, id_row):
     return True
 
 
-def update_row(collection, id_row, data):
+def update_row(collection, id_row, data) -> bool:
+    """
+    Update record field by id
+
+    :param collection: table name
+    :param id_row: record id
+    :param data: dict with request parameters
+
+    :return: bool
+    """
     model = get_model(collection)
     if model is None:
         return False
-    # if 'params' not in data.keys():
-    #     return False
-    # data = data['params']
+
     if 'mode' in data.keys():
         if data['mode'] == 'many_to_many':
             parent = data['parent']
             parent_id = data['parent_id']
             child = data['child']
+            # radiobutton change
+            # current = -1 - remove flag
+            # prev = -1 - first init
             if 'prev' in data.keys():
                 prev = data['prev']
                 current = data['current']
@@ -125,6 +165,8 @@ def update_row(collection, id_row, data):
                 if current != -1:
                     values = {parent: parent_id, child: current}
                     insert_row(model, values)
+            # classic many_to_many
+            # add or remove record when switching checkbox
             else:
                 child_id = id_row
                 checked = data['value']
@@ -135,6 +177,7 @@ def update_row(collection, id_row, data):
                     obj = get_row(model, values)
                     obj.delete_instance()
             return True
+
     row = model.get_or_none(id=id_row)
     if row is None:
         return False
@@ -235,7 +278,12 @@ def get_group_data(group_field, data):
     return res_data
 
 
-def create_sidebar():
+def create_sidebar() -> list:
+    """
+    Return information for sidebar from cache
+
+    :return: data
+    """
     data = []
     for table_name in cache.get_sidebar_fields():
         table_info = cache.get_table_info(table_name).get()
@@ -243,7 +291,12 @@ def create_sidebar():
     return data
 
 
-def get_dicts_info():
+def get_dicts_info() -> list:
+    """
+    Return displayed titles for all tables from cache
+
+    :return: data
+    """
     all_table_info = cache.get_table_info_model().select()
     data = []
     for table_info in all_table_info:
@@ -252,41 +305,54 @@ def get_dicts_info():
     return data
 
 
-def get_dict_info(collection, params):
-    table_info = cache.get_table_info(collection).get()
-    data = {"title": table_info.title}
+def get_dict_info(collection, params) -> dict:
+    """
+    Collects all parameters for table display
 
-    fields = []
+    :param collection: table name
+    :param params: dict with parameters
+
+    :return: data
+    """
+    table_info = cache.get_table_info(collection).get()
     model = get_model(collection)
+    data = {}
+    # get parent name from params for many_to_many mode
+    parent_name = None
+    if 'parent' in params.keys():
+        parent_name = params['parent']
+
+    data["title"] = table_info.title
     if table_info.many_to_many:
         data['mode'] = 'many_to_many'
     if table_info.group_field:
         data['group_field'] = table_info.group_field
-    parent_name = None
-    if 'parent' in params.keys():
-        parent_name = params['parent']
+
+    fields = []
     for field_name in model._meta.fields:
+        # exclude fields that are not displayed
         if field_name in ('id', 'uuid', 'version_number', parent_name):
             continue
+        field_object = getattr(model, field_name)
         if table_info.many_to_many and parent_name:
             if field_name != parent_name:
-                value = getattr(model, field_name)
-                fields.append({"key": "name", "label": value.verbose_name})
+                # only name field for the column in many_to_many mode
+                fields.append({"key": "name", "label": field_object.verbose_name})
+                # add a parameter 'child' with the name of the child table
                 data['child'] = field_name
             continue
-        value = getattr(model, field_name)
-        field_info = {"key": field_name, "label": value.verbose_name}
+        field_info = {"key": field_name, "label": field_object.verbose_name}
         if field_name == 'name':
             field_info["sortable"] = True
-        if isinstance(value, ForeignKeyField):
+        if isinstance(field_object, ForeignKeyField):
             field_info["type"] = "selectable"
-        if isinstance(value, DoubleField):
+        if isinstance(field_object, DoubleField):
             field_info["type"] = "float"
-        if isinstance(value, IntegerField):
+        if isinstance(field_object, IntegerField):
             field_info["type"] = "integer"
-        if isinstance(value, BooleanField):
+        if isinstance(field_object, BooleanField):
             field_info["type"] = "boolean"
-        if isinstance(value, DateField):
+        if isinstance(field_object, DateField):
             field_info["type"] = "date"
         fields.append(field_info)
     data["fields"] = fields
