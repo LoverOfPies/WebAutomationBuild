@@ -10,7 +10,6 @@ def load_class(s):
 
 
 class Cache(object):
-
     _table_info_model = None
     _filter_info_model = None
     _action_info_model = None
