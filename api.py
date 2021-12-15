@@ -130,7 +130,7 @@ def get_dict(collection):
         "title": "display table name",
         "mode": "mode name",
         "child": "child table name",    # only many_to_many mode
-        "group_field": "name fi",
+        "group_field": "name field for radiobutton group", # only many_to_many mode
         "fields": [
             {
                 "key": "field name",
@@ -151,7 +151,7 @@ def get_dict(collection):
         "actions": [
             {
                 "action": "route",
-                "label": "display name for open table name",
+                "label": "display name for open table",
                 "to": "open table name"
             },
             ...
