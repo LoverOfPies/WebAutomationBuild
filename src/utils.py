@@ -70,6 +70,15 @@ def check_data(data, model):
 
 
 def get_condition(model, values):
+    """
+    Return equals filter by fields and values
+    format: {"field": value, ...}
+
+    :param model: table object
+    :param values: fields and values for filter
+
+    :return: filter
+    """
     filters = []
     for value in values:
         if hasattr(model, value):
@@ -105,14 +114,14 @@ def add_row(collection, data):
     return obj
 
 
-def delete_row(collection, id_row):
+def delete_row(collection, id_row) -> bool:
     """
     Delete record from a table by id
 
     :param collection: table name
     :param id_row: record id
 
-    :return:
+    :return: bool
     """
     model = get_model(collection)
     if model is None:
@@ -195,66 +204,115 @@ def update_row(collection, id_row, data) -> bool:
     return True
 
 
-def get_filter_data(model, values):
+def get_filter_data(model, values) -> list:
+    """
+    Return records from table
+
+    :param model: table object
+    :param values: dict
+    {
+        'field': 'value',
+        ...
+    }
+
+    :return: data
+    """
     keys = list(values.keys())
-    if "mode" in keys:
-        keys.remove("mode")
-    for i in (range(len(keys))):
-        if i + 1 == len(keys):
-            inner_model_name = keys[i]
+    for i, model_name in enumerate(keys):
+        # simple filter with one element in grid
+        if 1 == len(keys):
             data = [res for res in
-                    model.select().where(getattr(model, inner_model_name) == values[inner_model_name]).dicts()]
+                    model.select().where(getattr(model, model_name) == values[model_name]).dicts()]
             return data
+        # advance filter with many element in grid
+        # start filter from first table in chain
         if values[keys[i + 1]] == "":
             inner_model_name = keys[i + 1]
             inner_model = get_model(inner_model_name)
             inner_ids = [inner_id for inner_id in inner_model.select(getattr(inner_model, "id")).where(
-                getattr(inner_model, keys[i]) == values[keys[i]])]
+                getattr(inner_model, model_name) == values[model_name])]
             data = recursive_filter(inner_model_name, keys[i + 1:], inner_ids, model)
             return data
 
 
-def recursive_filter(model_name, keys, obj_ids, parent_model):
+def recursive_filter(model_name, keys, obj_ids, parent_model) -> list:
+    """
+    Return records from chain filter
+
+    :param model_name: current table name in chain
+    :param keys: other chain params
+    :param obj_ids: ids for filter current table
+    :param parent_model: original table object
+
+    :return: data
+    """
     data = []
-    for i in (range(len(keys))):
+    for i, val in enumerate(keys):
+        # find last table in chain
+        # get data from original table with ids constraints
         if i + 1 == len(keys):
             for obj_id in obj_ids:
                 data = data + [res for res in
                                parent_model.select().where(getattr(parent_model, model_name) == obj_id).dicts()]
             return data
+        # get ids from next table in chain
         inner_model_name = keys[i + 1]
         inner_model = get_model(inner_model_name)
         inner_ids = []
         for obj_id in obj_ids:
             inner_ids = inner_ids + [res for res in inner_model.select(getattr(inner_model, "id")).where(
-                getattr(inner_model, keys[i]) == obj_id)]
+                getattr(inner_model, val) == obj_id)]
+        # get ids or data from next table in chain
         data = recursive_filter(inner_model_name, keys[i + 1:], inner_ids, parent_model)
         return data
 
 
 def get_many_data(model, values):
-    group_field = None
+    """
+    Return data for many_to_many mode
+
+    :param model: table object
+    :param values: values for filter
+
+    :return: data
+    """
     data = []
-    del values['mode']
     child_name = values['child']
     del values['child']
+    group_field = None
     if 'group_field' in values.keys():
         group_field = values['group_field']
         del values['group_field']
+    # data for many_to_many with checked field
     if hasattr(model, child_name):
         condition = get_condition(model, values)
         if condition:
             data = get_child_data(model, child_name, condition)
+    # group data for radiobutton
     if group_field:
         data = get_group_data(group_field, data)
     return data
 
 
-def get_child_data(model, child_name, condition):
+def get_child_data(model, child_name, condition) -> list:
+    """
+    Return checked ids for many_to_many mode
+
+    :param model: table object
+    :param child_name: child table name
+    :param condition: filter for parent, where parent_value_id == select_id
+
+    :return: child_all_data
+    """
+    # get child table object from foreign link
     child_model = getattr(model, child_name).rel_model
+    # get all records from child table
     child_all_data = [row for row in child_model.select().dicts()]
+    # get select records
     child_select_data = [row for row in model.select(getattr(model, child_name)).where(condition).dicts()]
+    # get select ids
     select_ids = [row_value[child_name] for row_value in child_select_data]
+    # add checked field value
     if child_all_data:
         for child_data in child_all_data:
             if child_data['id'] in select_ids:
@@ -264,7 +322,25 @@ def get_child_data(model, child_name, condition):
     return child_all_data
 
 
-def get_group_data(group_field, data):
+def get_group_data(group_field, data) -> list:
+    """
+    Return checked ids for many_to_many mode
+
+    :param group_field: field for group radiobutton
+    :param data: data before apply many_to_many mode with checked field
+
+    :return: res_data
+    [
+        {
+            "group_label": display name for group,
+            "items":
+                [
+
+                ]
+        },
+        ...
+    ]
+    """
     group_data = [row for row in get_model(group_field).select()]
     res_data = []
     for group_row in group_data:

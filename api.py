@@ -23,6 +23,31 @@ def index():
 @app.route(f'{api_version}/get/<string:collection>', methods=['GET'])
 @cross_origin()
 def get_data(collection):
+    """
+    Get records from table
+
+    :param collection: table name
+
+    request.args
+    --- mode: (optional) mode value
+    --- child: (optional) table child name for many_to_many mode
+    --- group_field: (optional) group field for radiobutton
+    --- values:
+    {
+        'field': 'value',
+        ...
+    }
+
+    :return: json
+    ..code-block:: json
+    [
+        {
+            'field': 'value',
+            ...
+        },
+        ...
+    ]
+    """
     model = get_model(collection)
     if model is None:
         abort(404)
@@ -30,15 +55,23 @@ def get_data(collection):
     if request.args:
         values = dict(request.args)
         if 'mode' in values.keys():
+            # get data for chain filter in grid
             if values['mode'] == 'advanced_filters':
+                del values['mode']
                 data = get_filter_data(model, values)
+                return jsonify(data)
+            # get data for many_to_many mode
             if values['mode'] == 'many_to_many':
+                del values['mode']
                 data = get_many_data(model, values)
+                return jsonify(data)
         else:
+            # get data with filter by fields
             condition = get_condition(model, values)
             if condition:
                 data = [row for row in model.select().where(condition).dicts()]
     else:
+        # get all records from table
         data = [row for row in model.select().dicts()]
     return jsonify(data)
 
@@ -51,13 +84,19 @@ def add_value(collection):
 
     :param collection: table name
 
+    request.json
+    {
+        'field': 'value',
+        ...
+    }
+
     :return: json
     ..code-block:: json
     [
         {
-            
-        },
-        ...
+            'field': 'value',
+            ...
+        }
     ]
     """
     result = add_row(collection, request.json)
@@ -76,15 +115,17 @@ def edit_value(collection, id_row):
     :param collection: table name
     :param id_row: record id, for many_to_many child id
 
-    request.params
-    --- field: update field name
-    --- value: update field value
-    --- mode: (optional) mode name
-    --- parent: (optional) parent table name for many_to_many
-    --- parent_id: (optional) parent record id for many_to_many
-    --- child: (optional) child table name for many_to_many
-    --- prev: (optional) prev value for radiobutton
-    --- current: (optional) current value for radiobutton
+    request.json
+    {
+        'field': 'update field name'
+        'value': 'update field value'
+        'mode': (optional) 'mode name'
+        'parent': (optional) 'parent table name for many_to_many'
+        'parent_id': (optional) 'parent record id for many_to_many'
+        'child': (optional) 'child table name for many_to_many'
+        'prev': (optional) 'prev value for radiobutton'
+        'current': (optional) 'current value for radiobutton'
+    }
 
     :return: json
     """
@@ -121,7 +162,7 @@ def get_dict(collection):
 
     :param collection: table name in Database
 
-    request.params
+    request.args
     --- parent: (optional) parent name for many_to_many mode
 
     :return: json
@@ -130,7 +171,7 @@ def get_dict(collection):
         "title": "display table name",
         "mode": "mode name",
         "child": "child table name",    # only many_to_many mode
-        "group_field": "name field for radiobutton group", # only many_to_many mode
+        "group_field": "name fi",
         "fields": [
             {
                 "key": "field name",
@@ -151,7 +192,7 @@ def get_dict(collection):
         "actions": [
             {
                 "action": "route",
-                "label": "display name for open table",
+                "label": "display name for open table name",
                 "to": "open table name"
             },
             ...
