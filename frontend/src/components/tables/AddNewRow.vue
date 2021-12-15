@@ -11,8 +11,8 @@
       centered
     >
       <b-row v-for="field in fields" :key="field.id" class="py-2">
-        <b-col class="position-relative" v-if="field.key != 'actions'">
-          <label class="position-absolute top-50 start-50 translate-middle"
+        <b-col class="position-relative d-flex align-items-center" v-if="field.key != 'actions'">
+          <label class="mb-0"
             >{{ field.label }}:</label
           >
         </b-col>
@@ -20,7 +20,7 @@
           <change-field-modal
             :ref="`change-field-${field.key}`"
             v-if="field.type && field.type == 'selectable'"
-            :label="'Не выбранно'"
+            :label="'Не выбрано'"
             :model="field.key"
             rowId="-1"
             :items="fieldsModels[field.key]"

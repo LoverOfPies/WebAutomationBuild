@@ -4,21 +4,22 @@
 
     <b-container fluid class="p-4">
       <b-row>
-        <b-col cols="12" xl="6" class="p-2">
+        <b-col cols="12" xl="5" class="p-2">
           <b-form @submit.prevent="importTable" class="d-flex flex-wrap">
             <div class="mb-2 fs-5 w-100">Системный импорт</div>
             <b-form-select
               id="settings-import"
               v-model="importForm.selected"
               :options="importForm.options"
-              class="me-2"
+              class="mb-2"
             ></b-form-select>
             <b-form-file
               v-model="importForm.file"
               :state="Boolean(importForm.file)"
               placeholder="Выберите файл или перетащите сюда..."
               drop-placeholder="Перетащите файл сюда..."
-              class="me-2 flex-grow-1"
+              browse-text="Обзор"
+              class="mb-2 flex-grow-1"
             ></b-form-file>
             <b-button type="submit" :disabled="importForm.disabled" variant="primary">Импорт</b-button>
           </b-form>
@@ -30,7 +31,7 @@
               id="settings-export"
               v-model="exportForm.selected"
               :options="exportForm.options"
-              class="me-2"
+              class="mb-2"
             ></b-form-select>
             <b-button
               type="submit"

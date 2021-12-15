@@ -22,7 +22,7 @@ export default class {
   }
 
   getSidebarItems() {
-    const promise = axios.get(`${this.api}/${this.version}/sidebars`);
+    const promise = axios.get(`${this.api}/${this.version}/sidebar`);
     const data = promise
       .then((res) => res.data)
       .catch((r) => this.showErrorToast(r));
