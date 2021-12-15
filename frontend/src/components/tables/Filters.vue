@@ -71,7 +71,7 @@ export default {
       //     model,
       //     "name"
       // );
-      this.$emit("filterLableChange", { itemId, model });
+      this.$emit("filterLabelChange", { itemId, model });
     },
     onResetFilters(id) {
       this.$emit("resetFilters", id);

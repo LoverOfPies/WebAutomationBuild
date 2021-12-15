@@ -1,14 +1,19 @@
-import app from "../main.js";
 import axios from "axios";
+import Vue from "vue";
+import { ToastPlugin } from 'bootstrap-vue';
+
+Vue.use(ToastPlugin);
 
 export default class {
   constructor() {
     this.api = `http://localhost:${process.env.VUE_APP_API_PORT}/api`;
     this.version = "v0.1";
-    this.vm = app;
+
+    const vm = new Vue();
+
     this.showErrorToast = (error) => {
       console.log(error);
-      this.vm.$bvToast.toast("Произошла ошибка при загрузке данных!", {
+      vm.$bvToast.toast("Произошла ошибка при загрузке данных!", {
         title: "Ошибка",
         autoHideDelay: 5000,
         variant: "danger",
@@ -17,7 +22,7 @@ export default class {
   }
 
   getSidebarItems() {
-    const promise = axios.get(`${this.api}/${this.version}/sidebar`);
+    const promise = axios.get(`${this.api}/${this.version}/sidebars`);
     const data = promise
       .then((res) => res.data)
       .catch((r) => this.showErrorToast(r));
@@ -27,7 +32,7 @@ export default class {
 
   getData(collection, params = {}) {
     if (Object.keys(params).length != 0) {
-      console.info("API Request Params", params);
+      console.info("[getData() params]", params);
     }
 
     const promise = axios.get(`${this.api}/${this.version}/get/${collection}`, {
@@ -71,7 +76,7 @@ export default class {
   }
 
   addRow(collection, fields) {
-    console.log(collection, fields);
+    console.log("[addRow() params]", collection, fields);
     const promise = axios.post(
       `${this.api}/${this.version}/add/${collection}`,
       fields

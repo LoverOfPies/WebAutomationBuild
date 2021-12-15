@@ -12,9 +12,7 @@
     >
       <b-row v-for="field in fields" :key="field.id" class="py-2">
         <b-col class="position-relative" v-if="field.key != 'actions'">
-          <label
-            class="position-absolute top-50 start-50 translate-middle"
-            for="input-default"
+          <label class="position-absolute top-50 start-50 translate-middle"
             >{{ field.label }}:</label
           >
         </b-col>
@@ -44,10 +42,15 @@
             :model="field.key"
             @updateField="onUpdateField"
           />
+          <date-field
+            v-else-if="field.type && field.type == 'date'"
+            :model="field.key"
+            @updateField="onUpdateField"
+          >
+          </date-field>
           <b-form-input
             v-else
             v-model="addModal.fields[field.key]"
-            id="input-default"
             placeholder="Введите текст"
           ></b-form-input>
         </b-col>
@@ -69,9 +72,16 @@ import ChangeFieldModal from "./ChangeFieldModal.vue";
 import FloatField from "./fields/FloatField.vue";
 import IntField from "./fields/IntField.vue";
 import BooleanField from "./fields/BooleanField.vue";
+import DateField from "./fields/DateField.vue";
 
 export default {
-  components: { ChangeFieldModal, FloatField, IntField, BooleanField },
+  components: {
+    ChangeFieldModal,
+    FloatField,
+    IntField,
+    BooleanField,
+    DateField,
+  },
   props: ["title", "fields", "fieldsModels"],
   data() {
     return {

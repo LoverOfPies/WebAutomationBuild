@@ -6,10 +6,7 @@
       class="w-100"
       v-if="label != ''"
     >
-      {{ label == "" ? "" : label }}
-      <!-- <shimmer-text>{{
-        labelReplacement == "" ? label : labelReplacement
-      }}</shimmer-text> -->
+      {{ displayedLabel }}
     </b-button>
 
     <b-skeleton v-else type="input"></b-skeleton>
@@ -75,12 +72,10 @@
 </template>
 
 <script>
-// import ShimmerText from "../ShimmerText.vue";
 
 let uid = 0;
 
 export default {
-  // components: { ShimmerText },
   props: ["label", "model", "rowId", "items", "disabled", "resetBtn"],
   data() {
     uid += 1;
@@ -135,6 +130,9 @@ export default {
     rows() {
       return this.items ? this.items.length : 0;
     },
+    displayedLabel() {
+      return this.labelReplacement ? this.labelReplacement : this.label;
+    }
   },
 };
 </script>

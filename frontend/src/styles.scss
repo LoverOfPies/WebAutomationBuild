@@ -3,3 +3,7 @@
 #table thead tr th:last-of-type {
     width: 1%;
 }
+
+.toast:not(.show) {
+    display: block;
+}

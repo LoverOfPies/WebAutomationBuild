@@ -22,6 +22,3 @@ const app = new Vue({
 });
 store.$app = app;
 app.$mount("#app");
-
-export default app;
-

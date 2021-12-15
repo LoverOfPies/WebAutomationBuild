@@ -1,12 +1,10 @@
 import APIClass from "../../api/ApiUtils.js";
-// import app from "../../main.js";
-// console.log(app);
 const API = new APIClass();
 
 export default {
   actions: {
     fetchSidebarItems(ctx) {
-      console.log(API);
+      console.log("[API info]", API);
       API.getSidebarItems().then((data) => {
         ctx.commit("updateSidebarItems", data);
       });

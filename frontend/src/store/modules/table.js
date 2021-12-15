@@ -1,6 +1,5 @@
-import Vue from "vue";
-import APIClass from "../../api/ApiUtils.js";
-const API = new APIClass(Vue);
+import APIClass from "@/api/ApiUtils.js";
+const API = new APIClass();
 
 export default {
   actions: {
@@ -82,7 +81,6 @@ export default {
       state.table.items.list = items;
     },
     updateTableItem(state, { collection, id, field, value }) {
-      console.log(collection, id, field, value);
       let changedField = state.table.items.list.find((e) => e.id == id);
       changedField[field] = value;
       API.updateField(collection, id, { field, value });

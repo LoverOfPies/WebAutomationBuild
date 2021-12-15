@@ -13,7 +13,7 @@
             :filtersData="filtersData"
             @applyFilters="onApplyFilters"
             @resetFilters="onResetFilters"
-            @filterLableChange="onFilterLableChange"
+            @filterLabelChange="onFilterLabelChange"
             ref="filters"
           />
           <!-- table -->
@@ -30,8 +30,8 @@
           <!-- select group -->
           <select-group v-else :items="itemsData" :fields="fieldsData" :id="id" :name="name">
           </select-group>
-          <!-- bottom navigation  v-if="mode == null"-->
-          <b-row >
+          <!-- bottom navigation -->
+          <b-row v-if="mode == null">
             <b-col cols="10">
               <!-- pagination -->
               <Pagination
@@ -136,7 +136,7 @@ export default {
     onFilterChange(newValue) {
       this.searchFilter = newValue;
     },
-    onFilterLableChange({ itemId, model }) {
+    onFilterLabelChange({ itemId, model }) {
       this.updateFilterLabel({ itemId, model });
     },
     onPageChange(newCurrentPage) {

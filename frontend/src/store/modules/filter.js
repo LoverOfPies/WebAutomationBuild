@@ -1,6 +1,5 @@
-import Vue from "vue";
-import APIClass from "../../api/ApiUtils.js";
-const API = new APIClass(Vue);
+import APIClass from "@/api/ApiUtils.js";
+const API = new APIClass();
 
 export default {
   actions: {

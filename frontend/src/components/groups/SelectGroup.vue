@@ -1,6 +1,7 @@
 <template>
   <div>
-    <b-form-group v-slot="{ ariaDescribedby }">
+    <!-- TODO: get tech group name -->
+    <b-form-group label="tech group placeholder" v-slot="{ ariaDescribedby }">
       <b-form-checkbox
         v-for="item in items.list"
         :key="item.id"
