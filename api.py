@@ -3,9 +3,8 @@ from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
 from app import app
-from src.expimp.ExportImportUtils import import_single_table, import_custom_data, save_file, create_file
-from src.utils import get_model, delete_row, update_row, add_row, create_sidebar, get_dict_info, \
-    get_condition, get_dicts_info, get_filter_data, get_many_data
+from src.expimp import ExportImportUtils
+import src.ApiUtils
 
 api_version = '/api/v0.1'
 
@@ -48,32 +47,10 @@ def get_data(collection):
         ...
     ]
     """
-    model = get_model(collection)
-    if model is None:
-        abort(404)
-    data = None
-    if request.args:
-        values = dict(request.args)
-        if 'mode' in values.keys():
-            # get data for chain filter in grid
-            if values['mode'] == 'advanced_filters':
-                del values['mode']
-                data = get_filter_data(model, values)
-                return jsonify(data)
-            # get data for many_to_many mode
-            if values['mode'] == 'many_to_many':
-                del values['mode']
-                data = get_many_data(model, values)
-                return jsonify(data)
-        else:
-            # get data with filter by fields
-            condition = get_condition(model, values)
-            if condition:
-                data = [row for row in model.select().where(condition).dicts()]
-    else:
-        # get all records from table
-        data = [row for row in model.select().dicts()]
-    return jsonify(data)
+    data = src.ApiUtils.get_data_from_table(collection, request.args)
+    if data:
+        return jsonify(data)
+    return abort(404)
 
 
 @app.route(f'{api_version}/add/<string:collection>', methods=['POST'])
@@ -99,7 +76,7 @@ def add_value(collection):
         }
     ]
     """
-    result = add_row(collection, request.json)
+    result = src.ApiUtils.add_row(collection, request.json)
     if result:
         data = [row for row in result.dicts()]
         return jsonify(data)
@@ -131,7 +108,7 @@ def edit_value(collection, id_row):
     """
     if not request.json:
         abort(400)
-    result = update_row(collection, id_row, request.json)
+    result = src.ApiUtils.update_row(collection, id_row, request.json)
     if result:
         return jsonify({'result': True})
     return abort(404)
@@ -148,7 +125,7 @@ def delete_value(collection, id_row):
 
     :return: json
     """
-    result = delete_row(collection, id_row)
+    result = src.ApiUtils.delete_row(collection, id_row)
     if result:
         return jsonify({'result': True})
     return abort(404)
@@ -199,7 +176,7 @@ def get_dict(collection):
         ]
     }
     """
-    data = get_dict_info(collection, request.args)
+    data = src.ApiUtils.get_dict_info(collection, request.args)
     return jsonify(data)
 
 
@@ -219,7 +196,7 @@ def get_dicts():
         ...
     ]
     """
-    data = get_dicts_info()
+    data = src.ApiUtils.get_dicts_info()
     return jsonify(data)
 
 
@@ -240,21 +217,18 @@ def get_sidebar():
         ...
     ]
     """
-    sidebar = create_sidebar()
+    sidebar = src.ApiUtils.create_sidebar()
     return jsonify(sidebar)
 
 
 @app.route(f'{api_version}/import/<string:collection>', methods=['POST'])
 @cross_origin()
 def file_import(collection):
-    model = get_model(collection)
-    if model is None:
-        abort(404)
     if request.method == 'POST':
-        path = save_file(request.files)
+        path = ExportImportUtils.save_file(request.files)
         if path is None:
             abort(404)
-        res = import_single_table(model, path)
+        res = ExportImportUtils.import_single_table(collection, path)
         if not res:
             abort(404)
     return jsonify('True')
@@ -263,7 +237,7 @@ def file_import(collection):
 @app.route(f'{api_version}/export/<string:collection>', methods=['GET'])
 @cross_origin()
 def file_export(collection):
-    path = create_file(collection)
+    path = ExportImportUtils.create_file(collection)
     try:
         return send_file(path, as_attachment=True)
     except FileNotFoundError:
@@ -274,10 +248,10 @@ def file_export(collection):
 @cross_origin()
 def file_custom_import():
     if request.method == 'POST':
-        path = save_file(request.files)
+        path = ExportImportUtils.save_file(request.files)
         if path is None:
             abort(404)
-        res = import_custom_data(path)
+        res = ExportImportUtils.import_custom_data(path)
         if res:
             return jsonify('True')
     abort(404)
