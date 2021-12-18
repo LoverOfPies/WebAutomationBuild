@@ -14,8 +14,18 @@ export default {
             };
             API.updateField(collection, child_id, fields);
         },
-        // TODO: multiple update
-        updateRadioSelection() {}
+        updateRadioSelection(contex, {collection, parent, parent_id, child, child_id, prev, current}) {
+            const fields = {
+                parent,
+                parent_id,
+                child,
+                prev,
+                current,
+                mode: "many_to_many",
+            }
+            console.log(collection, child_id, fields);
+            API.updateField(collection, child_id, fields)
+        }
     }
 
 }

@@ -5,7 +5,7 @@
     </b-button>
 
     <b-popover :target="popId" title="Вы уверенны?">
-      <b-button @click="$emit('deleteRow', rowId)" variant="success" class="mr-2" size="sm"
+      <b-button @click="deleteRow" variant="success" class="mr-2" size="sm"
         >
         <b-icon icon="check" variant="light"></b-icon>
         </b-button
@@ -27,7 +27,11 @@ export default {
         }
     },
     methods: {
-        closePopover: function() {
+        deleteRow() {
+          this.closePopover();
+          this.$emit('deleteRow', this.rowId);
+        },
+        closePopover() {
             this.$root.$emit('bv::hide::popover', this.popId)
         }
     }

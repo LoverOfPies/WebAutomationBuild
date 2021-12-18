@@ -14,6 +14,11 @@ export default {
           commit("updateTableMode", tableInfo.mode);
         }
 
+        commit("resetGroupField");
+        if (tableInfo.group_field) {
+          commit("updateGroupField", tableInfo.group_field);
+        }
+
         commit("resetFilters");
         if (tableInfo.filters.length > 0) {
           commit("updateFiltersModel", tableInfo.filters);
@@ -47,12 +52,14 @@ export default {
     addNewRow({ commit, dispatch, getters, state }, { table_name, row }) {
       API.addRow(table_name, row).then((data) => {
         if (state.table.isFiltered) {
+          console.log("[getItems()] filtered update");
           dispatch("getItems", {
             name: table_name,
             params: getters.filterParams,
           });
         }
-        commit("addTableItem", data[0]);
+        console.log(data);
+        commit("addTableItem", data);
       });
     },
     deleteRow({ commit }, { table_name, row_id }) {
@@ -77,6 +84,12 @@ export default {
     resetTableMode(state) {
       state.table.mode = null;
     },
+    updateGroupField(state, field) {
+      state.table.group_field = field;
+    },
+    resetGroupField(state) {
+      state.table.group_field = null;
+    },
     updateTableItems(state, items) {
       state.table.items.list = items;
     },
@@ -86,6 +99,7 @@ export default {
       API.updateField(collection, id, { field, value });
     },
     addTableItem(state, item) {
+      console.log("[addTableItem()] pushing new item", item);
       state.table.items.list.push(item);
     },
     deleteTableItem(state, row_id) {
@@ -115,6 +129,7 @@ export default {
     table: {
       title: "",
       mode: null,
+      group_field: null,
       isBusy: false,
       isReadOnly: false,
       isFiltered: false,
@@ -143,6 +158,9 @@ export default {
     },
     mode(state) {
       return state.table.mode;
+    },
+    groupField(state) {
+      return state.table.group_field;
     },
     itemsData(state, getters) {
       return { list: state.table.items.list, actions: getters.itemsActions };

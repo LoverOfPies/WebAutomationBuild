@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- TODO: get tech group name -->
-    <b-form-group label="tech group placeholder" v-slot="{ ariaDescribedby }">
+    <b-form-group label="checkbox group placeholder" v-slot="{ ariaDescribedby }">
       <b-form-checkbox
         v-for="item in items.list"
         :key="item.id"
@@ -22,17 +22,10 @@ export default {
   props: ["items", "fields", "id", "name"],
   data() {
     return {
-      child_table: this.fields.list[0].key,
-      parent_table: this.fields.list[1].key,
       parent_id: this.id,
+      child_table: this.fields.list[0].key,
+      parent_table: this.fields.list[1].key
     };
-  },
-  computed: {
-    //   options() {
-    //     return this.items.list.map(function (item) {
-    //       return { text: item.name, value: item.id };
-    //     });
-    //   },
   },
   methods: {
     ...mapActions(["updateSelection"]),

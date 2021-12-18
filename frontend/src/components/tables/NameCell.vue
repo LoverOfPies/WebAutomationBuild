@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="!editting" class="text">
+    <div v-if="!editing" class="text">
       <span class="me-2">{{ data.value }}</span>
       <b-icon
         icon="pencil-square"
@@ -32,7 +32,7 @@ export default {
   props: ["data"],
   data() {
     return {
-      editting: false,
+      editing: false,
       value: this.data.value,
       id: this.data.item.id,
     };
@@ -40,7 +40,7 @@ export default {
   methods: {
     showChangeInput(state) {
       this.value = this.data.value;
-      this.editting = state;
+      this.editing = state;
     },
     changeName() {
       let fields = {
@@ -51,7 +51,7 @@ export default {
         id: this.id,
         fields: fields,
       });
-      this.editting = false;
+      this.editing = false;
     },
   },
 };

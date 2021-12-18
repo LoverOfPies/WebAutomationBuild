@@ -28,8 +28,8 @@
             :name="name"
           />
           <!-- select group -->
-          <select-group v-else :items="itemsData" :fields="fieldsData" :id="id" :name="name">
-          </select-group>
+          <SelectGroup v-if="mode != null && groupField == null" :items="itemsData" :fields="fieldsData" :id="id" :name="name" />
+          <RadioGroup v-if="mode != null && groupField != null" :items="itemsData" :groupField="groupField" :fields="fieldsData" :id="id" :name="name" />
           <!-- bottom navigation -->
           <b-row v-if="mode == null">
             <b-col cols="10">
@@ -70,9 +70,10 @@ import Table from "../components/tables/Table.vue";
 import Pagination from "../components/tables/Pagination.vue";
 import AddDataBtn from "../components/tables/AddDataBtn.vue";
 import SelectGroup from "../components/groups/SelectGroup.vue";
+import RadioGroup from "../components/groups/RadioGroup.vue"
 
 export default {
-  components: { Title, SearchBar, Filters, Table, Pagination, AddDataBtn, SelectGroup },
+  components: { Title, SearchBar, Filters, Table, Pagination, AddDataBtn, SelectGroup, RadioGroup },
   props: ["name", "id", "parent"],
   data() {
     return {
@@ -87,6 +88,7 @@ export default {
     ...mapGetters([
       "title",
       "mode",
+      "groupField",
       "isBusy",
       "isFiltered",
       "itemsData",
@@ -158,7 +160,9 @@ export default {
         params["mode"] = this.mode;
         params["child"] = this.fieldsData.list[0].key;
       }
-      // console.log(this.mode, params);
+      if (this.groupField != null) {
+        params["child"] = this.fieldsData.list[1].key;
+      }
       this.getItems({ name: this.name, params });
     },
   },
