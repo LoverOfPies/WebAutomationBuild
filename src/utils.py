@@ -111,7 +111,8 @@ def add_row(collection, data):
     obj, meth = get_or_insert(model, data)
     if meth == "get":
         return None
-    return obj
+    row_object = model.select().where(model.id == obj)
+    return row_object
 
 
 def delete_row(collection, id_row) -> bool:
