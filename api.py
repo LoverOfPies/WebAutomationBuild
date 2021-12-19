@@ -256,3 +256,24 @@ def file_custom_import():
         if res:
             return jsonify('True')
     abort(404)
+
+
+@app.route(f'{api_version}/get_estimate_records', methods=['GET'])
+@cross_origin()
+def get_estimate_records():
+    data = src.ApiUtils.get_estimate_records()
+    return jsonify(data)
+
+
+@app.route(f'{api_version}/calculate_estimate', methods=['POST'])
+@cross_origin()
+def calculate_estimate():
+    src.ApiUtils.calculate_estimate(request.json)
+    return jsonify('True')
+
+
+@app.route(f'{api_version}/export_estimate/<int:id_estimate>', methods=['GET'])
+@cross_origin()
+def export_estimate(id_estimate):
+    src.ApiUtils.export_estimate(id_estimate)
+    return jsonify('True')

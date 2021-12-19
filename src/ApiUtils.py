@@ -378,3 +378,21 @@ def get_dict_info(collection, params) -> dict:
     data["actions"] = actions
 
     return data
+
+
+def get_estimate_records():
+    model = DataBaseUtils.get_model('estimate')
+    if model is None:
+        return None
+    return [row for row in model.select().dicts()]
+
+
+def calculate_estimate(data):
+    model = DataBaseUtils.get_model('estimate')
+    if model is None:
+        return
+    pass
+
+
+def export_estimate(id_estimate):
+    pass
