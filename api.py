@@ -48,9 +48,7 @@ def get_data(collection):
     ]
     """
     data = src.ApiUtils.get_data_from_table(collection, request.args)
-    if data:
-        return jsonify(data)
-    return abort(404)
+    return jsonify(data)
 
 
 @app.route(f'{api_version}/add/<string:collection>', methods=['POST'])
