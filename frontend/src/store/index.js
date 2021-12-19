@@ -3,6 +3,7 @@ import Vuex from "vuex";
 import filters from "./modules/filter";
 import table from "./modules/table";
 import selection from "./modules/selection";
+import estimate from "./modules/estimate";
 import common from "./modules/common";
 
 Vue.use(Vuex);
@@ -13,5 +14,6 @@ export default new Vuex.Store({
     filters,
     table,
     selection,
+    estimate,
   },
 });

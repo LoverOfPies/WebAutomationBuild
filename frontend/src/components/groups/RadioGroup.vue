@@ -5,7 +5,15 @@
       :key="index"
       label="radio group placeholder"
     >
-      <RadioGroupElement :id="id" :name="name" :group="group" :index="index" :selection="groupSelections[index]" :parent="parent_table" :child="child_table" />
+      <RadioGroupElement
+        :id="id"
+        :name="name"
+        :group="group"
+        :index="index"
+        :selection="groupSelections[index]"
+        :parent="parent_table"
+        :child="child_table"
+      />
     </b-form-group>
   </div>
 </template>

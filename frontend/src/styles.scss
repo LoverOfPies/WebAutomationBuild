@@ -1,6 +1,7 @@
 @import url("bootstrap.css");
 
-#table thead tr th:last-of-type {
+#table thead tr th:last-of-type,
+.table-with-checkbox thead tr th:first-of-type {
     width: 1%;
 }
 
