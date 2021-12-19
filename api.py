@@ -76,7 +76,8 @@ def add_value(collection):
     """
     result = src.ApiUtils.add_row(collection, request.json)
     if result:
-        data = [row for row in result.dicts()]
+        # TODO: Костыль [0]
+        data = [row for row in result.dicts()][0]
         return jsonify(data)
     return abort(404)
 
