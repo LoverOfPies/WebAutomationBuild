@@ -1,6 +1,6 @@
 from api import *
-from src.utils import init_base
+from src.db import DataBaseUtils
 
 if __name__ == '__main__':
-    init_base()
+    DataBaseUtils.init_base()
     app.run(port=1337)

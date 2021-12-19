@@ -6,7 +6,7 @@ from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
 
 from app import app
-from src.utils import get_or_insert
+from src.db import DataBaseUtils
 
 
 def allowed_file(file_ext, extensions):
@@ -46,7 +46,9 @@ def create_file(collection):
     return path
 
 
-def import_single_table(model, file_path):
+def import_single_table(collection, file_path):
+    model = DataBaseUtils.get_model(collection)
+
     wb = load_workbook(file_path)
     sheet = wb.active
     fields = {}
@@ -63,7 +65,7 @@ def import_single_table(model, file_path):
         if len(value) > 0:
             data.append(value)
     for value in data:
-        get_or_insert(model, value)
+        DataBaseUtils.get_or_insert(model, value)
     return True
 
 
