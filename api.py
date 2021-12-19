@@ -1,4 +1,4 @@
-from flask import jsonify, make_response, request, send_from_directory, send_file
+from flask import jsonify, make_response, request, send_from_directory, send_file, g
 from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
@@ -14,9 +14,11 @@ def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
 
 
-@app.route('/', methods=['GET'])
-def index():
-    return send_from_directory('static', 'index.html')
+# TODO: Почему path с одним слешем не работает ???
+@app.route('/', defaults={'path': ''})
+@app.route('/dict/<path:path>')
+def index(path):
+    return send_from_directory(app.static_folder, 'index.html')
 
 
 @app.route(f'{api_version}/get/<string:collection>', methods=['GET'])
