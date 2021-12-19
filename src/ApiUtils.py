@@ -391,6 +391,15 @@ def calculate_estimate(data):
     model = DataBaseUtils.get_model('estimate')
     if model is None:
         return
+    print(data)
+    pass
+
+
+def get_estimate_materials(id_estimate):
+    pass
+
+
+def get_estimate_works(id_estimate):
     pass
 
 
