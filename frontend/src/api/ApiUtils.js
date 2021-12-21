@@ -1,6 +1,6 @@
 import axios from "axios";
 import Vue from "vue";
-import { ToastPlugin } from 'bootstrap-vue';
+import { ToastPlugin } from "bootstrap-vue";
 
 Vue.use(ToastPlugin);
 
@@ -99,11 +99,38 @@ export default class {
     return data;
   }
 
+  // estimate section
+
+  getEstimateInfo() {
+    const promise = axios.get(
+      `${this.api}/${this.version}/get_estimate_records`
+    );
+    const data = promise
+      .then((res) => res.data)
+      .catch((r) => this.showErrorToast(r));
+
+    return data;
+  }
+
+  addEstimate(fields) {
+    const promise = axios.post(
+      `${this.api}/${this.version}/calculate_estimate`,
+      fields
+    );
+    const data = promise
+      .then((res) => res.data)
+      .catch((r) => this.showErrorToast(r));
+
+    return data;
+  }
+
   async importTable(collection, file) {
     const formData = new FormData();
     formData.append("file", file);
     const res = await axios
-      .post(`${this.api}/${this.version}/import/${collection}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+      .post(`${this.api}/${this.version}/import/${collection}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
       .catch((r) => this.showErrorToast(r));
 
     return res.data;

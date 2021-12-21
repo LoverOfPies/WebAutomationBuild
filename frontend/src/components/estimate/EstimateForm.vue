@@ -1,0 +1,143 @@
+<template>
+  <div>
+    <b-row class="my-2">
+      <b-col sm="3">
+        <label for="name-input">ФИО:</label>
+      </b-col>
+      <b-col sm="9">
+        <b-form-input
+          v-model="name"
+          id="name-input"
+          placeholder="Введите ваше ФИО"
+        ></b-form-input>
+      </b-col>
+    </b-row>
+
+    <b-row class="my-2">
+      <b-col sm="3">
+        <label for="name-input">Проект:</label>
+      </b-col>
+      <b-col sm="9">
+        <change-field-modal
+          ref="project-input"
+          :label="'Не выбрано'"
+          model="project-input"
+          rowId="-1"
+          :items="projectsList"
+          @updateField="onProjectInputUpdate"
+          @labelChange="onProjectLabelChange"
+        />
+      </b-col>
+    </b-row>
+
+    <b-row class="my-2">
+      <b-col sm="3">
+        <label for="name-input">Базовая комплектация:</label>
+      </b-col>
+      <b-col sm="9">
+        <b-form-checkbox v-model="isBaseEquipment" size="lg" />
+      </b-col>
+    </b-row>
+
+    <!-- base table -->
+    <BaseTable
+      class="mb-4"
+      :showBase="isBaseEquipment"
+      @updateAdditionalWorks="onUpdateAdditionalWorks"
+    />
+    <!-- stages table -->
+    <StagesTable
+      class="mb-4"
+      v-if="!isBaseEquipment"
+      @updateWorkTechnologies="onUpdateWorkTechnologies"
+    />
+
+    <b-row class="my-2">
+      <b-col cols="2">
+        <b-button variant="primary" @click="saveEstimate"> Сохранить </b-button>
+      </b-col>
+      <b-col class="text-end">
+        <b-button variant="danger" @click="$emit('toggleEditingView', false)">
+          Отмена
+        </b-button>
+      </b-col>
+    </b-row>
+  </div>
+</template>
+
+<script>
+/*eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }]*/
+
+import { mapGetters, mapActions } from "vuex";
+
+import ChangeFieldModal from "../tables/ChangeFieldModal.vue";
+import BaseTable from "./BaseTable.vue";
+import StagesTable from "./StagesTable.vue";
+
+export default {
+  components: { ChangeFieldModal, BaseTable, StagesTable },
+  props: ["id"],
+  data() {
+    return {
+      name: null,
+      selectedProjectId: null,
+      selectedAdditionalWorks: [],
+      selectedWorkTechnologies: [],
+      isBaseEquipment: true,
+    };
+  },
+  computed: {
+    ...mapGetters(["projectsList"]),
+  },
+  methods: {
+    ...mapActions(["loadProjects", "addEstimate"]),
+    async init() {
+      this.loadProjects({ table_name: "project" });
+    },
+    getFieldById(id, model, field) {
+      return this.projectsList.find((x) => x.id == id)[field];
+    },
+    onProjectLabelChange({ id: itemId, model }) {
+      this.$refs["project-input"].labelReplacement = this.getFieldById(
+        itemId,
+        model,
+        "name"
+      );
+    },
+    onProjectInputUpdate({ _id, fields }) {
+      this.selectedProjectId = fields.value;
+    },
+    onUpdateAdditionalWorks(newList) {
+      this.selectedAdditionalWorks = newList;
+    },
+    onUpdateWorkTechnologies(newList) {
+      this.selectedWorkTechnologies = newList;
+    },
+    saveEstimate() {
+      // {
+      //     client_fio,
+      //     use_base,
+      //     project_id,
+      //     additional_works: [1, 2, ...] (optional),
+      //     work_technologies: [1, 2, ...] (optional)
+      // }
+      const fields = {
+        client_info: this.name,
+        use_base: this.isBaseEquipment,
+        project_id: this.selectedProjectId,
+        ...(this.selectedAdditionalWorks.length && {
+          additional_works: this.selectedAdditionalWorks,
+        }),
+        ...(this.selectedWorkTechnologies.length && {
+          work_technologies: this.selectedWorkTechnologies,
+        }),
+      };
+      console.table(fields);
+      this.addEstimate({ fields });
+    },
+  },
+  mounted() {
+    this.init();
+  },
+};
+</script>

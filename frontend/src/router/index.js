@@ -7,28 +7,26 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: "/",
-    name: "Расчет",
+    name: "Расчеты",
     component: Estimate,
   },
   {
     path: "/dict/:name",
     name: "dict",
     props: true,
-    component: () =>
-      import(/* webpackChunkName: "base_units" */ "../views/Dict.vue"),
+    component: () => import(/* webpackChunkName: "dict" */ "../views/Dict.vue"),
   },
   {
     path: "/dict/:parent/:name/:id",
     name: "child-dict",
     props: true,
-    component: () =>
-      import(/* webpackChunkName: "base_units" */ "../views/Dict.vue"),
+    component: () => import(/* webpackChunkName: "dict" */ "../views/Dict.vue"),
   },
   {
     path: "/settings",
     name: "settings",
     component: () =>
-      import(/* webpackChunkName: "base_units" */ "../views/Settings.vue"),
+      import(/* webpackChunkName: "settings" */ "../views/Settings.vue"),
   },
 ];
 

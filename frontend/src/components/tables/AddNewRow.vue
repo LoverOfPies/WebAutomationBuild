@@ -11,10 +11,11 @@
       centered
     >
       <b-row v-for="field in fields" :key="field.id" class="py-2">
-        <b-col class="position-relative d-flex align-items-center" v-if="field.key != 'actions'">
-          <label class="mb-0"
-            >{{ field.label }}:</label
-          >
+        <b-col
+          class="position-relative d-flex align-items-center"
+          v-if="field.key != 'actions'"
+        >
+          <label class="mb-0">{{ field.label }}:</label>
         </b-col>
         <b-col cols="8" v-if="field.key != 'actions'">
           <change-field-modal

@@ -3,7 +3,8 @@
     <b-button
       @click="showFieldModal($event.target)"
       :disabled="disabled"
-      class="w-100"
+      block
+      :size="size"
       v-if="label != ''"
     >
       {{ displayedLabel }}
@@ -14,8 +15,8 @@
     <b-modal
       :id="fieldModal.id"
       :title="fieldModal.title"
-      @hide="resetFieldModal"
       footer-bg-variant="secondary"
+      @hide="resetFieldModal"
       centered
     >
       <b-table
@@ -72,11 +73,10 @@
 </template>
 
 <script>
-
 let uid = 0;
 
 export default {
-  props: ["label", "model", "rowId", "items", "disabled", "resetBtn"],
+  props: ["label", "model", "rowId", "items", "disabled", "resetBtn", "size"],
   data() {
     uid += 1;
     return {
@@ -132,7 +132,7 @@ export default {
     },
     displayedLabel() {
       return this.labelReplacement ? this.labelReplacement : this.label;
-    }
+    },
   },
 };
 </script>

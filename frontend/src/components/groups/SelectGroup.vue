@@ -1,7 +1,10 @@
 <template>
   <div>
     <!-- TODO: get tech group name -->
-    <b-form-group label="checkbox group placeholder" v-slot="{ ariaDescribedby }">
+    <b-form-group
+      label="checkbox group placeholder"
+      v-slot="{ ariaDescribedby }"
+    >
       <b-form-checkbox
         v-for="item in items.list"
         :key="item.id"
@@ -24,7 +27,7 @@ export default {
     return {
       parent_id: this.id,
       child_table: this.fields.list[0].key,
-      parent_table: this.fields.list[1].key
+      parent_table: this.fields.list[1].key,
     };
   },
   methods: {

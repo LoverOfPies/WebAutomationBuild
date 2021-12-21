@@ -2,47 +2,68 @@ import APIClass from "../../api/ApiUtils.js";
 const API = new APIClass();
 
 export default {
-    actions: {
-        async loadProjects({ state }, { table_name }) {
-            await API.getData(table_name).then(projects => {
-                state.projects = projects
-            });
-        },
-        async loadWorks({ state }, { table_name }) {
-            await API.getData(table_name).then(works => state.works = works);
-        },
-        async loadStages({state}, { table_name }) {
-            await API.getData(table_name).then(stages => state.stages = stages);
-        }
+  actions: {
+    async loadEstimateInfo({ state }) {
+      await API.getEstimateInfo().then(
+        (estimates) => (state.estimates = estimates)
+      );
     },
-    mutations: {
-        updateProjectList(state, list) {
-            state.projects = list;
-        },
-        resetProjectList(state) {
-            state.projects = [];
-        }
+    async loadProjects({ state }, { table_name }) {
+      await API.getData(table_name).then((projects) => {
+        state.projects = projects;
+      });
     },
-    state: {
-        projects: [],
-        works: [],
-        stages: [],
+    async loadWorks({ state }, { table_name }) {
+      await API.getData(table_name).then((works) => (state.works = works));
     },
-    getters: {
-        projectsList(state) {
-            return state.projects;
-        },
-        worksList(state) {
-            return state.works;
-        },
-        baseWorksList(state) {
-            return state.works.filter(x => x.work_base == true);
-        },
-        notBaseWorksList(state) {
-            return state.works.filter(x => x.work_base == false);
-        },
-        stagesList(state) {
-            return state.stages;
-        },
-    }
-}
+    async loadStages({ state }, { table_name }) {
+      await API.getData(table_name).then((stages) => (state.stages = stages));
+    },
+    async addEstimate(ctx, { fields }) {
+      await API.addEstimate(fields).then(console.log("Success"));
+    },
+    async loadTechList({ state }, { table_name }) {
+      await API.getData(table_name).then(
+        (tech_list) => (state.tech_list = tech_list)
+      );
+    },
+  },
+  mutations: {
+    updateProjectList(state, list) {
+      state.projects = list;
+    },
+    resetProjectList(state) {
+      state.projects = [];
+    },
+  },
+  state: {
+    estimates: [],
+    projects: [],
+    works: [],
+    stages: [],
+    tech_list: [],
+  },
+  getters: {
+    estimatesList(state) {
+      return state.estimates;
+    },
+    projectsList(state) {
+      return state.projects;
+    },
+    worksList(state) {
+      return state.works;
+    },
+    baseWorksList(state) {
+      return state.works.filter((x) => x.work_base == true);
+    },
+    notBaseWorksList(state) {
+      return state.works.filter((x) => x.work_base == false);
+    },
+    stagesList(state) {
+      return state.stages;
+    },
+    techList(state) {
+      return state.tech_list;
+    },
+  },
+};

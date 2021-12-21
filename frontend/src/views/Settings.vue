@@ -21,7 +21,12 @@
               browse-text="Обзор"
               class="mb-2 flex-grow-1"
             ></b-form-file>
-            <b-button type="submit" :disabled="importForm.disabled" variant="primary">Импорт</b-button>
+            <b-button
+              type="submit"
+              :disabled="importForm.disabled"
+              variant="primary"
+              >Импорт</b-button
+            >
           </b-form>
         </b-col>
         <b-col cols="12" xl="5" offset-xl="1" class="p-2">
@@ -94,10 +99,12 @@ export default {
   },
   watch: {
     "importForm.selected": function () {
-      this.importForm.disabled = (this.importForm.selected && !this.importForm.file) ? true : false
+      this.importForm.disabled =
+        this.importForm.selected && !this.importForm.file ? true : false;
     },
     "importForm.file": function () {
-      this.importForm.disabled = (this.importForm.selected && !this.importForm.file) ? true : false
+      this.importForm.disabled =
+        this.importForm.selected && !this.importForm.file ? true : false;
     },
     "exportForm.selected": function (selected) {
       this.exportForm.disabled = !selected;

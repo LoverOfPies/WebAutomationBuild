@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-card class="mb-2" no-body header="Базовые работы">
+    <b-card v-if="showBase" class="mb-4" no-body header="Базовые работы">
       <b-list-group flush>
         <b-list-group-item
           v-for="baseWork in baseWorksList"
@@ -10,15 +10,19 @@
       </b-list-group>
     </b-card>
 
-    <b-card class="mb-2" header="Дополнительные работы">
-      <b-form-checkbox-group v-model="selectedAdditionalWorks">
-        <b-form-checkbox
+    <b-card class="mb-2" no-body header="Дополнительные работы">
+      <b-list-group flush>
+        <b-list-group-item
           v-for="additionalWork in notBaseWorksList"
           :key="additionalWork.id"
-          :value="additionalWork.id"
-          >{{ additionalWork.name }}</b-form-checkbox
         >
-      </b-form-checkbox-group>
+          <b-form-checkbox
+            v-model="selectedAdditionalWorks"
+            :value="additionalWork.id"
+            >{{ additionalWork.name }}</b-form-checkbox
+          >
+        </b-list-group-item>
+      </b-list-group>
     </b-card>
   </div>
 </template>
@@ -27,6 +31,7 @@
 import { mapGetters, mapActions } from "vuex";
 
 export default {
+  props: ["showBase"],
   data() {
     return {
       selectedAdditionalWorks: [],
@@ -39,6 +44,11 @@ export default {
     ...mapActions(["loadWorks"]),
     async init() {
       this.loadWorks({ table_name: "work" });
+    },
+  },
+  watch: {
+    selectedAdditionalWorks(newList) {
+      this.$emit("updateAdditionalWorks", newList);
     },
   },
   mounted() {

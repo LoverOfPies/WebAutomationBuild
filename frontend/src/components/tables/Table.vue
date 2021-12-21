@@ -3,6 +3,7 @@
     <b-col>
       <b-table
         id="table"
+        class="text-nowrap"
         :items="itemsData.list"
         :fields="fieldsData.list"
         :per-page="perPage"
@@ -13,7 +14,6 @@
         bordered
         responsive
         show-empty
-        class="text-nowrap"
       >
         <template #head(actions)="data" style="width: 1%">
           <span>{{ data.label }}</span>

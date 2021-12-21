@@ -16,9 +16,9 @@ Vue.config.productionTip = false;
 // TODO: window vue instance reference?
 
 const app = new Vue({
-    router,
-    store,
-    render: (h) => h(App),
+  router,
+  store,
+  render: (h) => h(App),
 });
 store.$app = app;
 app.$mount("#app");

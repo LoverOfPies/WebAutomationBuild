@@ -66,7 +66,7 @@ export default {
       API.deleteRow(table_name, row_id).then(() => {
         commit("deleteTableItem", row_id);
       });
-    }
+    },
   },
   mutations: {
     updateTableBusyState(state, isBusy) {
