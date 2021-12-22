@@ -1,7 +1,7 @@
-import json
 import os
 
 from openpyxl import load_workbook, Workbook
+from peewee import ForeignKeyField
 from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
 
@@ -61,7 +61,12 @@ def import_single_table(collection, file_path):
                     return False
                 fields[cell.column] = cell.value
                 continue
-            value[fields[cell.column]] = cell.value
+            field = getattr(model, fields[cell.column])
+            if isinstance(getattr(model, fields[cell.column]), ForeignKeyField):
+                for_value = DataBaseUtils.get_record(field.rel_model, dict([('uuid', cell.value)]))
+                value[fields[cell.column]] = for_value
+            else:
+                value[fields[cell.column]] = cell.value
         if len(value) > 0:
             data.append(value)
     for value in data:
@@ -87,14 +92,4 @@ def export_table(model):
             val = getattr(val, 'uuid')
             ws.cell(row=row, column=col + 1, value=str(val))
         row += 1
-    wb.save(f'expimp/{table_name}.xlsx')
-
-
-def import_custom_data(file_path):
-    file_name = get_file_name(file_path)
-    with open('src/expimp/custom_config.json', 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    config = data[file_name]
-    if config is None:
-        return False
-    return False
+    wb.save(f'expimp/{table_name}.csv')

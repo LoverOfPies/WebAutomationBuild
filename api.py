@@ -245,19 +245,6 @@ def file_export(collection):
         abort(404)
 
 
-@app.route(f'{api_version}/import', methods=['POST'])
-@cross_origin()
-def file_custom_import():
-    if request.method == 'POST':
-        path = ExportImportUtils.save_file(request.files)
-        if path is None:
-            abort(404)
-        res = ExportImportUtils.import_custom_data(path)
-        if res:
-            return jsonify('True')
-    abort(404)
-
-
 @app.route(f'{api_version}/get_estimate_records', methods=['GET'])
 @cross_origin()
 def get_estimate_records():

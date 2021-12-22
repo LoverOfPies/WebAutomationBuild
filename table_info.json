@@ -73,15 +73,6 @@
       "group_field": ""
     },
     {
-      "name": "estimate",
-      "path": "src.db.models.estimate.Estimate.Estimate",
-      "icon": "box",
-      "title": "Расчёты",
-      "readonly": "",
-      "many_to_many": "",
-      "group_field": ""
-    },
-    {
       "name": "project",
       "path": "src.db.models.project.Project.Project",
       "icon": "building",
@@ -161,6 +152,20 @@
       "readonly": "",
       "many_to_many": "True",
       "group_field": "work_stage"
+    },
+    {
+      "name": "estimate",
+      "path": "src.db.models.estimate.Estimate.Estimate",
+      "icon": "box",
+      "title": "Расчёты"
+    },
+    {
+      "name": "additional_estimate",
+      "path": "src.db.models.estimate.EstimateAdditionalWork.EstimateAdditionalWork"
+    },
+    {
+      "name": "technology_estimate",
+      "path": "src.db.models.estimate.EstimateWorkTechnology.EstimateWorkTechnology"
     }
   ],
   "filters_info": [

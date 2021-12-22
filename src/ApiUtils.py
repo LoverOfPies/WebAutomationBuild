@@ -18,6 +18,8 @@ def add_row(collection, data):
         return None
     if not DataBaseUtils.check_data(data, model):
         return None
+    if collection == 'work' and 'work_base' not in data:
+        data['work_base'] = False
     obj, meth = DataBaseUtils.get_or_insert(model, data)
     if meth == "get":
         return None
@@ -388,10 +390,26 @@ def get_estimate_records():
 
 
 def calculate_estimate(data):
-    model = DataBaseUtils.get_model('estimate')
-    if model is None:
+    estimate_model = DataBaseUtils.get_model('estimate')
+    if estimate_model is None:
         return
-    print(data)
+    fio = data['client_info']
+    use_base = data['use_base']
+    project_id = data['project_id']
+    number = 1
+    estimate, meth = DataBaseUtils.get_or_insert(estimate_model,
+                                                 dict([('client_fio', fio), ('number', number),
+                                                       ('project', project_id), ('use_base', use_base)]))
+    if 'work_technologies' in data:
+        work_technologies = data['work_technologies']
+    if 'additional_works' in data:
+        additional_model = DataBaseUtils.get_model('additional_estimate')
+        additional_works = data['additional_works']
+        additional_data = [dict([('estimate', estimate), ('work', work_id)]) for work_id in additional_works]
+        for additional in additional_data:
+            additional_obj = DataBaseUtils.get_or_insert(additional_model, additional)
+            print(additional_obj)
+    print(project_id)
     pass
 
 

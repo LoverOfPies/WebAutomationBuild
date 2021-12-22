@@ -11,4 +11,4 @@ class EstimateAdditionalWork(db.Model):
     work = ForeignKeyField(Work, backref='works')
 
     class Meta:
-        db_table = "ab_technology_estimate"
+        db_table = "ab_additional_estimate"
