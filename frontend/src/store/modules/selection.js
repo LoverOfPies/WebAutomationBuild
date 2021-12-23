@@ -28,7 +28,6 @@ export default {
         current,
         mode: "many_to_many",
       };
-      console.log(collection, child_id, fields);
       API.updateField(collection, child_id, fields);
     },
   },

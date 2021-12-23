@@ -4,6 +4,7 @@ const API = new APIClass();
 export default {
   actions: {
     async getTableInfo({ commit, dispatch }, { name }) {
+      commit("updateTableBusyState", true);
       commit("updateTableFilterState", false);
       await API.getTableInfo(name).then((tableInfo) => {
         commit("updateTableTitle", tableInfo.title);
@@ -35,7 +36,6 @@ export default {
       });
     },
     getItems({ commit }, { name, params = {} }) {
-      commit("updateTableBusyState", true);
       API.getData(name, params).then((data) => {
         commit("updateTableItems", data);
         commit("updateTableBusyState", false);

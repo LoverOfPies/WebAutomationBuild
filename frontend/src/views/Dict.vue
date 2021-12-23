@@ -4,7 +4,7 @@
 
     <b-container fluid class="p-4">
       <b-row>
-        <b-col cols="12" xl="8">
+        <b-col cols="12">
           <!-- search bar -->
           <search-bar
             v-if="mode == null"
@@ -23,6 +23,7 @@
           <!-- table -->
           <Table
             v-if="mode == null"
+            :parent="parent"
             :itemsData="itemsData"
             :fieldsData="fieldsData"
             :filter="searchFilter"
@@ -32,21 +33,25 @@
             :name="name"
           />
           <!-- select group -->
-          <SelectGroup
-            v-if="mode != null && groupField == null"
-            :items="itemsData"
-            :fields="fieldsData"
-            :id="id"
-            :name="name"
-          />
-          <RadioGroup
-            v-if="mode != null && groupField != null"
-            :items="itemsData"
-            :groupField="groupField"
-            :fields="fieldsData"
-            :id="id"
-            :name="name"
-          />
+          <b-row>
+            <b-col cols="12" lg="10" xl="8">
+              <SelectGroup
+                v-if="mode != null && groupField == null"
+                :items="itemsData"
+                :fields="fieldsData"
+                :id="id"
+                :name="name"
+              />
+              <RadioGroup
+                v-if="mode != null && groupField != null"
+                :items="itemsData"
+                :groupField="groupField"
+                :fields="fieldsData"
+                :id="id"
+                :name="name"
+              />
+            </b-col>
+          </b-row>
           <!-- bottom navigation -->
           <b-row v-if="mode == null">
             <b-col cols="10">
@@ -61,6 +66,8 @@
             <b-col cols="2">
               <add-data-btn
                 class="text-end"
+                :parent="parent"
+                :parentId="id"
                 :readOnly="isReadOnly"
                 :fields="fieldsData.list"
                 :fieldsModels="fieldsData.models"
@@ -77,8 +84,6 @@
 <script>
 /*eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }]*/
 import { mapGetters, mapActions, mapMutations } from "vuex";
-
-import API from "../api/ApiUtils.js";
 
 import Title from "@/components/Title.vue";
 import SearchBar from "../components/tables/SearchBar.vue";
@@ -103,7 +108,6 @@ export default {
   props: ["name", "id", "parent"],
   data() {
     return {
-      API: new API(this),
       searchFilter: null,
       perPage: 10,
       currentPage: 1,
@@ -190,6 +194,29 @@ export default {
         params["child"] = this.fieldsData.list[1].key;
       }
       this.getItems({ name: this.name, params });
+      function isElementInViewport(el) {
+        var rect = el.getBoundingClientRect();
+        return (
+          rect.top >= 0 &&
+          rect.left >= 0 &&
+          rect.bottom <=
+            (window.innerHeight || document.documentElement.clientHeight) &&
+          rect.right <=
+            (window.innerWidth || document.documentElement.clientWidth)
+        );
+      }
+      const table = document.querySelector(".table-responsive");
+      if (table != null) {
+        setTimeout(function () {
+          if (!isElementInViewport(table)) {
+            table.classList.add("b-table-sticky-header");
+            table.style.maxHeight = "500px";
+          } else {
+            table.classList.remove("b-table-sticky-header");
+            table.style.maxHeight = "unset";
+          }
+        }, 500);
+      }
     },
   },
   mounted() {

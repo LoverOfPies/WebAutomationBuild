@@ -71,3 +71,18 @@ export default {
   props: ["items"],
 };
 </script>
+
+<style lang="scss" scoped>
+// ul.nav > li {
+// }
+a.active svg {
+  color: currentColor !important;
+}
+
+.link-dark {
+  &:hover,
+  &:focus {
+    background-color: lighten($color: #007bff, $amount: 20%);
+  }
+}
+</style>

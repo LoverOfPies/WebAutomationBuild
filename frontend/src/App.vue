@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="d-flex" ref="root">
     <side-bar :items="sidebarItems" />
-    <div class="d-flex flex-column w-100">
+    <div class="d-flex flex-column w-100 overflow-hidden">
       <router-view />
     </div>
   </div>

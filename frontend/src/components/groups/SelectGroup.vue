@@ -1,20 +1,17 @@
 <template>
   <div>
-    <!-- TODO: get tech group name -->
-    <b-form-group
-      label="checkbox group placeholder"
-      v-slot="{ ariaDescribedby }"
-    >
+    <!-- TODO: подтягивать заголовок группы -->
+    <h5 v-if="items.list.length == 0">Нет доступных записей!</h5>
+    <b-card v-else header="Выберите из списка" class="mb-4">
       <b-form-checkbox
         v-for="item in items.list"
         :key="item.id"
         :checked="item.checked"
-        :aria-describedby="ariaDescribedby"
         @change="changeSelection($event, item.id)"
       >
         {{ item.name }}
       </b-form-checkbox>
-    </b-form-group>
+    </b-card>
   </div>
 </template>
 

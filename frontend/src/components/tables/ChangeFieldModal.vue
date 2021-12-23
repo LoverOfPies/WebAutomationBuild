@@ -19,17 +19,17 @@
       @hide="resetFieldModal"
       centered
     >
+      <SearchBar @filterChange="onFilterChange" :filter="searchFilter" />
       <b-table
         :id="tableId"
         :items="items"
         :fields="fields"
         :per-page="perPage"
         :current-page="currentPage"
-        sort-icon-left
+        :filter="searchFilter"
         bordered
+        show-empty
         responsive
-        :filter="filter"
-        @filtered="onFiltered"
       >
         <template #cell(actions)="row">
           <b-button variant="primary" @click="selectRow(row.item)">
@@ -73,9 +73,12 @@
 </template>
 
 <script>
+import SearchBar from "@/components/tables/SearchBar.vue";
+
 let uid = 0;
 
 export default {
+  components: { SearchBar },
   props: ["label", "model", "rowId", "items", "disabled", "resetBtn", "size"],
   data() {
     uid += 1;
@@ -85,19 +88,19 @@ export default {
         title: "Выберите из списка",
       },
       tableId: `table-modal-${uid}`,
-      perPage: 10,
+      perPage: 8,
       currentPage: 1,
       filter: null,
       labelReplacement: "",
+      searchFilter: null,
     };
   },
   methods: {
     showFieldModal(button) {
       this.$bvModal.show(this.fieldModal.id, button);
     },
-    onFiltered(filteredItems) {
-      this.rows = filteredItems.length;
-      this.currentPage = 1;
+    onFilterChange(newValue) {
+      this.searchFilter = newValue;
     },
     resetFilters() {
       this.$emit("resetFilters", this.rowId);

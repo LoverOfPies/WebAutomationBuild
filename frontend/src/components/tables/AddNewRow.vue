@@ -10,7 +10,7 @@
       @hide="resetAddModal"
       centered
     >
-      <b-row v-for="field in fields" :key="field.id" class="py-2">
+      <b-row v-for="field in localFields" :key="field.id" class="py-2">
         <b-col
           class="position-relative d-flex align-items-center"
           v-if="field.key != 'actions'"
@@ -83,7 +83,7 @@ export default {
     BooleanField,
     DateField,
   },
-  props: ["title", "fields", "fieldsModels"],
+  props: ["title", "fields", "fieldsModels", "parent", "parentId"],
   data() {
     return {
       API: new API(this),
@@ -93,6 +93,14 @@ export default {
         fields: {},
       },
     };
+  },
+  computed: {
+    localFields() {
+      if (this.parent) {
+        return this.fields.filter((x) => x.key != this.parent);
+      }
+      return this.fields;
+    },
   },
   methods: {
     showAddModal(button) {
@@ -112,11 +120,15 @@ export default {
       this.$set(this.addModal.fields, fields.field, fields.value);
     },
     addNewRow(ok) {
-      let fields = {};
+      const fields = {};
 
       Object.keys(this.addModal.fields).forEach((key) => {
         fields[key] = this.addModal.fields[key];
       });
+
+      if (this.parent) {
+        fields[this.parent] = this.parentId;
+      }
 
       this.$emit("addNewRow", fields);
       ok();

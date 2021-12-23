@@ -5,20 +5,17 @@
         id="table"
         class="text-nowrap"
         :items="itemsData.list"
-        :fields="fieldsData.list"
+        :fields="localFields"
         :per-page="perPage"
         :current-page="currentPage"
         :busy="isBusy"
         :filter="filter"
         :sort-desc.sync="SDesc"
+        head-variant="light"
         bordered
         responsive
         show-empty
       >
-        <template #head(actions)="data" style="width: 1%">
-          <span>{{ data.label }}</span>
-        </template>
-
         <!-- FIXME: this accepts only <name> cell -->
         <template #cell(name)="data">
           <name-cell @updateField="onUpdateField" :data="data" />
@@ -48,13 +45,6 @@
             >
               <b-button class="mr-2">{{ action.label }}</b-button>
             </router-link>
-            <!-- <b-button
-              v-if="action.action == 'delete'"
-              variant="danger"
-              @click="deleteRow(row.item.id)"
-            >
-              {{ action.label ? action.label : "Удалить" }}
-            </b-button> -->
             <delete-row-btn
               @deleteRow="onDeleteRow"
               v-if="action.action == 'delete'"
@@ -85,6 +75,7 @@ import DeleteRowBtn from "./DeleteRowBtn.vue";
 export default {
   components: { NameCell, ChangeFieldModal, DeleteRowBtn },
   props: [
+    "parent",
     "itemsData",
     "fieldsData",
     "isBusy",
@@ -97,6 +88,17 @@ export default {
     return {
       SDesc: false,
     };
+  },
+  computed: {
+    localFields() {
+      if (this.parent) {
+        return this.fieldsData.list.filter((x) => x.key != this.parent);
+      }
+      return this.fieldsData.list;
+    },
+    selectableFields() {
+      return this.fieldsData.list.filter((x) => x.type == "selectable");
+    },
   },
   methods: {
     ...mapActions(["deleteRow"]),
@@ -113,11 +115,6 @@ export default {
         return this.fieldsData.models[model].find((x) => x.id == id)[field];
       }
       return "";
-    },
-  },
-  computed: {
-    selectableFields() {
-      return this.fieldsData.list.filter((x) => x.type == "selectable");
     },
   },
 };

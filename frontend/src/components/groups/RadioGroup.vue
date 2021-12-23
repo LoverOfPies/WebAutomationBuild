@@ -1,9 +1,31 @@
 <template>
   <div>
-    <b-form-group
+    <!-- TODO: подтягивать заголовок группы -->
+    <h5 v-if="items.list.length == 0">Нет доступных записей!</h5>
+    <b-card
+      v-else
       v-for="(group, index) in radioGroups"
       :key="index"
-      label="radio group placeholder"
+      class="mb-4"
+      header="Выберите одно из списка"
+    >
+      <b-form-group class="mb-0">
+        <RadioGroupElement
+          :id="id"
+          :name="name"
+          :group="group"
+          :index="index"
+          :selection="groupSelections[index]"
+          :parent="parent_table"
+          :child="child_table"
+        />
+      </b-form-group>
+    </b-card>
+
+    <!-- <b-form-group
+      v-for="(group, index) in radioGroups"
+      :key="index"
+      label="Выберите из списка"
     >
       <RadioGroupElement
         :id="id"
@@ -14,7 +36,7 @@
         :parent="parent_table"
         :child="child_table"
       />
-    </b-form-group>
+    </b-form-group> -->
   </div>
 </template>
 

@@ -4,6 +4,8 @@
     <add-new-row
       v-else
       @addNewRow="onAddNewRow"
+      :parent="parent"
+      :parentId="parentId"
       :fields="fields"
       :fieldsModels="fieldsModels"
       title="Добавление записи"
@@ -16,7 +18,7 @@ import AddNewRow from "./AddNewRow.vue";
 
 export default {
   components: { AddNewRow },
-  props: ["readOnly", "fields", "fieldsModels"],
+  props: ["parent", "parentId", "readOnly", "fields", "fieldsModels"],
   methods: {
     onAddNewRow(fields) {
       this.$emit("addNewRow", fields);

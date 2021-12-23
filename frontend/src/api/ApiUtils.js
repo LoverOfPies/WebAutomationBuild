@@ -19,6 +19,14 @@ export default class {
         variant: "danger",
       });
     };
+
+    this.showSuccessToast = () => {
+      vm.$bvToast.toast("Запрос выполнен успешно!", {
+        title: "Успех",
+        autoHideDelay: 3000,
+        variant: "success",
+      });
+    }
   }
 
   getSidebarItems() {
@@ -131,6 +139,7 @@ export default class {
       .post(`${this.api}/${this.version}/import/${collection}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       })
+      .then(() => this.showSuccessToast())
       .catch((r) => this.showErrorToast(r));
 
     return res.data;
