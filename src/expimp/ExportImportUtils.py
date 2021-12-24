@@ -1,7 +1,7 @@
 import os
 
 from openpyxl import load_workbook, Workbook
-from peewee import ForeignKeyField
+from peewee import ForeignKeyField, Model
 from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
 
@@ -46,10 +46,9 @@ def create_file(collection):
     return path
 
 
-def import_single_table(collection, file_path):
+def import_single_table(collection):
     model = DataBaseUtils.get_model(collection)
-
-    wb = load_workbook(file_path)
+    wb = load_workbook(f'expimp/{collection}.xlsx')
     sheet = wb.active
     fields = {}
     data = []
@@ -74,22 +73,23 @@ def import_single_table(collection, file_path):
     return True
 
 
-def export_table(model):
+def export_table(model_name):
+    model = DataBaseUtils.get_model(model_name)
     model_meta = model._meta
     fields = [key for key in model_meta.fields]
     fields.remove('id')
     data = model.select()
-    table_name = model_meta.name
     wb = Workbook()
     ws = wb.active
-    ws.title = table_name
-    for col in range(len(fields)):
-        ws.cell(row=1, column=col + 1, value=fields[col])
+    ws.title = model_name
+    for col, field in enumerate(fields):
+        ws.cell(row=1, column=col + 1, value=field)
     row = 2
     for attribute in data:
-        for col in range(len(fields)):
-            val = getattr(attribute, fields[col])
-            val = getattr(val, 'uuid')
+        for col, field in enumerate(fields):
+            val = getattr(attribute, field)
+            if isinstance(val, Model):
+                val = getattr(val, 'uuid')
             ws.cell(row=row, column=col + 1, value=str(val))
         row += 1
-    wb.save(f'expimp/{table_name}.csv')
+    wb.save(f'expimp/{model_name}.xlsx')

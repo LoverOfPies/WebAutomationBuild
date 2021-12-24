@@ -101,7 +101,7 @@
       "name": "project_technology",
       "path": "src.db.models.project.ProjectTechnology.ProjectTechnology",
       "icon": "box",
-      "title": "Группы работ для технологий",
+      "title": "Технологии для проектов",
       "many_to_many": "True",
       "group_field": "work_stage"
     },
@@ -113,19 +113,23 @@
     },
     {
       "name": "estimate_additional",
-      "path": "src.db.models.estimate.EstimateAdditionalWork.EstimateAdditionalWork"
+      "path": "src.db.models.estimate.EstimateAdditionalWork.EstimateAdditionalWork",
+      "title": "Дополнительные работы расчётов"
     },
     {
       "name": "estimate_technology",
-      "path": "src.db.models.estimate.EstimateWorkTechnology.EstimateWorkTechnology"
+      "path": "src.db.models.estimate.EstimateWorkTechnology.EstimateWorkTechnology",
+      "title": "Технологии расчётов"
     },
     {
       "name": "estimate_work",
-      "path": "src.db.models.estimate.EstimateWork.EstimateWork"
+      "path": "src.db.models.estimate.EstimateWork.EstimateWork",
+      "title": "Все работы расчёта"
     },
     {
       "name": "estimate_material",
-      "path": "src.db.models.estimate.EstimateMaterial.EstimateMaterial"
+      "path": "src.db.models.estimate.EstimateMaterial.EstimateMaterial",
+      "title": "Материалы расчёта"
     }
   ],
   "filters_info": [

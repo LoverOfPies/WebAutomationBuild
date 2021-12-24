@@ -230,10 +230,10 @@ def get_sidebar():
 @cross_origin()
 def file_import(collection):
     if request.method == 'POST':
-        path = ExportImportUtils.save_file(request.files)
-        if path is None:
-            abort(404)
-        res = ExportImportUtils.import_single_table(collection, path)
+        # path = ExportImportUtils.save_file(request.files)
+        # if path is None:
+        #     abort(404)
+        res = ExportImportUtils.import_single_table(collection)
         if not res:
             abort(404)
     return jsonify('True')
@@ -242,11 +242,8 @@ def file_import(collection):
 @app.route(f'{api_version}/export/<string:collection>', methods=['GET'])
 @cross_origin()
 def file_export(collection):
-    path = ExportImportUtils.create_file(collection)
-    try:
-        return send_file(path, as_attachment=True)
-    except FileNotFoundError:
-        abort(404)
+    ExportImportUtils.export_table(collection)
+    return jsonify('True')
 
 
 @app.route(f'{api_version}/get_estimate_records', methods=['GET'])
