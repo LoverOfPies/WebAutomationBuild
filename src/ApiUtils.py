@@ -385,34 +385,37 @@ def calculate_estimate(data):
     project_id = None
     if 'project_id' in data.keys():
         project_id = data['project_id']
-    number = 10000
     # Создаём расчёт чтобы заполнить связки
-    estimate_data = dict([('client_fio', fio), ('number', number), ('use_base', use_base)])
+    estimate_data = dict([('client_fio', fio), ('use_base', use_base)])
     if project_id:
         estimate_data['project'] = project_id
     estimate, meth = DataBaseUtils.get_or_insert(estimate_model, estimate_data)
     # Проставляем номер равный id
     DataBaseUtils.update_record(estimate_model, estimate,
                                 dict([('field', 'number'), ('value', estimate)]))
-    technologies_model = DataBaseUtils.get_model('estimate_technologies')
-    technologies_data = []
     # Получаем технологии для расчёта кастомные или из проекта
+    estimate_technologies_model = DataBaseUtils.get_model('estimate_technology')
+    technologies_data = []
     if 'work_technologies' in data:
         estimate_technologies = data['work_technologies']
-        technologies_data = [dict([('estimate', estimate), ('work', work_id)]) for work_id in estimate_technologies]
+        technologies_data = [dict([('estimate', estimate), ('work_technology', work_technology_id)])
+                             for work_technology_id in estimate_technologies]
     else:
         project_technology_model = DataBaseUtils.get_model('project_technology')
         technologies_project = DataBaseUtils.get_records(project_technology_model, ({'project': project_id}))
-        technologies_data = [dict([('estimate', estimate), ('work_technology', technology_id)])
-                             for technology_id in technologies_project]
+        work_technologies = []
+        for technology_project in technologies_project:
+            work_technologies.append(technology_project.work_technology)
+        technologies_data = [dict([('estimate', estimate), ('work_technology', work_technology.id)])
+                             for work_technology in work_technologies]
     # Собираем работы из технологий
     works = set()
     work_model = DataBaseUtils.get_model('work')
     for technology in technologies_data:
-        technologies_obj, _ = DataBaseUtils.get_or_insert(technologies_model, technology)
+        technologies_obj, _ = DataBaseUtils.get_or_insert(estimate_technologies_model, technology)
         technology_group_model = DataBaseUtils.get_model('technology_group')
         tech_groups = DataBaseUtils.get_records(technology_group_model,
-                                                ({'work_technology': technology['work_technology'].id}))
+                                                ({'work_technology': technology['work_technology']}))
         for tech_group in tech_groups:
             tech_group_objects = DataBaseUtils.get_records(technology_group_model,
                                                            ({'work_group': tech_group.work_group.id}))
@@ -428,8 +431,29 @@ def calculate_estimate(data):
             additional_work_object = DataBaseUtils.get_record(work_model, ({'id': additional['work']}))
             works.add(additional_work_object)
     # Обрабатываем работы
-    print(works)
-
+    estimate_price_client = 0
+    estimate_price_base = 0
+    estimate_work_model = DataBaseUtils.get_model('estimate_work')
+    for work_object in works:
+        work_client_price = 0
+        work_base_price = 0
+        if work_object.work_coefficient != 0:
+            base_size_model = DataBaseUtils.get_model('base_size')
+            base_size = DataBaseUtils.get_record(base_size_model,
+                                                 ({'project': project_id, 'base_unit': work_object.base_unit}))
+            work_client_price = (work_object.work_coefficient * work_object.client_price * base_size.amount)
+            work_base_price = (work_object.work_coefficient * work_object.work_price * base_size.amount)
+        else:
+            work_client_price = work_object.client_price
+            work_base_price = work_object.work_price
+        # Добавляем работу в EstimateWork
+        work_data = dict([('estimate', estimate), ('work', work_object.id),
+                          ('client_price', work_client_price), ('base_price', work_base_price)])
+        DataBaseUtils.get_or_insert(estimate_work_model, work_data)
+        estimate_price_client += work_client_price
+        estimate_price_base += work_base_price
+    # Заполняем цены для расчёта
+    
     # Обрабатываем материалы
 
 

@@ -11,4 +11,4 @@ class EstimateWorkTechnology(db.Model):
     work_technology = ForeignKeyField(WorkTechnology, backref='work_technologies')
 
     class Meta:
-        db_table = "ab_technology_estimate"
+        db_table = "ab_estimate_technology"

@@ -15,9 +15,9 @@ def get_equals_filter(model, values):
             filter_value = values[value]
             filters.append(filter_field == filter_value)
     condition = None
-    for i in range(len(values)):
+    for i, filter_obj in enumerate(filters):
         if i == 0:
-            condition = filters[i]
+            condition = filter_obj
             continue
-        condition = condition & filters[i]
+        condition = condition & filter_obj
     return condition

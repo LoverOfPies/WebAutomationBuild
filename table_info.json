@@ -116,8 +116,16 @@
       "path": "src.db.models.estimate.EstimateAdditionalWork.EstimateAdditionalWork"
     },
     {
-      "name": "estimate_technologies",
+      "name": "estimate_technology",
       "path": "src.db.models.estimate.EstimateWorkTechnology.EstimateWorkTechnology"
+    },
+    {
+      "name": "estimate_work",
+      "path": "src.db.models.estimate.EstimateWork.EstimateWork"
+    },
+    {
+      "name": "estimate_material",
+      "path": "src.db.models.estimate.EstimateMaterial.EstimateMaterial"
     }
   ],
   "filters_info": [
