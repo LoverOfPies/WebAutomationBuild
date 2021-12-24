@@ -259,7 +259,7 @@ def calculate_estimate():
 
     :return:
     """
-    # Принимаем json { client_fio, use_base, project_id,
+    # Принимаем json { client_fio, use_base, project_id
     # additional_works: [1, 2, ...] (optional),
     # work_technologies: [1, 2, ...] (optional) }
     src.ApiUtils.calculate_estimate(request.json)

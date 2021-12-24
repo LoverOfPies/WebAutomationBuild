@@ -11,7 +11,7 @@ class Estimate(db.Model):
     use_base = BooleanField(verbose_name='Базовая комплектация', null=True)
     price_client = DoubleField(default=0, verbose_name='Цена заказчика', null=True)
     price_base = DoubleField(default=0, verbose_name='Цена базовая', null=True)
-    project = ForeignKeyField(Project, backref='estimates', verbose_name='Проект')
+    project = ForeignKeyField(Project, backref='estimates', verbose_name='Проект', null=True)
 
     class Meta:
         db_table = "ab_estimate"

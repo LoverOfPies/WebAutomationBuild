@@ -1,5 +1,6 @@
 import configparser
 import json
+from typing import Optional
 
 from app import db
 from src import FilterUtils
@@ -36,6 +37,42 @@ def get_record(model, values):
     except model.DoesNotExist:
         obj = None
     return obj
+
+
+def get_records(model, values) -> Optional[list]:
+    """
+    Return records object by filter
+
+    :param model: table object
+    :param values: field values for building the filter
+
+    :return: records object
+    """
+    condition = FilterUtils.get_equals_filter(model, values)
+    if condition is None:
+        return None
+    try:
+        return [row for row in model.select().where(condition)]
+    except model.DoesNotExist:
+        return None
+
+
+def update_record(model, id_row, data):
+    row = model.get_or_none(id=id_row)
+    if row is None:
+        return False
+    field = data['field']
+    if field is None:
+        return False
+    value = data['value']
+    if value is None:
+        return False
+    field_data = dict(row.__data__)
+    field_data[field] = value
+    query = model.update(**field_data).where(model.id == row.id)
+    if query.execute() == 0:
+        return False
+    return True
 
 
 def insert_record(model, values):

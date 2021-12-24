@@ -90,21 +90,7 @@ def update_row(collection, id_row, data) -> bool:
                     obj.delete_instance()
             return True
 
-    row = model.get_or_none(id=id_row)
-    if row is None:
-        return False
-    field = data['field']
-    if field is None:
-        return False
-    value = data['value']
-    if value is None:
-        return False
-    field_data = dict(row.__data__)
-    field_data[field] = value
-    query = model.update(**field_data).where(model.id == row.id)
-    if query.execute() == 0:
-        return False
-    return True
+    return DataBaseUtils.update_record(model, id_row, data)
 
 
 def get_data_from_table(collection, request_params):
@@ -395,22 +381,56 @@ def calculate_estimate(data):
         return
     fio = data['client_info']
     use_base = data['use_base']
-    project_id = data['project_id']
-    number = 1
-    estimate, meth = DataBaseUtils.get_or_insert(estimate_model,
-                                                 dict([('client_fio', fio), ('number', number),
-                                                       ('project', project_id), ('use_base', use_base)]))
+    # Проект не обязательный
+    project_id = None
+    if 'project_id' in data.keys():
+        project_id = data['project_id']
+    number = 10000
+    # Создаём расчёт чтобы заполнить связки
+    estimate_data = dict([('client_fio', fio), ('number', number), ('use_base', use_base)])
+    if project_id:
+        estimate_data['project'] = project_id
+    estimate, meth = DataBaseUtils.get_or_insert(estimate_model, estimate_data)
+    # Проставляем номер равный id
+    DataBaseUtils.update_record(estimate_model, estimate,
+                                dict([('field', 'number'), ('value', estimate)]))
+    technologies_model = DataBaseUtils.get_model('estimate_technologies')
+    technologies_data = []
+    # Получаем технологии для расчёта кастомные или из проекта
     if 'work_technologies' in data:
-        work_technologies = data['work_technologies']
+        estimate_technologies = data['work_technologies']
+        technologies_data = [dict([('estimate', estimate), ('work', work_id)]) for work_id in estimate_technologies]
+    else:
+        project_technology_model = DataBaseUtils.get_model('project_technology')
+        technologies_project = DataBaseUtils.get_records(project_technology_model, ({'project': project_id}))
+        technologies_data = [dict([('estimate', estimate), ('work_technology', technology_id)])
+                             for technology_id in technologies_project]
+    # Собираем работы из технологий
+    works = set()
+    work_model = DataBaseUtils.get_model('work')
+    for technology in technologies_data:
+        technologies_obj, _ = DataBaseUtils.get_or_insert(technologies_model, technology)
+        technology_group_model = DataBaseUtils.get_model('technology_group')
+        tech_groups = DataBaseUtils.get_records(technology_group_model,
+                                                ({'work_technology': technology['work_technology'].id}))
+        for tech_group in tech_groups:
+            tech_group_objects = DataBaseUtils.get_records(technology_group_model,
+                                                           ({'work_group': tech_group.work_group.id}))
+            for tech_group_object in tech_group_objects:
+                works.update(DataBaseUtils.get_records(work_model, ({'work_group': tech_group_object.work_group.id})))
+    # Собираем дополнительные работы
     if 'additional_works' in data:
-        additional_model = DataBaseUtils.get_model('additional_estimate')
+        additional_model = DataBaseUtils.get_model('estimate_additional')
         additional_works = data['additional_works']
         additional_data = [dict([('estimate', estimate), ('work', work_id)]) for work_id in additional_works]
         for additional in additional_data:
-            additional_obj = DataBaseUtils.get_or_insert(additional_model, additional)
-            print(additional_obj)
-    print(project_id)
-    pass
+            additional_work_id, _ = DataBaseUtils.get_or_insert(additional_model, additional)
+            additional_work_object = DataBaseUtils.get_record(work_model, ({'id': additional['work']}))
+            works.add(additional_work_object)
+    # Обрабатываем работы
+    print(works)
+
+    # Обрабатываем материалы
 
 
 def get_estimate_materials(id_estimate):
