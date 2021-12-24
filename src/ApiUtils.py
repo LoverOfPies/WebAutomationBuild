@@ -468,7 +468,12 @@ def get_estimate_works(id_estimate):
     model = DataBaseUtils.get_model('estimate_work')
     if model is None:
         return None
-    return [row for row in model.select().where(model.estimate == id_estimate).dicts()]
+    data = [row for row in model.select().where(model.estimate == id_estimate).dicts()]
+    work_model = DataBaseUtils.get_model('work')
+    for value in data:
+        work = DataBaseUtils.get_record(work_model, {'id': value['work']})
+        value['work_name'] = work.name
+    return data
 
 
 def export_estimate(id_estimate):
