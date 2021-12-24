@@ -84,6 +84,7 @@ export default {
       selectedAdditionalWorks: [],
       selectedWorkTechnologies: [],
       isBaseEquipment: true,
+      isEditing: false,
     };
   },
   computed: {
@@ -93,6 +94,9 @@ export default {
     ...mapActions(["loadProjects", "addEstimate"]),
     async init() {
       this.loadProjects({ table_name: "project" });
+      if (this.id != null && this.id != -1) {
+        console.log("editing estiamte with id " + this.id);
+      }
     },
     getFieldById(id, model, field) {
       return this.projectsList.find((x) => x.id == id)[field];
@@ -114,13 +118,15 @@ export default {
       this.selectedWorkTechnologies = newList;
     },
     saveEstimate() {
-      // {
-      //     client_fio,
-      //     use_base,
-      //     project_id,
-      //     additional_works: [1, 2, ...] (optional),
-      //     work_technologies: [1, 2, ...] (optional)
-      // }
+      /* 
+      {
+        client_fio,
+        use_base,
+        project_id,
+        additional_works: [1, 2, ...] (optional),
+        work_technologies: [1, 2, ...] (optional)
+      } 
+      */
       const fields = {
         client_info: this.name,
         use_base: this.isBaseEquipment,
@@ -134,6 +140,7 @@ export default {
       };
       console.table(fields);
       this.addEstimate({ fields });
+      this.$emit('toggleEditingView', false);
     },
   },
   mounted() {

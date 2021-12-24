@@ -1,7 +1,10 @@
 <template>
   <div>
-    <b-card v-if="showBase" class="mb-4" no-body header="Базовые работы">
-      <b-list-group flush>
+    <b-card v-if="showBase" class="mb-4" :no-body="baseWorksList.length != 0" header="Базовые работы">
+      <div v-if="baseWorksList.length == 0">
+        Базовые работы отсутствуют!
+      </div>
+      <b-list-group v-else flush>
         <b-list-group-item
           v-for="baseWork in baseWorksList"
           :key="baseWork.id"

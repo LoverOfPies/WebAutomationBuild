@@ -27,6 +27,12 @@ export default {
         (tech_list) => (state.tech_list = tech_list)
       );
     },
+    async loadEstimateMaterials({ state }, { id }) {
+      await API.getEstimateMaterials(id).then(mat_list => state.estimate_modal_list = mat_list);
+    },
+    async loadEstimateWorks({ state }, { id }) {
+      await API.getEstimateWorks(id).then(work_list => state.estimate_modal_list = work_list);
+    }
   },
   mutations: {
     updateProjectList(state, list) {
@@ -35,6 +41,9 @@ export default {
     resetProjectList(state) {
       state.projects = [];
     },
+    resetEstimateModalList(state) {
+      state.estimate_modal_list = [];
+    }
   },
   state: {
     estimates: [],
@@ -42,6 +51,7 @@ export default {
     works: [],
     stages: [],
     tech_list: [],
+    estimate_modal_list: [],
   },
   getters: {
     estimatesList(state) {
@@ -64,6 +74,9 @@ export default {
     },
     techList(state) {
       return state.tech_list;
+    },
+    estimateModalList(state) {
+      return state.estimate_modal_list;
     },
   },
 };

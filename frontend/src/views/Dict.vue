@@ -128,6 +128,22 @@ export default {
       "filtersData",
       "filterParams",
     ]),
+    compiledParams() {
+      let initialParams = {};
+      if (this?.parent) {
+        initialParams = {
+          [this.parent]: this.id,
+        };
+      }
+      if (this.mode != null) {
+        initialParams["mode"] = this.mode;
+        initialParams["child"] = this.fieldsData.list[0].key;
+      }
+      if (this.groupField != null) {
+        initialParams["child"] = this.fieldsData.list[1].key;
+      }
+      return initialParams;
+    },
   },
   methods: {
     ...mapActions([
@@ -156,9 +172,9 @@ export default {
     },
     resetFilters(id = 0) {
       this.resetFiltersFromId(id);
-      let params = {};
+      let params = this.compiledParams;
       if (id != 0) {
-        params = this.filterParams;
+        params = { ...params, ...this.filterParams };
       }
       this.getItems({ name: [this.name], params });
     },
@@ -180,20 +196,11 @@ export default {
     },
     async init() {
       await this.getTableInfo({ name: this.name });
-      let params = {};
-      if (this?.parent) {
-        params = {
-          [this.parent]: this.id,
-        };
-      }
-      if (this.mode != null) {
-        params["mode"] = this.mode;
-        params["child"] = this.fieldsData.list[0].key;
-      }
-      if (this.groupField != null) {
-        params["child"] = this.fieldsData.list[1].key;
-      }
-      this.getItems({ name: this.name, params });
+      this.getItems({ name: this.name, params: this.compiledParams });
+
+      /* 
+        Sticky table fix
+      */
       function isElementInViewport(el) {
         var rect = el.getBoundingClientRect();
         return (

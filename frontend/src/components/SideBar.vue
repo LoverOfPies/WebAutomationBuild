@@ -1,7 +1,7 @@
 <template>
   <div
-    class="d-flex flex-column flex-shrink-0 p-3 bg-light vh-100"
-    style="width: 280px"
+    class="d-flex flex-column flex-shrink-0 p-3 bg-light vh-100 shadow"
+    style="width: 280px; z-index: 1"
   >
     <a
       href="/"
@@ -23,7 +23,7 @@
           class="nav-link link-dark"
         >
           <b-icon icon="calculator" class="me-1" variant="dark"></b-icon>
-          Расчет
+          Расчеты
         </router-link>
       </li>
     </ul>

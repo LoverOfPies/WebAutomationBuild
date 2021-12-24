@@ -94,7 +94,8 @@ export default {
       this.API.importTable(this.importForm.selected, this.importForm.file);
     },
     exportTable() {
-      console.log(this.exportForm);
+      console.log(this.exportForm.selected);
+      this.API.exportTable(this.exportForm.selected);
     },
   },
   watch: {

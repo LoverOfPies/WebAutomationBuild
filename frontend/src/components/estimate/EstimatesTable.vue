@@ -3,14 +3,14 @@
     <search-bar @filterChange="onFilterChange" :filter="searchFilter" />
 
     <b-table
+      :fields="fields"
+      :items="estimatesList"
+      :filter="searchFilter"
+      id="table"
+      class="text-nowrap"
       bordered
       responsive
       show-empty
-      id="table"
-      class="text-nowrap"
-      :fields="fields"
-      :items="items"
-      :filter="searchFilter"
     >
       <template #cell(actions)="row">
         <b-button
@@ -20,9 +20,10 @@
         >
           Выгрузить в Excel
         </b-button>
-        <b-button @click="row.toggleDetails">
+        <b-button class="mr-2" @click="row.toggleDetails">
           Подробнее {{ row.detailsShowing ? "&#8593;" : "&#8595;" }}
         </b-button>
+        <delete-row-btn @deleteRow="onDeleteRow" :rowId="row.item.id" />
       </template>
 
       <template #table-busy>
@@ -35,11 +36,23 @@
       <template #row-details="row">
         <!-- <b-card> -->
         <b-row class="mb-2">
-          <b-col><b>Цена заказчика:</b> {{ row.item.id }}</b-col>
+          <b-col><b>Цена заказчика:</b> {{ row.item.price_client }}</b-col>
           <b-col class="text-right">
-            <b-button class="mr-2">Материалы</b-button>
-            <b-button class="mr-2">Работы</b-button>
-            <b-button variant="info">Редактировать</b-button>
+            <EstimateModal
+              class="mr-2"
+              label="Материалы"
+              :childId="row.item.id"
+              type="materials"
+            />
+            <EstimateModal
+              class="mr-2"
+              label="Работы"
+              :childId="row.item.id"
+              type="works"
+            />
+            <b-button variant="info" @click="editEstimate(row.item.id)"
+              >Редактировать</b-button
+            >
           </b-col>
         </b-row>
         <!-- </b-card> -->
@@ -53,21 +66,18 @@
 import { mapGetters, mapActions } from "vuex";
 
 import SearchBar from "../tables/SearchBar.vue";
+import DeleteRowBtn from "../tables/DeleteRowBtn.vue";
+import EstimateModal from "./EstimateModal.vue";
 
 export default {
-  components: { SearchBar },
+  components: { SearchBar, DeleteRowBtn, EstimateModal },
   data() {
     return {
       searchFilter: null,
+      // TODO: gather fields from DB
       fields: [
-        { key: "name", label: "Наименование" },
+        { key: "client_fio", label: "Наименование" },
         { key: "actions", label: "Действия" },
-      ],
-      items: [
-        {
-          id: -1,
-          name: "ХАРДКОД",
-        },
       ],
     };
   },
@@ -75,19 +85,23 @@ export default {
     ...mapGetters(["estimatesList"]),
   },
   methods: {
-    ...mapActions(["loadEstimateInfo"]),
+    ...mapActions(["loadEstimateInfo", "deleteRow"]),
     async init() {
       this.loadEstimateInfo();
     },
     onFilterChange(newValue) {
       this.searchFilter = newValue;
     },
+    onDeleteRow(id) {
+      console.log(`FIXME: implement proper deleteEstimateRow(${id})`);
+      this.deleteRow({ table_name: "estimate", row_id: id });
+    },
     exportToExcel(id) {
       console.log(`TODO: implement exportToExcel(${id})`);
     },
-    // toggleEditingView() {
-    //   this.$emit("toggleEditingView", true);
-    // },
+    editEstimate(id) {
+      this.$emit("toggleEditingView", true, id);
+    },
   },
   mounted() {
     this.init();

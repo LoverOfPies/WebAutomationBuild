@@ -17,7 +17,7 @@
           <b-button
             v-if="!isEditing"
             variant="primary"
-            @click="isEditing = true"
+            @click="onToggleView(true, -1)"
           >
             Добавить
           </b-button>
@@ -51,8 +51,9 @@ export default {
   },
   methods: {
     //   ...mapActions(["loadProjects"]),
-    onToggleView(boolState) {
+    onToggleView(boolState, editId = -1) {
       this.isEditing = boolState;
+      this.editingId = editId;
     },
     //   async init() {
     //     this.loadProjects({ table_name: "project" });

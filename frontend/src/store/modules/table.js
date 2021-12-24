@@ -36,6 +36,7 @@ export default {
       });
     },
     getItems({ commit }, { name, params = {} }) {
+      console.log("[getItems() params:", params);
       API.getData(name, params).then((data) => {
         commit("updateTableItems", data);
         commit("updateTableBusyState", false);
@@ -58,7 +59,6 @@ export default {
             params: getters.filterParams,
           });
         }
-        console.log(data);
         commit("addTableItem", data);
       });
     },

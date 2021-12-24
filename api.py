@@ -17,6 +17,7 @@ def not_found(error):
 # TODO: Почему path с одним слешем не работает ???
 @app.route('/', defaults={'path': ''})
 @app.route('/dict/<path:path>')
+@app.route('/settings')
 def index(path):
     return send_from_directory(app.static_folder, 'index.html')
 
@@ -131,7 +132,10 @@ def delete_value(collection, id_row):
         return jsonify({'result': True})
     return abort(404)
 
-
+# TODO: разбить на несколько методов
+# К примеру, если у таблицы есть фильтры, отдавать признак
+# После чего уже запрашивать фильтры
+# С действиями возможно так же
 @app.route(f'{api_version}/get_dict/<string:collection>', methods=['GET'])
 @cross_origin()
 def get_dict(collection):
