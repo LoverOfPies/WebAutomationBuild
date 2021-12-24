@@ -454,7 +454,9 @@ def calculate_estimate(data):
         estimate_price_base += work_base_price
     # Заполняем цены для расчёта
     DataBaseUtils.update_record(estimate_model, estimate,
-                                dict([('price_client', estimate_price_client), ('price_base', estimate_price_base)]))
+                                dict([('field', 'price_client'), ('value', estimate_price_client)]))
+    DataBaseUtils.update_record(estimate_model, estimate,
+                                dict([('field', 'price_base'), ('value', estimate_price_base)]))
     # Обрабатываем материалы
 
     pass
