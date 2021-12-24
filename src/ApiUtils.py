@@ -457,6 +457,7 @@ def calculate_estimate(data):
                                 dict([('price_client', estimate_price_client), ('price_base', estimate_price_base)]))
     # Обрабатываем материалы
 
+    pass
 
 
 def get_estimate_materials(id_estimate):
@@ -464,7 +465,10 @@ def get_estimate_materials(id_estimate):
 
 
 def get_estimate_works(id_estimate):
-    pass
+    model = DataBaseUtils.get_model('estimate_work')
+    if model is None:
+        return None
+    return [row for row in model.select().where(model.estimate == id_estimate).dicts()]
 
 
 def export_estimate(id_estimate):
