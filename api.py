@@ -268,6 +268,23 @@ def calculate_estimate():
     return jsonify('True')
 
 
+@app.route(f'{api_version}/delete_estimate/<int:id_estimate>', methods=['DELETE'])
+@cross_origin()
+def delete_estimate(id_estimate):
+    src.ApiUtils.delete_estimate(id_estimate)
+    return jsonify('True')
+
+
+@app.route(f'{api_version}/edit_estimate/<int:id_estimate>', methods=['PUT'])
+@cross_origin()
+def edit_estimate(id_estimate):
+    # Принимаем json { client_fio, use_base, project_id
+    # additional_works: [1, 2, ...] (optional),
+    # work_technologies: [1, 2, ...] (optional) }
+    src.ApiUtils.edit_estimate(id_estimate, request.json)
+    return jsonify('True')
+
+
 @app.route(f'{api_version}/get_estimate_materials/<int:id_estimate>', methods=['GET'])
 @cross_origin()
 def get_estimate_materials(id_estimate):
@@ -280,13 +297,6 @@ def get_estimate_materials(id_estimate):
 def get_estimate_works(id_estimate):
     data = src.ApiUtils.get_estimate_works(id_estimate)
     return jsonify(data)
-
-
-@app.route(f'{api_version}/delete_estimate/<int:id_estimate>', methods=['DELETE'])
-@cross_origin()
-def delete_estimate(id_estimate):
-    src.ApiUtils.delete_estimate(id_estimate)
-    return jsonify('True')
 
 
 @app.route(f'{api_version}/export_estimate/<int:id_estimate>', methods=['GET'])
