@@ -9,8 +9,7 @@ from src.db.models.provider.Product import Product
 class EstimateMaterial(db.Model):
     estimate = ForeignKeyField(Estimate, backref='estimates')
     product = ForeignKeyField(Product, backref='products')
-    client_price = DoubleField(default=0, verbose_name='Цена работы клиента', null=True)
-    base_price = DoubleField(default=0, verbose_name='Цена себестоимости', null=True)
+    price = DoubleField(default=0, verbose_name='Цена', null=True)
 
     class Meta:
         db_table = "ab_estimate_material"

@@ -9,7 +9,7 @@ from src.db.models.provider.Provider import Provider
 # Товар
 class Product(db.Model, VersioningExtender):
     price = DoubleField(default=0, verbose_name='Цена')
-    amount_for_one = DoubleField(default=0, verbose_name='Количество материала за 1 шт')
+    amount_for_one = DoubleField(default=0, verbose_name='Объём материала в упаковке')
     material = ForeignKeyField(Material, backref='products', verbose_name='Материал')
 
     class Meta:
