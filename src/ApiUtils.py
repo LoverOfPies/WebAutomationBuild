@@ -416,6 +416,8 @@ def calculate_estimate(data):
             works.add(additional_work_object)
     # Обрабатываем работы
     estimate_price_client = calc_estimate_works_price(estimate, works, project_id)
+    DataBaseUtils.update_record(estimate_model, estimate,
+                                dict([('field', 'price_client'), ('value', estimate_price_client)]))
     # Обрабатываем материалы
     estimate_price_client += calc_estimate_materials_price(estimate, project_id, works)
     DataBaseUtils.update_record(estimate_model, estimate,
@@ -456,7 +458,7 @@ def delete_estimate(id_estimate):
     delete_estimate_material(id_estimate)
 
     estimate_model = DataBaseUtils.get_model('estimate')
-    estimate_record = DataBaseUtils.get_records(estimate_model, ({'id': id_estimate}))
+    estimate_record = DataBaseUtils.get_record(estimate_model, ({'id': id_estimate}))
     DataBaseUtils.delete_record(estimate_model, estimate_record)
 
 
@@ -508,6 +510,8 @@ def edit_estimate(id_estimate, data):
                 works.add(additional_work_object)
         delete_estimate_work(id_estimate)
         estimate_price_client = calc_estimate_works_price(id_estimate, works, project_id)
+        DataBaseUtils.update_record(estimate_model, id_estimate,
+                                    dict([('field', 'price_client'), ('value', estimate_price_client)]))
         delete_estimate_material(id_estimate)
         estimate_price_client += calc_estimate_materials_price(id_estimate, project_id, works)
         DataBaseUtils.update_record(estimate_model, id_estimate,
@@ -589,13 +593,14 @@ def calc_estimate_materials_price(id_estimate, project_id, works) -> int:
             base_size = DataBaseUtils.get_record(base_size_model,
                                                  ({'project': project_id, 'base_unit': work_material.work.base_unit}))
             product_obj = DataBaseUtils.get_record(product_model, ({'material': work_material.material.id}))
-            # формулы расчёта материалов
-            material_price = \
-                ((work_material.amount * base_size.amount) / product_obj.amount_for_one) * product_obj.price
-            estimate_material_data = dict([('estimate', id_estimate), ('product', product_obj.id),
-                                           ('price', material_price)])
-            DataBaseUtils.get_or_insert(estimate_work_model, estimate_material_data)
-            estimate_price_client += material_price
+            if product_obj:
+                # формулы расчёта материалов
+                material_price = \
+                    ((work_material.amount * base_size.amount) / product_obj.amount_for_one) * product_obj.price
+                estimate_material_data = dict([('estimate', id_estimate), ('product', product_obj.id),
+                                               ('price', material_price)])
+                DataBaseUtils.get_or_insert(estimate_work_model, estimate_material_data)
+                estimate_price_client += material_price
     return estimate_price_client
 
 
