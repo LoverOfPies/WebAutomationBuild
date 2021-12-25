@@ -434,11 +434,11 @@ def calculate_estimate(data):
     estimate_price_client = 0
     estimate_price_base = 0
     estimate_work_model = DataBaseUtils.get_model('estimate_work')
+    base_size_model = DataBaseUtils.get_model('base_size')
     for work_object in works:
         work_client_price = 0
         work_base_price = 0
         if work_object.work_coefficient != 0:
-            base_size_model = DataBaseUtils.get_model('base_size')
             base_size = DataBaseUtils.get_record(base_size_model,
                                                  ({'project': project_id, 'base_unit': work_object.base_unit}))
             work_client_price = (work_object.work_coefficient * work_object.client_price * base_size.amount)
@@ -454,12 +454,26 @@ def calculate_estimate(data):
         estimate_price_base += work_base_price
     # Заполняем цены для расчёта
     DataBaseUtils.update_record(estimate_model, estimate,
-                                dict([('field', 'price_client'), ('value', estimate_price_client)]))
-    DataBaseUtils.update_record(estimate_model, estimate,
                                 dict([('field', 'price_base'), ('value', estimate_price_base)]))
     # Обрабатываем материалы
-
-    pass
+    work_material_model = DataBaseUtils.get_model('work_material')
+    product_model = DataBaseUtils.get_model('product')
+    estimate_work_model = DataBaseUtils.get_model('estimate_material')
+    for work in works:
+        work_material_data = DataBaseUtils.get_records(work_material_model,
+                                                       ({'work': work.id}))
+        for work_material in work_material_data:
+            base_size = DataBaseUtils.get_record(base_size_model,
+                                                 ({'project': project_id, 'base_unit': work_material.work.base_unit}))
+            product_obj = DataBaseUtils.get_record(product_model, ({'material': work_material.material.id}))
+            material_price = \
+                ((work_material.amount * base_size.amount) / product_obj.amount_for_one) * product_obj.price
+            estimate_material_data = dict([('estimate', estimate), ('product', product_obj.id),
+                                           ('price', material_price)])
+            DataBaseUtils.get_or_insert(estimate_work_model, estimate_material_data)
+            estimate_price_client += material_price
+    DataBaseUtils.update_record(estimate_model, estimate,
+                                dict([('field', 'price_client'), ('value', estimate_price_client)]))
 
 
 def get_estimate_materials(id_estimate):
