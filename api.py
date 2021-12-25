@@ -132,6 +132,7 @@ def delete_value(collection, id_row):
         return jsonify({'result': True})
     return abort(404)
 
+
 # TODO: разбить на несколько методов
 # К примеру, если у таблицы есть фильтры, отдавать признак
 # После чего уже запрашивать фильтры
@@ -279,6 +280,13 @@ def get_estimate_materials(id_estimate):
 def get_estimate_works(id_estimate):
     data = src.ApiUtils.get_estimate_works(id_estimate)
     return jsonify(data)
+
+
+@app.route(f'{api_version}/delete_estimate/<int:id_estimate>', methods=['DELETE'])
+@cross_origin()
+def delete_estimate(id_estimate):
+    src.ApiUtils.delete_estimate(id_estimate)
+    return jsonify('True')
 
 
 @app.route(f'{api_version}/export_estimate/<int:id_estimate>', methods=['GET'])

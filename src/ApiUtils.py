@@ -502,5 +502,31 @@ def get_estimate_works(id_estimate):
     return data
 
 
+def delete_estimate(id_estimate):
+    estimate_additional_model = DataBaseUtils.get_model('estimate_additional')
+    estimate_additional_records = DataBaseUtils.get_records(estimate_additional_model, ({'estimate': id_estimate}))
+    for estimate_additional in estimate_additional_records:
+        DataBaseUtils.delete_record(estimate_additional_model, estimate_additional)
+
+    estimate_technology_model = DataBaseUtils.get_model('estimate_technology')
+    estimate_technology_records = DataBaseUtils.get_records(estimate_technology_model, ({'estimate': id_estimate}))
+    for estimate_technology in estimate_technology_records:
+        DataBaseUtils.delete_record(estimate_technology_model, estimate_technology)
+
+    estimate_work_model = DataBaseUtils.get_model('estimate_work')
+    estimate_work_records = DataBaseUtils.get_records(estimate_work_model, ({'estimate': id_estimate}))
+    for estimate_work in estimate_work_records:
+        DataBaseUtils.delete_record(estimate_work_model, estimate_work)
+
+    estimate_material_model = DataBaseUtils.get_model('estimate_material')
+    estimate_material_records = DataBaseUtils.get_records(estimate_material_model, ({'estimate': id_estimate}))
+    for estimate_material in estimate_material_records:
+        DataBaseUtils.delete_record(estimate_material_model, estimate_material)
+
+    estimate_model = DataBaseUtils.get_model('estimate')
+    estimate_record = DataBaseUtils.get_records(estimate_model, ({'id': id_estimate}))
+    DataBaseUtils.delete_record(estimate_model, estimate_record)
+
+
 def export_estimate(id_estimate):
     pass
