@@ -19,7 +19,7 @@
         <b-button
           @click="showChangeInput(false)"
           variant="danger"
-          class="rounded-0 rounded-end"
+          class="rounded-end"
           ><b-icon icon="x"
         /></b-button>
       </template>

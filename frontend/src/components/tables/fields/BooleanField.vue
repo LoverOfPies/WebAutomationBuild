@@ -4,6 +4,7 @@
       v-model="input"
       :value="checked"
       :unchecked-value="unchecked"
+      :disabled="readOnly"
       size="lg"
     />
   </div>
@@ -11,10 +12,10 @@
 
 <script>
 export default {
-  props: ["model"],
+  props: ["model", "readOnly", "state"],
   data() {
     return {
-      input: false,
+      input: this?.state ? this.state : false,
       checked: true,
       unchecked: false,
     };

@@ -12,7 +12,6 @@
 
           <b-input-group-append>
             <b-button
-              class="rounded-end rounded-0"
               :disabled="!filterLocal"
               @click="clearFilter"
             >

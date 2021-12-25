@@ -16,7 +16,7 @@
                 label="Выберите технологию"
                 :model="techModel"
                 :rowId="stage.id"
-                :items="techList"
+                :items="techList.filter(x => x.work_stage == stage.id)"
                 :ref="`tech-field-${stage.id}`"
                 size="sm"
                 class="negative-margin"

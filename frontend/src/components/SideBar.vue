@@ -39,7 +39,7 @@
               name: item.name,
             },
           }"
-          exact-active-class="active"
+          active-class="active"
           class="nav-link link-dark"
         >
           <b-icon :icon="item.icon" class="me-1" variant="dark"></b-icon>

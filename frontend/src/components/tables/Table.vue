@@ -16,24 +16,33 @@
         responsive
         show-empty
       >
-        <!-- FIXME: this accepts only <name> cell -->
         <template #cell(name)="data">
           <name-cell @updateField="onUpdateField" :data="data" />
         </template>
 
-        <!-- Modal Buttons -->
+        <!-- TODO: display float, int, bool fields -->
+        <!-- FIXME: make them editable -->
         <template
-          v-for="field in selectableFields"
+          v-for="field in cellTypes"
           v-slot:[`cell(${field.key})`]="data"
         >
-          <span :key="field.id">
+          <span :key="field.key">
+            <BooleanField
+              v-if="data.field.type == 'boolean'"
+              :readOnly="true"
+              :state="data.item[field.key]"
+            />
             <change-field-modal
+              v-else-if="data.field.type == 'selectable'"
               @updateField="onUpdateField"
               :label="getFieldById(data.item[field.key], field.key, 'name')"
               :model="field.key"
               :rowId="data.item.id"
               :items="fieldsData.models[field.key]"
             />
+            <span v-else>
+              {{ data.item[field.key] }}
+            </span>
           </span>
         </template>
 
@@ -70,10 +79,11 @@ import { mapActions, mapMutations } from "vuex";
 
 import ChangeFieldModal from "./ChangeFieldModal.vue";
 import NameCell from "./NameCell.vue";
+import BooleanField from "./fields/BooleanField.vue";
 import DeleteRowBtn from "./DeleteRowBtn.vue";
 
 export default {
-  components: { NameCell, ChangeFieldModal, DeleteRowBtn },
+  components: { NameCell, BooleanField, ChangeFieldModal, DeleteRowBtn },
   props: [
     "parent",
     "itemsData",
@@ -96,9 +106,12 @@ export default {
       }
       return this.fieldsData.list;
     },
-    selectableFields() {
-      return this.fieldsData.list.filter((x) => x.type == "selectable");
+    cellTypes() {
+      return this.fieldsData.list.filter((x) => x?.type);
     },
+    // selectableFields() {
+    //   return this.fieldsData.list.filter((x) => x.type == "selectable");
+    // },
   },
   methods: {
     ...mapActions(["deleteRow"]),

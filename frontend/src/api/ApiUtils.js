@@ -4,14 +4,6 @@ import { ToastPlugin } from "bootstrap-vue";
 
 Vue.use(ToastPlugin);
 
-function formatDate(value) {
-  let date = new Date(value);
-  const day = date.toLocaleString('default', { day: '2-digit' });
-  const month = date.toLocaleString('default', { month: 'short' });
-  const year = date.toLocaleString('default', { year: 'numeric' });
-  return day + '-' + month + '-' + year;
-}
-
 export default class {
   constructor() {
     this.api = `http://localhost:${process.env.VUE_APP_API_PORT}/api`;
@@ -164,31 +156,17 @@ export default class {
 
   // import/export
 
-  async importTable(collection, file) {
-    const formData = new FormData();
-    formData.append("file", file);
-    const _res = await axios
-      .post(`${this.api}/${this.version}/import/${collection}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
+  async importTable(collection) {
+    await axios
+      .post(`${this.api}/${this.version}/import/${collection}`)
       .then(() => this.showSuccessToast())
       .catch((r) => this.showErrorToast(r));
-
-    // return res.data;
   }
 
   async exportTable(collection) {
-    await axios({
-      url: `${this.api}/${this.version}/export/${collection}`,
-      method: "GET",
-      responseType: "blob", // important
-    }).then((response) => {
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `${collection}_${formatDate(Date.now())}.xlsx`);
-      link.click();
-      window.URL.revokeObjectURL(url);
-    });
+    await axios
+      .get(`${this.api}/${this.version}/export/${collection}`)
+      .then(() => this.showSuccessToast())
+      .catch((r) => this.showErrorToast(r));
   }
 }

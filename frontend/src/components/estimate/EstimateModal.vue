@@ -4,7 +4,13 @@
       {{ label }}
     </b-button>
 
-    <b-modal :id="modalId" :title="label" size="lg" centered>
+    <b-modal
+      :id="modalId"
+      :title="label"
+      size="lg"
+      footer-bg-variant="secondary"
+      centered
+    >
       <SearchBar @filterChange="onFilterChange" :filter="searchFilter" />
 
       <b-table
@@ -68,17 +74,34 @@ export default {
     ...mapActions(["loadEstimateMaterials", "loadEstimateWorks"]),
     showFieldModal(button) {
       this.$bvModal.show(this.modalId, button);
+
+      if (this.type == "materials") {
+        this.loadEstimateMaterials({ id: this.childId });
+      } else {
+        this.loadEstimateWorks({ id: this.childId });
+        this.fields = [
+          { key: "work_name", label: "Наименование" },
+          { key: "client_price", label: "Цена клиента" },
+          { key: "base_price", label: "Цена себестоимости" },
+        ];
+      }
     },
     onFilterChange(newValue) {
       this.searchFilter = newValue;
     },
   },
   mounted() {
-    if (this.type == "materials") {
-      this.loadEstimateMaterials({ id: this.childId });
-    } else {
-      this.loadEstimateWorks({ id: this.childId });
-    }
+    // if (this.type == "materials") {
+    //   this.loadEstimateMaterials({ id: this.childId });
+    // } else {
+    //   this.loadEstimateWorks({ id: this.childId });
+    // }
   },
 };
 </script>
+
+<style>
+.modal-footer.bg-secondary {
+  display: none;
+}
+</style>

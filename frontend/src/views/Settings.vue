@@ -13,14 +13,6 @@
               :options="importForm.options"
               class="mb-2"
             ></b-form-select>
-            <b-form-file
-              v-model="importForm.file"
-              :state="Boolean(importForm.file)"
-              placeholder="Выберите файл или перетащите сюда..."
-              drop-placeholder="Перетащите файл сюда..."
-              browse-text="Обзор"
-              class="mb-2 flex-grow-1"
-            ></b-form-file>
             <b-button
               type="submit"
               :disabled="importForm.disabled"
@@ -65,7 +57,6 @@ export default {
         selected: null,
         options: [{ value: null, text: "Выберите из списка" }],
         disabled: true,
-        file: null,
       },
       exportForm: {
         selected: null,
@@ -99,13 +90,8 @@ export default {
     },
   },
   watch: {
-    "importForm.selected": function () {
-      this.importForm.disabled =
-        this.importForm.selected && !this.importForm.file ? true : false;
-    },
-    "importForm.file": function () {
-      this.importForm.disabled =
-        this.importForm.selected && !this.importForm.file ? true : false;
+    "importForm.selected": function (selected) {
+      this.importForm.disabled = !selected;
     },
     "exportForm.selected": function (selected) {
       this.exportForm.disabled = !selected;

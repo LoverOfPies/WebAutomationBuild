@@ -13,8 +13,11 @@
       </b-list-group>
     </b-card>
 
-    <b-card class="mb-2" no-body header="Дополнительные работы">
-      <b-list-group flush>
+    <b-card class="mb-2" :no-body="notBaseWorksList.length != 0" header="Дополнительные работы">
+      <div v-if="notBaseWorksList.length == 0">
+        Дополнительные работы отсутствуют!
+      </div>
+      <b-list-group v-else flush>
         <b-list-group-item
           v-for="additionalWork in notBaseWorksList"
           :key="additionalWork.id"

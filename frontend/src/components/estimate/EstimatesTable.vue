@@ -8,6 +8,7 @@
       :filter="searchFilter"
       id="table"
       class="text-nowrap"
+      head-variant="light"
       bordered
       responsive
       show-empty

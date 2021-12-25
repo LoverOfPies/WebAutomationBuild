@@ -8,3 +8,7 @@
 .toast:not(.show) {
     display: block;
 }
+
+.table td {
+    vertical-align: middle;
+}
