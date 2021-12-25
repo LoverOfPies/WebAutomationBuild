@@ -438,6 +438,7 @@ def calculate_estimate(data):
     for work_object in works:
         work_client_price = 0
         work_base_price = 0
+        # формулы расчёта цены работ
         if work_object.work_coefficient != 0:
             base_size = DataBaseUtils.get_record(base_size_model,
                                                  ({'project': project_id, 'base_unit': work_object.base_unit}))
@@ -466,6 +467,7 @@ def calculate_estimate(data):
             base_size = DataBaseUtils.get_record(base_size_model,
                                                  ({'project': project_id, 'base_unit': work_material.work.base_unit}))
             product_obj = DataBaseUtils.get_record(product_model, ({'material': work_material.material.id}))
+            # формулы расчёта материалов
             material_price = \
                 ((work_material.amount * base_size.amount) / product_obj.amount_for_one) * product_obj.price
             estimate_material_data = dict([('estimate', estimate), ('product', product_obj.id),
@@ -477,7 +479,15 @@ def calculate_estimate(data):
 
 
 def get_estimate_materials(id_estimate):
-    pass
+    model = DataBaseUtils.get_model('estimate_material')
+    if model is None:
+        return None
+    data = [row for row in model.select().where(model.estimate == id_estimate).dicts()]
+    product_model = DataBaseUtils.get_model('product')
+    for value in data:
+        product = DataBaseUtils.get_record(product_model, {'id': value['product']})
+        value['material_name'] = product.material.name
+    return data
 
 
 def get_estimate_works(id_estimate):
