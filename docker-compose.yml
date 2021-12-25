@@ -1,0 +1,26 @@
+services:
+  api:
+    build: .
+    depends_on:
+      - db
+    networks:
+      - default
+    ports:
+      - 1337:1337
+    volumes:
+      - ./app-data:/usr/src/app/app
+    restart: always
+
+  db:
+    image: postgres:10
+    environment:
+      POSTGRES_USER: sysdb
+      POSTGRES_PASSWORD: masterkey
+      POSTGRES_DB: automation_build
+    networks:
+      - default
+    ports:
+      - 5432:5432
+    restart: always
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
