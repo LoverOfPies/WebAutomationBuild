@@ -132,6 +132,15 @@ export default class {
     return data;
   }
 
+  deleteEstimate(id) {
+    const promise = axios.delete(`${this.api}/${this.version}/delete_estimate/${id}`)
+    const data = promise
+      .then((res) => res.data)
+      .catch((r) => this.showErrorToast(r));
+
+    return data;
+  }
+
   getEstimateMaterials(id) {
     const promise = axios.get(
       `${this.api}/${this.version}/get_estimate_materials/${id}`

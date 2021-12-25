@@ -2,14 +2,15 @@
   <b-form-datepicker
     v-model="input"
     placeholder="Выберите дату"
-    locale="ru"
+    locale="ru-RU"
     :hide-header="true"
+    :readonly="readOnly"
   ></b-form-datepicker>
 </template>
 
 <script>
 export default {
-  props: ["model"],
+  props: ["model", "readOnly", "value"],
   data() {
     return {
       input: "",

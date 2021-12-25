@@ -28,8 +28,6 @@
 </template>
 
 <script>
-// import { mapGetters, mapActions } from "vuex";
-
 import Title from "@/components/Title.vue";
 import EstimatesTable from "../components/estimate/EstimatesTable.vue";
 import EstimateForm from "../components/estimate/EstimateForm.vue";
@@ -41,42 +39,13 @@ export default {
       title: "Расчеты",
       isEditing: false,
       editingId: null,
-      // name: null,
-      // selectedProjectId: null,
-      // baseEquipment: true,
     };
   },
-  computed: {
-    // ...mapGetters(["projectsList"]),
-  },
   methods: {
-    //   ...mapActions(["loadProjects"]),
     onToggleView(boolState, editId = -1) {
       this.isEditing = boolState;
       this.editingId = editId;
     },
-    //   async init() {
-    //     this.loadProjects({ table_name: "project" });
-    //   },
-    //   getFieldById(id, model, field) {
-    //     return this.projectsList.find((x) => x.id == id)[field];
-    //   },
-    //   onProjectLabelChange({ id: itemId, model }) {
-    //     this.$refs["project-input"].labelReplacement = this.getFieldById(
-    //       itemId,
-    //       model,
-    //       "name"
-    //     );
-    //   },
-    //   onProjectInputUpdate({ _id, fields }) {
-    //     this.selectedProjectId = fields.value;
-    //   },
-    //   saveEstimate() {
-    //     console.log("TODO: estimate() not implemented");
-    //   },
-    // },
-    // mounted() {
-    //   this.init();
   },
 };
 </script>

@@ -51,9 +51,9 @@
               :childId="row.item.id"
               type="works"
             />
-            <b-button variant="info" @click="editEstimate(row.item.id)"
+            <!-- <b-button variant="info" @click="editEstimate(row.item.id)"
               >Редактировать</b-button
-            >
+            > -->
           </b-col>
         </b-row>
         <!-- </b-card> -->
@@ -86,7 +86,7 @@ export default {
     ...mapGetters(["estimatesList"]),
   },
   methods: {
-    ...mapActions(["loadEstimateInfo", "deleteRow"]),
+    ...mapActions(["loadEstimateInfo", "deleteEstimate"]),
     async init() {
       this.loadEstimateInfo();
     },
@@ -94,8 +94,7 @@ export default {
       this.searchFilter = newValue;
     },
     onDeleteRow(id) {
-      console.log(`FIXME: implement proper deleteEstimateRow(${id})`);
-      this.deleteRow({ table_name: "estimate", row_id: id });
+      this.deleteEstimate({ table_name: "estimate", id });
     },
     exportToExcel(id) {
       console.log(`TODO: implement exportToExcel(${id})`);

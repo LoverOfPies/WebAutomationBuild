@@ -13,8 +13,6 @@ class Database(object):
         self.app = app
         self.database = database
 
-        print(os.environ)
-
         if self.database is None:
             self.load_database()
 
@@ -37,7 +35,7 @@ class Database(object):
         except AssertionError:
             raise ImproperlyConfigured('Database engine not a subclass of peewee.Database: "%s"' % self.database_engine)
 
-        if (os.environ.get("POSTGRES_URL")):
+        if (os.environ.get("IS_CONTAINER")):
             print("IM ON DOCKER BABY")
             self.database = connect(os.environ.get("POSTGRES_URL"))
         else:

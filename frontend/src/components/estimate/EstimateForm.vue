@@ -117,7 +117,7 @@ export default {
     onUpdateWorkTechnologies(newList) {
       this.selectedWorkTechnologies = newList;
     },
-    saveEstimate() {
+    async saveEstimate() {
       /* 
       {
         client_fio,
@@ -139,8 +139,10 @@ export default {
         }),
       };
       console.table(fields);
-      this.addEstimate({ fields });
-      this.$emit('toggleEditingView', false);
+      await this.addEstimate({ fields }).then((data) => {
+        console.log(data);
+        this.$emit("toggleEditingView", false);
+      });
     },
   },
   mounted() {

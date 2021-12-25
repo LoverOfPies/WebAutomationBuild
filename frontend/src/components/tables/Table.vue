@@ -20,7 +20,7 @@
           <name-cell @updateField="onUpdateField" :data="data" />
         </template>
 
-        <!-- TODO: display float, int, bool fields -->
+        <!-- TODO: display [ ] float, [ ] int, [x] bool, [ ] date fields -->
         <!-- FIXME: make them editable -->
         <template
           v-for="field in cellTypes"
@@ -32,6 +32,7 @@
               :readOnly="true"
               :state="data.item[field.key]"
             />
+            <!-- <span v-else-if="data.field.type == 'date'"><DateField  :readOnly="true" :value="data.item[field.key]" />{{data.item[field.key]}}</span> -->
             <change-field-modal
               v-else-if="data.field.type == 'selectable'"
               @updateField="onUpdateField"
@@ -80,6 +81,7 @@ import { mapActions, mapMutations } from "vuex";
 import ChangeFieldModal from "./ChangeFieldModal.vue";
 import NameCell from "./NameCell.vue";
 import BooleanField from "./fields/BooleanField.vue";
+// import DateField from "./fields/DateField.vue";
 import DeleteRowBtn from "./DeleteRowBtn.vue";
 
 export default {

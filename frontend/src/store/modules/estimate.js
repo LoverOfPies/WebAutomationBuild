@@ -20,7 +20,15 @@ export default {
       await API.getData(table_name).then((stages) => (state.stages = stages));
     },
     async addEstimate(ctx, { fields }) {
-      await API.addEstimate(fields).then(console.log("Success"));
+      return await API.addEstimate(fields).then(data => data)
+    },
+    async deleteEstimate({ state }, { id }) {
+      await API.deleteEstimate(id).then((_data) => {
+        state.estimates.splice(
+          state.estimates.indexOf(state.estimates.find((e) => e.id == id)),
+          1
+        );
+      });
     },
     async loadTechList({ state }, { table_name }) {
       await API.getData(table_name).then(

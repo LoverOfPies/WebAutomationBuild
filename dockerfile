@@ -4,6 +4,7 @@ FROM python:3
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 ENV POSTGRES_URL postgresql://sysdb:masterkey@db:5432/automation_build
+ENV IS_CONTAINER 1
 RUN apt-get update -y && apt-get install -y build-essential
 COPY . /app
 WORKDIR /app 
