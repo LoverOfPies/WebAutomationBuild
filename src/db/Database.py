@@ -1,7 +1,9 @@
 from uuid import uuid4
+import os
 
 import peewee
 from peewee import ImproperlyConfigured
+from playhouse.db_url import connect
 
 from src.Cache import load_class
 
@@ -10,6 +12,8 @@ class Database(object):
     def __init__(self, app, database=None):
         self.app = app
         self.database = database
+
+        print(os.environ)
 
         if self.database is None:
             self.load_database()
@@ -33,7 +37,11 @@ class Database(object):
         except AssertionError:
             raise ImproperlyConfigured('Database engine not a subclass of peewee.Database: "%s"' % self.database_engine)
 
-        self.database = self.database_class(self.database_name, **self.database_config)
+        if (os.environ.get("POSTGRES_URL")):
+            print("IM ON DOCKER BABY")
+            self.database = connect(os.environ.get("POSTGRES_URL"))
+        else:
+            self.database = self.database_class(self.database_name, **self.database_config)
 
     def get_model_class(self):
         class BaseModel(peewee.Model):

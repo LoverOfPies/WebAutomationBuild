@@ -141,3 +141,6 @@ dmypy.json
 .DS_Store
 # vscode workspace file
 .vscode
+# docker data
+/postgres-data
+/app-data
