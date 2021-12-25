@@ -1,3 +1,5 @@
+import math
+
 from peewee import ForeignKeyField, DoubleField, IntegerField, BooleanField, DateField
 
 from src import FilterUtils
@@ -595,7 +597,7 @@ def calc_estimate_materials_price(id_estimate, project_id, works) -> int:
             product_obj = DataBaseUtils.get_record(product_model, ({'material': work_material.material.id}))
             if product_obj:
                 # формулы расчёта материалов
-                amount_product = ((work_material.amount * base_size.amount) / product_obj.amount_for_one)
+                amount_product = math.ceil(((work_material.amount * base_size.amount) / product_obj.amount_for_one))
                 material_price = amount_product * product_obj.price
                 estimate_material_data = dict([('estimate', id_estimate), ('product', product_obj.id),
                                                ('price', material_price), ('amount', amount_product)])
