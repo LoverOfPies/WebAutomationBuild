@@ -195,6 +195,7 @@ export default {
       this.addNewRow({ table_name: this.name, row: item });
     },
     async init() {
+      this.searchFilter = null;
       await this.getTableInfo({ name: this.name });
       this.getItems({ name: this.name, params: this.compiledParams });
 

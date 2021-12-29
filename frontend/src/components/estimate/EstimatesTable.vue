@@ -14,13 +14,13 @@
       show-empty
     >
       <template #cell(actions)="row">
-        <b-button
+        <!-- <b-button
           variant="success"
           class="mr-2"
           @click="exportToExcel(row.item.id)"
         >
           Выгрузить в Excel
-        </b-button>
+        </b-button> -->
         <b-button class="mr-2" @click="row.toggleDetails">
           Подробнее {{ row.detailsShowing ? "&#8593;" : "&#8595;" }}
         </b-button>

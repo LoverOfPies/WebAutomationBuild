@@ -1,7 +1,13 @@
 <template>
   <div>
-    <b-card v-if="showBase" class="mb-4" :no-body="baseWorksList.length != 0" header="Базовые работы">
-      <div v-if="baseWorksList.length == 0">
+    <b-card
+      v-if="showBase"
+      class="mb-4"
+      :no-body="baseWorksList.length != 0 && projectId != null"
+      header="Базовые работы"
+    >
+      <div v-if="projectId == null">Проект не выбран! {{ projectId }}</div>
+      <div v-else-if="baseWorksList.length == 0">
         Базовые работы отсутствуют!
       </div>
       <b-list-group v-else flush>
@@ -13,7 +19,11 @@
       </b-list-group>
     </b-card>
 
-    <b-card class="mb-2" :no-body="notBaseWorksList.length != 0" header="Дополнительные работы">
+    <b-card
+      class="mb-2"
+      :no-body="notBaseWorksList.length != 0"
+      header="Дополнительные работы"
+    >
       <div v-if="notBaseWorksList.length == 0">
         Дополнительные работы отсутствуют!
       </div>
@@ -37,7 +47,7 @@
 import { mapGetters, mapActions } from "vuex";
 
 export default {
-  props: ["showBase"],
+  props: ["showBase", "projectId"],
   data() {
     return {
       selectedAdditionalWorks: [],
@@ -45,6 +55,10 @@ export default {
   },
   computed: {
     ...mapGetters(["worksList", "baseWorksList", "notBaseWorksList"]),
+    selectedProjectBaseWorksList() {
+      // TODO: return project base work (get data from API?)
+      return this.baseWorksList;
+    }
   },
   methods: {
     ...mapActions(["loadWorks"]),

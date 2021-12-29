@@ -43,6 +43,7 @@
     <BaseTable
       class="mb-4"
       :showBase="isBaseEquipment"
+      :projectId="selectedProjectId"
       @updateAdditionalWorks="onUpdateAdditionalWorks"
     />
     <!-- stages table -->

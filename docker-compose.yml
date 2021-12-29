@@ -8,7 +8,7 @@ services:
     ports:
       - 1337:1337
     volumes:
-      - ./app-data:/usr/src/app/app
+      - ./app-data:/app
     restart: always
 
   db:
@@ -23,4 +23,4 @@ services:
       - 5432:5432
     restart: always
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - ./postgres-data:/postgresql

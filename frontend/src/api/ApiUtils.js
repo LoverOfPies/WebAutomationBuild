@@ -6,7 +6,11 @@ Vue.use(ToastPlugin);
 
 export default class {
   constructor() {
-    this.api = `http://localhost:${process.env.VUE_APP_API_PORT}/api`;
+    if (process.env.VUE_APP_API_PORT != null) {
+      this.api = `http://${window.location.hostname}:${process.env.VUE_APP_API_PORT}/api`;
+    } else {
+      this.api = `http://${window.location.host}/api`;
+    }
     this.version = "v0.1";
 
     const vm = new Vue();

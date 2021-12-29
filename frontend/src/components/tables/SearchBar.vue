@@ -11,10 +11,7 @@
           ></b-form-input>
 
           <b-input-group-append>
-            <b-button
-              :disabled="!filterLocal"
-              @click="clearFilter"
-            >
+            <b-button :disabled="!filterLocal" @click="clearFilter">
               Очистить
             </b-button>
           </b-input-group-append>
@@ -30,7 +27,7 @@ export default {
   data() {
     return {
       filterLocal: this.filter,
-    };
+    }
   },
   methods: {
     clearFilter() {
@@ -39,6 +36,9 @@ export default {
     },
   },
   watch: {
+    filter: function (newValue) {
+      this.filterLocal = newValue;
+    },
     filterLocal: function (newValue) {
       this.$emit("filterChange", newValue);
     },
