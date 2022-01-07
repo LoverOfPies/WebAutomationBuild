@@ -20,7 +20,7 @@ services:
     networks:
       - default
     ports:
-      - 5432:5432
+      - 5337:5337
     restart: always
     volumes:
       - ./postgres-data:/postgresql
