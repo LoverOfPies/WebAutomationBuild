@@ -1,13 +1,12 @@
 <template>
   <div>
-    <!-- TODO: подтягивать заголовок группы -->
     <h5 v-if="items.list.length == 0">Нет доступных записей!</h5>
     <b-card
       v-else
       v-for="(group, index) in radioGroups"
       :key="index"
+      :header="getGroupTitle(index)"
       class="mb-4"
-      header="Выберите одно из списка"
     >
       <b-form-group class="mb-0">
         <RadioGroupElement
@@ -21,26 +20,11 @@
         />
       </b-form-group>
     </b-card>
-
-    <!-- <b-form-group
-      v-for="(group, index) in radioGroups"
-      :key="index"
-      label="Выберите из списка"
-    >
-      <RadioGroupElement
-        :id="id"
-        :name="name"
-        :group="group"
-        :index="index"
-        :selection="groupSelections[index]"
-        :parent="parent_table"
-        :child="child_table"
-      />
-    </b-form-group> -->
   </div>
 </template>
 
 <script>
+import { mapActions, mapGetters } from "vuex";
 import RadioGroupElement from "./RadioGroupElement.vue";
 
 export default {
@@ -53,7 +37,16 @@ export default {
       child_table: this.fields.list[1].key,
     };
   },
+  methods: {
+    ...mapActions(["getGroupTitles"]),
+    getGroupTitle(index) {
+      return this.groupTitles.filter(
+        (x) => x.id == this.groupSelections[index]
+      )[0]["name"];
+    },
+  },
   computed: {
+    ...mapGetters(["groupTitles"]),
     radioGroups() {
       let groups = [];
 
@@ -86,6 +79,9 @@ export default {
 
       return selections;
     },
+  },
+  mounted() {
+    this.getGroupTitles({ collection: this.groupField });
   },
 };
 </script>

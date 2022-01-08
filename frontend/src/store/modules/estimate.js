@@ -20,7 +20,7 @@ export default {
       await API.getData(table_name).then((stages) => (state.stages = stages));
     },
     async addEstimate(ctx, { fields }) {
-      return await API.addEstimate(fields).then(data => data)
+      return await API.addEstimate(fields).then((data) => data);
     },
     async deleteEstimate({ state }, { id }) {
       await API.deleteEstimate(id).then((_data) => {
@@ -36,11 +36,15 @@ export default {
       );
     },
     async loadEstimateMaterials({ state }, { id }) {
-      await API.getEstimateMaterials(id).then(mat_list => state.estimate_modal_list = mat_list);
+      await API.getEstimateMaterials(id).then(
+        (mat_list) => (state.estimate_modal_list = mat_list)
+      );
     },
     async loadEstimateWorks({ state }, { id }) {
-      await API.getEstimateWorks(id).then(work_list => state.estimate_modal_list = work_list);
-    }
+      await API.getEstimateWorks(id).then(
+        (work_list) => (state.estimate_modal_list = work_list)
+      );
+    },
   },
   mutations: {
     updateProjectList(state, list) {
@@ -51,7 +55,7 @@ export default {
     },
     resetEstimateModalList(state) {
       state.estimate_modal_list = [];
-    }
+    },
   },
   state: {
     estimates: [],

@@ -56,13 +56,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss" scoped>
-.cursor-pointer {
-  cursor: pointer;
-}
-.text {
-  padding: 0.375rem 0.75rem;
-  border: 1px solid transparent;
-}
-</style>

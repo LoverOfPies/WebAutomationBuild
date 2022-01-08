@@ -1,11 +1,12 @@
 <template>
   <div>
     <b-button
-      @click="showFieldModal($event.target)"
-      :disabled="disabled"
-      block
-      :size="size"
       v-if="label != ''"
+      :class="noTruncate ? '' : 'text-truncate'"
+      :disabled="disabled"
+      :size="size"
+      block
+      @click="showFieldModal($event.target)"
     >
       {{ displayedLabel }}
     </b-button>
@@ -16,8 +17,8 @@
       :id="fieldModal.id"
       :title="fieldModal.title"
       footer-bg-variant="secondary"
-      @hide="resetFieldModal"
       centered
+      @hide="resetFieldModal"
     >
       <SearchBar @filterChange="onFilterChange" :filter="searchFilter" />
       <b-table
@@ -30,6 +31,7 @@
         bordered
         show-empty
         responsive
+        class="modal-table"
       >
         <template #cell(actions)="row">
           <b-button variant="primary" @click="selectRow(row.item)">
@@ -44,9 +46,9 @@
             v-model="currentPage"
             :total-rows="rows"
             :per-page="perPage"
+            :aria-controls="tableId"
             first-number
             last-number
-            :aria-controls="tableId"
           ></b-pagination>
         </b-col>
 
@@ -79,7 +81,16 @@ let uid = 0;
 
 export default {
   components: { SearchBar },
-  props: ["label", "model", "rowId", "items", "disabled", "resetBtn", "size"],
+  props: [
+    "label",
+    "model",
+    "rowId",
+    "items",
+    "disabled",
+    "resetBtn",
+    "size",
+    "no-truncate",
+  ],
   data() {
     uid += 1;
     return {
@@ -140,8 +151,9 @@ export default {
 };
 </script>
 
-<style>
-.modal-footer.bg-secondary {
-  display: none;
+<style lang="scss">
+.modal-table table td {
+  padding: 0.35rem 0.75rem;
 }
 </style>
+>

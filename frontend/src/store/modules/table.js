@@ -36,7 +36,7 @@ export default {
       });
     },
     getItems({ commit }, { name, params = {} }) {
-      console.log("[getItems() params:", params);
+      console.log("[getItems()] params:", params);
       API.getData(name, params).then((data) => {
         commit("updateTableItems", data);
         commit("updateTableBusyState", false);
@@ -46,7 +46,10 @@ export default {
       commit("resetFieldsModels");
       getters.selectableFields.forEach((field) => {
         API.getData(field.key).then((data) => {
-          commit("updateFieldsModels", { key: [field.key], data });
+          commit("updateFieldsModels", {
+            key: [field.key],
+            data,
+          });
         });
       });
     },
@@ -67,6 +70,12 @@ export default {
         commit("deleteTableItem", row_id);
       });
     },
+    async getParentNameById({ commit }, { table_name, id }) {
+      await API.getData(table_name).then((data) => {
+        const name = data.filter((x) => x.id == id)[0]["name"];
+        commit("updateTableParentName", name);
+      });
+    },
   },
   mutations: {
     updateTableBusyState(state, isBusy) {
@@ -77,6 +86,9 @@ export default {
     },
     updateTableTitle(state, title) {
       state.table.title = title;
+    },
+    updateTableParentName(state, name) {
+      state.table.parent_name = name;
     },
     updateTableMode(state, mode) {
       state.table.mode = mode;
@@ -96,7 +108,10 @@ export default {
     updateTableItem(state, { collection, id, field, value }) {
       let changedField = state.table.items.list.find((e) => e.id == id);
       changedField[field] = value;
-      API.updateField(collection, id, { field, value });
+      API.updateField(collection, id, {
+        field,
+        value,
+      });
     },
     addTableItem(state, item) {
       console.log("[addTableItem()] pushing new item", item);
@@ -128,6 +143,7 @@ export default {
   state: {
     table: {
       title: "",
+      parent_name: "",
       mode: null,
       group_field: null,
       isBusy: false,
@@ -156,6 +172,9 @@ export default {
     title(state) {
       return state.table.title;
     },
+    parent_name(state) {
+      return state.table.parent_name;
+    },
     mode(state) {
       return state.table.mode;
     },
@@ -163,19 +182,30 @@ export default {
       return state.table.group_field;
     },
     itemsData(state, getters) {
-      return { list: state.table.items.list, actions: getters.itemsActions };
+      return {
+        list: state.table.items.list,
+        actions: getters.itemsActions,
+      };
     },
     fieldsData(state, getters) {
-      return { list: getters.fieldsList, models: state.table.fields.models };
+      return {
+        list: getters.fieldsList,
+        models: state.table.fields.models,
+      };
     },
     fieldsList(state) {
       let fields = state.table.fields.list;
-      fields.push({ key: "actions", label: "Действия" });
+      fields.push({
+        key: "actions",
+        label: "Действия",
+      });
       return fields;
     },
     itemsActions(state) {
       let actions = state.table.items.actions;
-      actions.push({ action: "delete" });
+      actions.push({
+        action: "delete",
+      });
       return actions;
     },
     selectableFields(state) {

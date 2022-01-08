@@ -5,8 +5,8 @@
     "DATABASE": {
         "name": "automation_build",
         "engine": "peewee.PostgresqlDatabase",
-        "password": "sysdba",
-        "user": "masterkey",
+        "password": "masterkey",
+        "user": "sysdba",
         "port": "5337"
     },
     "UPLOAD_FOLDER": "expimp",

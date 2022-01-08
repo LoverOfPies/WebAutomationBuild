@@ -58,7 +58,7 @@ export default {
     selectedProjectBaseWorksList() {
       // TODO: return project base work (get data from API?)
       return this.baseWorksList;
-    }
+    },
   },
   methods: {
     ...mapActions(["loadWorks"]),

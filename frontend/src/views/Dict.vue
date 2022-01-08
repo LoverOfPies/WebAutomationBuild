@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Title :title="title" back="true" />
+    <Title :title="localTitle" back="true" />
 
     <b-container fluid class="p-4">
       <b-row>
@@ -54,7 +54,7 @@
           </b-row>
           <!-- bottom navigation -->
           <b-row v-if="mode == null">
-            <b-col cols="10">
+            <b-col cols="8">
               <!-- pagination -->
               <Pagination
                 :rows="itemRowsLength"
@@ -63,7 +63,7 @@
                 @pageChange="onPageChange"
               />
             </b-col>
-            <b-col cols="2">
+            <b-col cols="4">
               <add-data-btn
                 class="text-end"
                 :parent="parent"
@@ -117,6 +117,7 @@ export default {
   computed: {
     ...mapGetters([
       "title",
+      "parent_name",
       "mode",
       "groupField",
       "isBusy",
@@ -128,6 +129,15 @@ export default {
       "filtersData",
       "filterParams",
     ]),
+    localTitle() {
+      if (this.mode === "many_to_many" && this.parent) {
+        this.getParentNameById({ table_name: this.parent, id: this.id });
+        return `${this.title.substring(0, this.title.lastIndexOf(" "))} ${
+          this.parent_name
+        }`;
+      }
+      return this.title;
+    },
     compiledParams() {
       let initialParams = {};
       if (this?.parent) {
@@ -154,6 +164,7 @@ export default {
       "getTableInfo",
       "applyFilters",
       "addNewRow",
+      "getParentNameById",
     ]),
     ...mapMutations([
       "updateFieldsList",
@@ -199,8 +210,9 @@ export default {
       await this.getTableInfo({ name: this.name });
       this.getItems({ name: this.name, params: this.compiledParams });
 
-      /* 
+      /*
         Sticky table fix
+        FIXME: rewrite using https://bootstrap-vue.org/docs/directives/visible 
       */
       function isElementInViewport(el) {
         var rect = el.getBoundingClientRect();

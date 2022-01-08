@@ -2,7 +2,7 @@
   <div>
     <div v-if="isEditable" class="position-relative">
       <div class="text d-flex align-items-center">
-        <span class="me-2">{{ model }}</span>
+        <span class="me-2">{{ value }}</span>
         <b-icon
           icon="pencil-square"
           class="cursor-pointer"
@@ -10,6 +10,7 @@
         />
       </div>
 
+      <!--  -->
       <b-card v-if="editing" no-body class="edit-popup shadow">
         <b-card-header
           class="d-flex justify-content-between align-items-center"
@@ -34,41 +35,54 @@
           </div>
         </b-card-header>
 
-        <b-form-input
+        <b-form-textarea
+          v-if="fieldType == 'textarea'"
           v-model="input"
-          type="number"
-          step="any"
-          placeholder="Введите число"
+          type="text"
           class="border-white"
+          rows="3"
+          max-rows="6"
           :value="input"
-          :no-wheel="true"
+          :style="width ? 'min-width:' + width + 'px' : ''"
+        />
+        <b-form-input
+          v-else
+          v-model="input"
+          type="text"
+          class="border-white"
+          placeholder="Введите текст"
+          :value="input"
+          :style="width ? 'min-width:' + width + 'px' : ''"
         />
       </b-card>
+      <!--  -->
     </div>
     <span v-else>
-      <b-form-input
-        v-model="input"
-        type="number"
-        step="any"
-        placeholder="Введите число"
-        :no-wheel="true"
-      />
+      {{ value }}
     </span>
   </div>
 </template>
 
 <script>
 export default {
-  props: ["model", "isEditable", "field", "rowId", "readOnly"],
+  props: [
+    "value",
+    "isEditable",
+    "field",
+    "rowId",
+    "readOnly",
+    "width",
+    "fieldType",
+  ],
   data() {
     return {
-      editing: false,
       input: "",
+      editing: false,
     };
   },
   methods: {
     showChangeInput(state) {
-      this.input = this.model;
+      this.input = this.value;
       this.editing = state;
     },
     updateField() {

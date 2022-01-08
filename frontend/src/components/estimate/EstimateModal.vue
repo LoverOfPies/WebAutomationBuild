@@ -79,7 +79,7 @@ export default {
         this.loadEstimateMaterials({ id: this.childId });
         this.fields = [
           { key: "material_name", label: "Наименование" },
-          { key: "amount", label: "Кол-во"},
+          { key: "amount", label: "Кол-во" },
           { key: "price", label: "Цена" },
         ];
       } else {
