@@ -72,14 +72,27 @@
 </template>
 
 <script>
+let uid = 0;
+
 export default {
-  props: ["model", "readOnly", "value", "isEditable", "field", "rowId"],
+  props: [
+    "model",
+    "readOnly",
+    "value",
+    "isEditable",
+    "field",
+    "rowId",
+    "currentPopupRef",
+  ],
   data() {
+    uid += 1;
+
     return {
       input: "",
       editing: false,
       selected: "",
       dateEditInput: "",
+      popupRef: `date-popup-${uid}`,
     };
   },
   methods: {
@@ -90,6 +103,10 @@ export default {
 
       this.dateEditInput = this.simplifiedDate;
       this.editing = state;
+
+      if (state) {
+        this.$emit("editPopupShown", this.popupRef);
+      }
     },
     onContext(ctx) {
       this.selected = ctx.selectedYMD;
@@ -149,6 +166,11 @@ export default {
         id: -1,
         fields: fields,
       });
+    },
+    currentPopupRef: function (newValue) {
+      if (this.popupRef != newValue) {
+        this.showChangeInput(false);
+      }
     },
     dateEditInput: function (newValue) {
       const dateString = newValue.split(".").reverse().join("-");

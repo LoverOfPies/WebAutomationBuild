@@ -64,6 +64,8 @@
 </template>
 
 <script>
+let uid = 0;
+
 export default {
   props: [
     "value",
@@ -71,19 +73,26 @@ export default {
     "field",
     "rowId",
     "readOnly",
+    "currentPopupRef",
     "width",
     "fieldType",
   ],
   data() {
+    uid += 1;
+
     return {
       input: "",
       editing: false,
+      popupRef: `text-popup-${uid}`,
     };
   },
   methods: {
     showChangeInput(state) {
       this.input = this.value;
       this.editing = state;
+      if (state) {
+        this.$emit("editPopupShown", this.popupRef);
+      }
     },
     updateField() {
       const fields = {
@@ -108,6 +117,11 @@ export default {
         id: -1,
         fields: fields,
       });
+    },
+    currentPopupRef: function (newValue) {
+      if (this.popupRef != newValue) {
+        this.showChangeInput(false);
+      }
     },
   },
 };

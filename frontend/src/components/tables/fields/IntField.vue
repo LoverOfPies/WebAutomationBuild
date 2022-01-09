@@ -58,18 +58,32 @@
 </template>
 
 <script>
+let uid = 0;
+
 export default {
-  props: ["model", "isEditable", "field", "rowId", "readOnly"],
+  props: [
+    "model",
+    "isEditable",
+    "field",
+    "rowId",
+    "readOnly",
+    "currentPopupRef",
+  ],
   data() {
+    uid += 1;
     return {
       editing: false,
       input: "",
+      popupRef: `int-popup-${uid}`,
     };
   },
   methods: {
     showChangeInput(state) {
       this.input = this.model;
       this.editing = state;
+      if (state) {
+        this.$emit("editPopupShown", this.popupRef);
+      }
     },
     updateField() {
       const fields = {
@@ -94,6 +108,11 @@ export default {
         id: -1,
         fields: fields,
       });
+    },
+    currentPopupRef: function (newValue) {
+      if (this.popupRef != newValue) {
+        this.showChangeInput(false);
+      }
     },
   },
 };

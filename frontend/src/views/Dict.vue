@@ -214,29 +214,29 @@ export default {
         Sticky table fix
         FIXME: rewrite using https://bootstrap-vue.org/docs/directives/visible 
       */
-      function isElementInViewport(el) {
-        var rect = el.getBoundingClientRect();
-        return (
-          rect.top >= 0 &&
-          rect.left >= 0 &&
-          rect.bottom <=
-            (window.innerHeight || document.documentElement.clientHeight) &&
-          rect.right <=
-            (window.innerWidth || document.documentElement.clientWidth)
-        );
-      }
-      const table = document.querySelector(".table-responsive");
-      if (table != null) {
-        setTimeout(function () {
-          if (!isElementInViewport(table)) {
-            table.classList.add("b-table-sticky-header");
-            table.style.maxHeight = "500px";
-          } else {
-            table.classList.remove("b-table-sticky-header");
-            table.style.maxHeight = "unset";
-          }
-        }, 500);
-      }
+      // function isElementInViewport(el) {
+      //   var rect = el.getBoundingClientRect();
+      //   return (
+      //     rect.top >= 0 &&
+      //     rect.left >= 0 &&
+      //     rect.bottom <=
+      //       (window.innerHeight || document.documentElement.clientHeight) &&
+      //     rect.right <=
+      //       (window.innerWidth || document.documentElement.clientWidth)
+      //   );
+      // }
+      // const table = document.querySelector(".table-responsive");
+      // if (table != null) {
+        // setTimeout(function () {
+        //   if (!isElementInViewport(table)) {
+        //     table.classList.add("b-table-sticky-header");
+        //     table.style.maxHeight = "500px";
+        //   } else {
+        //     table.classList.remove("b-table-sticky-header");
+        //     table.style.maxHeight = "unset";
+        //   }
+        // }, 500);
+      // }
     },
   },
   mounted() {

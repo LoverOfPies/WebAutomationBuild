@@ -37,6 +37,8 @@
               :field="field.key"
               :rowId="data.item.id"
               :isEditable="true"
+              :currentPopupRef="currentPopupRef"
+              @editPopupShown="onEditPopupShown"
               @updateField="onUpdateField"
             />
             <int-field
@@ -45,6 +47,8 @@
               :field="field.key"
               :rowId="data.item.id"
               :isEditable="true"
+              :currentPopupRef="currentPopupRef"
+              @editPopupShown="onEditPopupShown"
               @updateField="onUpdateField"
             />
             <date-field
@@ -53,6 +57,8 @@
               :field="field.key"
               :rowId="data.item.id"
               :isEditable="true"
+              :currentPopupRef="currentPopupRef"
+              @editPopupShown="onEditPopupShown"
               @updateField="onUpdateField"
             />
             <change-field-modal
@@ -70,6 +76,8 @@
               :field="field.key"
               :rowId="data.item.id"
               :isEditable="true"
+              :currentPopupRef="currentPopupRef"
+              @editPopupShown="onEditPopupShown"
               @updateField="onUpdateField"
             />
           </span>
@@ -83,6 +91,8 @@
             :value="data.item['name']"
             :rowId="data.item.id"
             :isEditable="true"
+            :currentPopupRef="currentPopupRef"
+            @editPopupShown="onEditPopupShown"
             @updateField="onUpdateField"
           />
         </template>
@@ -151,6 +161,7 @@ export default {
   data() {
     return {
       SDesc: false,
+      currentPopupRef: null,
     };
   },
   computed: {
@@ -167,6 +178,9 @@ export default {
     onUpdateField({ id, fields: { field, value } }) {
       console.log("[upd]", this.name, id, field, value);
       this.updateTableItem({ collection: this.name, id, field, value });
+    },
+    onEditPopupShown(popupRef) {
+      this.currentPopupRef = popupRef;
     },
     onDeleteRow(rowId) {
       this.deleteRow({ table_name: this.name, row_id: rowId });
