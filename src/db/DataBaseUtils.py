@@ -50,7 +50,7 @@ def get_records(model, values) -> Optional[list]:
     """
     condition = FilterUtils.get_equals_filter(model, values)
     if condition is None:
-        return None
+        return [row for row in model.select()]
     try:
         return [row for row in model.select().where(condition)]
     except model.DoesNotExist:

@@ -8,7 +8,7 @@ from src.db.models.work.WorkGroup import WorkGroup
 # Работа
 class Work(db.Model):
     name = CharField(unique=True, verbose_name='Наименование')
-    work_coefficient = DoubleField(default=0, verbose_name='Коэффициэнт', null=True)
+    fix_price = BooleanField(default=False, verbose_name='Фиксированная цена', null=True)
     client_price = DoubleField(default=0, verbose_name='Тариф клиента', null=True)
     work_price = DoubleField(default=0, verbose_name='Тариф себестоимости', null=True)
     work_base = BooleanField(verbose_name='Базовая работа', null=True)

@@ -7,7 +7,7 @@ from src.db.models.project.Project import Project
 
 # Базовый размер
 class BaseSize(db.Model):
-    amount = DoubleField(verbose_name='Кол-во')
+    amount = DoubleField(verbose_name='Кол-во', default=0, null=True)
     project = ForeignKeyField(Project, backref='base_sizes', verbose_name='Проект')
     base_unit = ForeignKeyField(BaseUnit, backref='base_sizes', verbose_name='Базовая единица')
 

@@ -5,6 +5,7 @@ from werkzeug.exceptions import abort
 from app import app
 from src.expimp import ExportImportUtils
 import src.ApiUtils
+import src.EstimateUtils
 
 api_version = '/api/v0.1'
 
@@ -250,7 +251,7 @@ def file_export(collection):
 @app.route(f'{api_version}/get_estimate_records', methods=['GET'])
 @cross_origin()
 def get_estimate_records():
-    data = src.ApiUtils.get_estimate_records()
+    data = src.EstimateUtils.get_estimate_records()
     return jsonify(data)
 
 
@@ -264,14 +265,14 @@ def calculate_estimate():
     # Принимаем json { client_fio, use_base, project_id
     # additional_works: [1, 2, ...] (optional),
     # work_technologies: [1, 2, ...] (optional) }
-    src.ApiUtils.calculate_estimate(request.json)
+    src.EstimateUtils.calculate_estimate(request.json)
     return jsonify('True')
 
 
 @app.route(f'{api_version}/delete_estimate/<int:id_estimate>', methods=['DELETE'])
 @cross_origin()
 def delete_estimate(id_estimate):
-    src.ApiUtils.delete_estimate(id_estimate)
+    src.EstimateUtils.delete_estimate(id_estimate)
     return jsonify('True')
 
 
@@ -281,26 +282,26 @@ def edit_estimate(id_estimate):
     # Принимаем json { client_fio, use_base, project_id
     # additional_works: [1, 2, ...] (optional),
     # work_technologies: [1, 2, ...] (optional) }
-    src.ApiUtils.edit_estimate(id_estimate, request.json)
+    src.EstimateUtils.edit_estimate(id_estimate, request.json)
     return jsonify('True')
 
 
 @app.route(f'{api_version}/get_estimate_materials/<int:id_estimate>', methods=['GET'])
 @cross_origin()
 def get_estimate_materials(id_estimate):
-    data = src.ApiUtils.get_estimate_materials(id_estimate)
+    data = src.EstimateUtils.get_estimate_materials(id_estimate)
     return jsonify(data)
 
 
 @app.route(f'{api_version}/get_estimate_works/<int:id_estimate>', methods=['GET'])
 @cross_origin()
 def get_estimate_works(id_estimate):
-    data = src.ApiUtils.get_estimate_works(id_estimate)
+    data = src.EstimateUtils.get_estimate_works(id_estimate)
     return jsonify(data)
 
 
 @app.route(f'{api_version}/export_estimate/<int:id_estimate>', methods=['GET'])
 @cross_origin()
 def export_estimate(id_estimate):
-    src.ApiUtils.export_estimate(id_estimate)
+    src.EstimateUtils.export_estimate(id_estimate)
     return jsonify('True')
