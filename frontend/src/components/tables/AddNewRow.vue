@@ -19,15 +19,16 @@
         </b-col>
         <b-col cols="8" v-if="field.key != 'actions'">
           <change-field-modal
-            :ref="`change-field-${field.key}`"
             v-if="field.type && field.type == 'selectable'"
+            rowId="-1"
+            :ref="`change-field-${field.key}`"
             :label="'Не выбрано'"
             :model="field.key"
-            rowId="-1"
             :items="fieldsModels[field.key]"
+            :no-truncate="true"
             @updateField="onUpdateField"
             @labelChange="onLabelChange"
-          ></change-field-modal>
+          />
           <float-field
             v-else-if="field.type && field.type == 'float'"
             :model="field.key"

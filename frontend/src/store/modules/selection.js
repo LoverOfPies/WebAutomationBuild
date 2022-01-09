@@ -3,6 +3,11 @@ const API = new APIClass();
 
 export default {
   actions: {
+    async getGroupTitles({ commit }, { collection }) {
+      await API.getData(collection).then((data) => {
+        commit("updateGroupTitles", data);
+      });
+    },
     updateSelection(
       context,
       { collection, parent, parent_id, child, child_id, value }
@@ -29,6 +34,21 @@ export default {
         mode: "many_to_many",
       };
       API.updateField(collection, child_id, fields);
+    },
+  },
+  mutations: {
+    updateGroupTitles(state, titles) {
+      state.groups.titles = titles;
+    },
+  },
+  state: {
+    groups: {
+      titles: [],
+    },
+  },
+  getters: {
+    groupTitles(state) {
+      return state.groups.titles;
     },
   },
 };

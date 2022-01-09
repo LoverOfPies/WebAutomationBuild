@@ -1,29 +1,30 @@
 <template>
   <div>
     <b-row class="my-2">
-      <b-col sm="3">
-        <label for="name-input">ФИО:</label>
+      <b-col sm="3" class="position-relative d-flex align-items-center">
+        <label for="name-input" class="mb-0">ФИО:</label>
       </b-col>
       <b-col sm="9">
         <b-form-input
           v-model="name"
           id="name-input"
           placeholder="Введите ваше ФИО"
-        ></b-form-input>
+        />
       </b-col>
     </b-row>
 
     <b-row class="my-2">
-      <b-col sm="3">
-        <label for="name-input">Проект:</label>
+      <b-col sm="3" class="position-relative d-flex align-items-center">
+        <label for="name-input" class="mb-0">Проект:</label>
       </b-col>
       <b-col sm="9">
         <change-field-modal
           ref="project-input"
-          :label="'Не выбрано'"
           model="project-input"
           rowId="-1"
+          :label="'Не выбрано'"
           :items="projectsList"
+          :no-truncate="true"
           @updateField="onProjectInputUpdate"
           @labelChange="onProjectLabelChange"
         />

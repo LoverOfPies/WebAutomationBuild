@@ -1,7 +1,12 @@
 @import url("bootstrap.css");
 
+.cursor-pointer {
+    cursor: pointer;
+}
+
 #table thead tr th:last-of-type,
-.table-with-checkbox thead tr th:first-of-type {
+.table-with-checkbox thead tr th:first-of-type,
+.modal-table tr th:last-of-type {
     width: 1%;
 }
 
@@ -11,4 +16,45 @@
 
 .table td {
     vertical-align: middle;
+    padding: 0.2rem 0;
+}
+
+.modal-footer.bg-secondary {
+    display: none;
+  }
+  .text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 250px;
+  }
+
+.text,
+.cell-padding {
+    padding: 0 0.75rem;
+    border: 1px solid transparent;
+}
+
+.editable-field {
+    position: absolute;
+    top: -0.45rem;
+    flex-wrap: nowrap;
+    min-width: 250px;
+    z-index: 10;
+}
+
+.pill-equal-padding {
+    display: inline-flex;
+    padding: .375rem;
+}
+
+.edit-popup {
+    position: absolute;
+    top: -54px;
+    left: -1px;
+    z-index: 10;
+
+    .card-header {
+        padding: 0.375rem 0.75rem;
+    }
 }

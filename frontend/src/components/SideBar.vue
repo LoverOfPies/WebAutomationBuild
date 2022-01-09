@@ -5,7 +5,7 @@
   >
     <a
       href="/"
-      class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none"
+      class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none no-hover"
     >
       <b-iconstack font-scale="2" class="me-3">
         <b-icon stacked icon="gear-wide" scale="1.5"></b-icon>
@@ -40,7 +40,7 @@
             },
           }"
           active-class="active"
-          class="nav-link link-dark"
+          class="nav-link link-dark mb-1"
         >
           <b-icon :icon="item.icon" class="me-1" variant="dark"></b-icon>
           {{ item.title }}
@@ -73,13 +73,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-// ul.nav > li {
-// }
 a.active svg {
   color: currentColor !important;
 }
 
-.link-dark {
+.link-dark:not(.no-hover):not(.active) {
   &:hover,
   &:focus {
     background-color: lighten($color: #007bff, $amount: 20%);

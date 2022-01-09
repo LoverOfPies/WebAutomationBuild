@@ -2,7 +2,7 @@
   <div>
     <div v-if="isEditable" class="position-relative">
       <div class="text d-flex align-items-center">
-        <span class="me-2">{{ model }}</span>
+        <span class="me-2">{{ value }}</span>
         <b-icon
           icon="pencil-square"
           class="cursor-pointer"
@@ -10,6 +10,7 @@
         />
       </div>
 
+      <!--  -->
       <b-card v-if="editing" no-body class="edit-popup shadow">
         <b-card-header
           class="d-flex justify-content-between align-items-center"
@@ -34,25 +35,30 @@
           </div>
         </b-card-header>
 
-        <b-form-input
+        <b-form-textarea
+          v-if="fieldType == 'textarea'"
           v-model="input"
-          type="number"
-          step="1"
-          placeholder="Введите целое число"
+          type="text"
           class="border-white"
-          :no-wheel="true"
+          rows="3"
+          max-rows="6"
           :value="input"
+          :style="width ? 'min-width:' + width + 'px' : ''"
+        />
+        <b-form-input
+          v-else
+          v-model="input"
+          type="text"
+          class="border-white"
+          placeholder="Введите текст"
+          :value="input"
+          :style="width ? 'min-width:' + width + 'px' : ''"
         />
       </b-card>
+      <!--  -->
     </div>
     <span v-else>
-      <b-form-input
-        v-model="input"
-        placeholder="Введите целое число"
-        type="number"
-        step="1"
-        :no-wheel="true"
-      />
+      {{ value }}
     </span>
   </div>
 </template>
@@ -62,24 +68,27 @@ let uid = 0;
 
 export default {
   props: [
-    "model",
+    "value",
     "isEditable",
     "field",
     "rowId",
     "readOnly",
     "currentPopupRef",
+    "width",
+    "fieldType",
   ],
   data() {
     uid += 1;
+
     return {
-      editing: false,
       input: "",
-      popupRef: `int-popup-${uid}`,
+      editing: false,
+      popupRef: `text-popup-${uid}`,
     };
   },
   methods: {
     showChangeInput(state) {
-      this.input = this.model;
+      this.input = this.value;
       this.editing = state;
       if (state) {
         this.$emit("editPopupShown", this.popupRef);

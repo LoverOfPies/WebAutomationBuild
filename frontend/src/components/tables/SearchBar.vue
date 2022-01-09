@@ -27,7 +27,7 @@ export default {
   data() {
     return {
       filterLocal: this.filter,
-    }
+    };
   },
   methods: {
     clearFilter() {

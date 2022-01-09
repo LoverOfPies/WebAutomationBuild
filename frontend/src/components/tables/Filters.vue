@@ -43,6 +43,7 @@
                 :resetBtn="true"
                 :rowId="index"
                 :items="getModelItems(item.key)"
+                :no-truncate="true"
                 @updateField="onUpdateField"
                 @labelChange="onLabelChange"
                 @resetFilters="onResetFilters"

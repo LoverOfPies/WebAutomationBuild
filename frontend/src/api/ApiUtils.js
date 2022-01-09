@@ -30,7 +30,7 @@ export default class {
         autoHideDelay: 3000,
         variant: "success",
       });
-    }
+    };
   }
 
   getSidebarItems() {
@@ -43,10 +43,6 @@ export default class {
   }
 
   getData(collection, params = {}) {
-    if (Object.keys(params).length != 0) {
-      console.info("[getData() params]", params);
-    }
-
     const promise = axios.get(`${this.api}/${this.version}/get/${collection}`, {
       params,
     });
@@ -137,7 +133,9 @@ export default class {
   }
 
   deleteEstimate(id) {
-    const promise = axios.delete(`${this.api}/${this.version}/delete_estimate/${id}`)
+    const promise = axios.delete(
+      `${this.api}/${this.version}/delete_estimate/${id}`
+    );
     const data = promise
       .then((res) => res.data)
       .catch((r) => this.showErrorToast(r));
