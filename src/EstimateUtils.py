@@ -265,3 +265,20 @@ def delete_estimate_material(id_estimate):
     estimate_material_records = DataBaseUtils.get_records(estimate_material_model, ({'estimate': id_estimate}))
     for estimate_material in estimate_material_records:
         DataBaseUtils.delete_record(estimate_material_model, estimate_material)
+
+
+def get_project_technologies(id_project):
+    model = DataBaseUtils.get_model('project_technology')
+    if model is None:
+        return None
+    data = [row for row in model.select().where(model.project == id_project).dicts()]
+    work_technology_model = DataBaseUtils.get_model('work_technology')
+    for value in data:
+        work_technology = DataBaseUtils.get_record(work_technology_model, {'id': value['work_technology']})
+        del value['id']
+        del value['uuid']
+        del value['project']
+        value['work_technology_name'] = work_technology.name
+        value['work_stage'] = work_technology.work_stage.id
+        value['work_stage_name'] = work_technology.work_stage.name
+    return data

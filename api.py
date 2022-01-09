@@ -305,3 +305,10 @@ def get_estimate_works(id_estimate):
 def export_estimate(id_estimate):
     src.EstimateUtils.export_estimate(id_estimate)
     return jsonify('True')
+
+
+@app.route(f'{api_version}/get_project_technologies/<int:id_project>', methods=['GET'])
+@cross_origin()
+def get_project_technologies(id_project):
+    data = src.EstimateUtils.get_project_technologies(id_project)
+    return jsonify(data)
