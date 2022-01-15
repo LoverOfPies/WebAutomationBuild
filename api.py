@@ -255,9 +255,9 @@ def get_estimate_records():
     return jsonify(data)
 
 
-@app.route(f'{api_version}/calculate_estimate', methods=['POST'])
+@app.route(f'{api_version}/calculate_estimate/<int:id_estimate>', methods=['POST'])
 @cross_origin()
-def calculate_estimate():
+def calculate_estimate(id_estimate):
     """
 
     :return:
@@ -265,7 +265,7 @@ def calculate_estimate():
     # Принимаем json { client_fio, use_base, project_id
     # additional_works: [1, 2, ...] (optional),
     # work_technologies: [1, 2, ...] (optional) }
-    src.EstimateUtils.calculate_estimate(request.json)
+    src.EstimateUtils.calculate_estimate(id_estimate, request.json)
     return jsonify('True')
 
 
@@ -312,3 +312,10 @@ def export_estimate(id_estimate):
 def get_project_technologies(id_project):
     data = src.EstimateUtils.get_project_technologies(id_project)
     return jsonify(data)
+
+
+@app.route(f'{api_version}/create_estimate/', methods=['GET'])
+@cross_origin()
+def create_estimate():
+    estimate_id = src.EstimateUtils.create_estimate()
+    return jsonify(estimate_id)
