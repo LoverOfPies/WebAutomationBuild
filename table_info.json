@@ -130,6 +130,11 @@
       "name": "estimate_material",
       "path": "src.db.models.estimate.EstimateMaterial.EstimateMaterial",
       "title": "Материалы расчёта"
+    },
+    {
+      "name": "estimate_base_size",
+      "path": "src.db.models.estimate.EstimateBaseSize.EstimateBaseSize",
+      "title": "Размеры расчёта"
     }
   ],
   "filters_info": [

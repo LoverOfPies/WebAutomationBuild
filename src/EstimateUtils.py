@@ -1,6 +1,22 @@
+import datetime
 import math
 
 from src.db import DataBaseUtils
+
+
+def create_estimate():
+    estimate_model = DataBaseUtils.get_model('estimate')
+    if estimate_model is None:
+        return
+    estimate_data = dict([('active', False), ('create_date', datetime.datetime.today())])
+    estimate, meth = DataBaseUtils.get_or_insert(estimate_model, estimate_data)
+    estimate_base_size_model = DataBaseUtils.get_model('estimate_base_size')
+    data = {'estimate': estimate}
+    base_units = DataBaseUtils.get_records(DataBaseUtils.get_model('base_unit'), '')
+    for base_unit in base_units:
+        data['base_unit'] = base_unit
+        DataBaseUtils.get_or_insert(estimate_base_size_model, data)
+    return estimate
 
 
 def get_estimate_records():
@@ -10,33 +26,34 @@ def get_estimate_records():
     return [row for row in model.select().dicts()]
 
 
-def calculate_estimate(data):
+def calculate_estimate(id_estimate, data):
     estimate_model = DataBaseUtils.get_model('estimate')
     if estimate_model is None:
         return
     fio = data['client_info']
     use_base = data['use_base']
-    # TODO: А вот непонятно, да или нет?
-    # Проект не обязательный
+    DataBaseUtils.update_record(estimate_model, id_estimate,
+                                dict([('field', 'client_fio'), ('value', fio)]))
+    DataBaseUtils.update_record(estimate_model, id_estimate,
+                                dict([('field', 'use_base'), ('value', use_base)]))
+    DataBaseUtils.update_record(estimate_model, id_estimate,
+                                dict([('field', 'active'), ('value', True)]))
     project_id = None
     if 'project_id' in data.keys():
         project_id = data['project_id']
-    # Создаём расчёт чтобы заполнить связки
-    estimate_data = dict([('client_fio', fio), ('use_base', use_base)])
-    if project_id:
-        estimate_data['project'] = project_id
-    estimate, meth = DataBaseUtils.get_or_insert(estimate_model, estimate_data)
+        DataBaseUtils.update_record(estimate_model, id_estimate,
+                                    dict([('field', 'project'), ('value', project_id)]))
     # Проставляем номер равный id
-    DataBaseUtils.update_record(estimate_model, estimate,
-                                dict([('field', 'number'), ('value', estimate)]))
+    DataBaseUtils.update_record(estimate_model, id_estimate,
+                                dict([('field', 'number'), ('value', id_estimate)]))
     # Получаем технологии для расчёта кастомные или из проекта
     technologies_data = []
-    if 'work_technologies' in data and not use_base:
+    if 'work_technologies' in data and not data['use_base']:
         estimate_technologies = data['work_technologies']
-        technologies_data = [dict([('estimate', estimate), ('work_technology', work_technology_id)])
+        technologies_data = [dict([('estimate', id_estimate), ('work_technology', work_technology_id)])
                              for work_technology_id in estimate_technologies]
     else:
-        technologies_data = get_technology_estimate(estimate, project_id)
+        technologies_data = get_technology_estimate(id_estimate, project_id)
     # Собираем работы из технологий
     works = calc_estimate_works(technologies_data)
     work_model = DataBaseUtils.get_model('work')
@@ -44,18 +61,18 @@ def calculate_estimate(data):
     if 'additional_works' in data:
         additional_model = DataBaseUtils.get_model('estimate_additional')
         additional_works = data['additional_works']
-        additional_data = [dict([('estimate', estimate), ('work', work_id)]) for work_id in additional_works]
+        additional_data = [dict([('estimate', id_estimate), ('work', work_id)]) for work_id in additional_works]
         for additional in additional_data:
             additional_work_id, _ = DataBaseUtils.get_or_insert(additional_model, additional)
             additional_work_object = DataBaseUtils.get_record(work_model, ({'id': additional['work']}))
             works.add(additional_work_object)
     # Обрабатываем работы
-    estimate_price_client = calc_estimate_works_price(estimate, works, project_id)
-    DataBaseUtils.update_record(estimate_model, estimate,
+    estimate_price_client = calc_estimate_works_price(id_estimate, works, project_id)
+    DataBaseUtils.update_record(estimate_model, id_estimate,
                                 dict([('field', 'price_client'), ('value', estimate_price_client)]))
     # Обрабатываем материалы
-    estimate_price_client += calc_estimate_materials_price(estimate, project_id, works)
-    DataBaseUtils.update_record(estimate_model, estimate,
+    estimate_price_client += calc_estimate_materials_price(id_estimate, project_id, works)
+    DataBaseUtils.update_record(estimate_model, id_estimate,
                                 dict([('field', 'price_client'), ('value', estimate_price_client)]))
 
 
@@ -107,8 +124,6 @@ def edit_estimate(id_estimate, data):
         DataBaseUtils.update_record(estimate_model, id_estimate,
                                     dict([('field', 'client_fio'), ('value', fio)]))
     use_base = data['use_base']
-    # TODO: А вот непонятно, да или нет?
-    # Проект не обязательный
     project_id = None
     if 'project_id' in data.keys():
         project_id = data['project_id']
