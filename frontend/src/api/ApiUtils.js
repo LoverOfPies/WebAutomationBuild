@@ -165,6 +165,17 @@ export default class {
     return data;
   }
 
+  getProjectTechnoloies(id) {
+    const promise = axios.get(
+      `${this.api}/${this.version}/get_project_technologies/${id}`
+    );
+    const data = promise
+      .then((res) => res.data)
+      .catch((r) => this.showErrorToast(r));
+
+    return data;
+  }
+
   // import/export
 
   async importTable(collection) {
