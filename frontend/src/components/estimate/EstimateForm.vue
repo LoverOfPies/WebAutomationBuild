@@ -8,7 +8,7 @@
         <b-form-input
           v-model="name"
           id="name-input"
-          placeholder="Введите ваше ФИО"
+          placeholder="Введите ФИО"
         />
       </b-col>
     </b-row>

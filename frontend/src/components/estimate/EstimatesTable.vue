@@ -13,6 +13,12 @@
       responsive
       show-empty
     >
+      <template #cell(client_fio)="row">
+        <div class="text">
+          {{ row.item.client_fio }}
+        </div>
+      </template>
+
       <template #cell(actions)="row">
         <!-- <b-button
           variant="success"
@@ -21,10 +27,12 @@
         >
           Выгрузить в Excel
         </b-button> -->
-        <b-button class="mr-2" @click="row.toggleDetails">
-          Подробнее {{ row.detailsShowing ? "&#8593;" : "&#8595;" }}
-        </b-button>
-        <delete-row-btn @deleteRow="onDeleteRow" :rowId="row.item.id" />
+        <div class="text">
+          <b-button class="mr-2" @click="row.toggleDetails">
+            Подробнее {{ row.detailsShowing ? "&#8593;" : "&#8595;" }}
+          </b-button>
+          <delete-row-btn @deleteRow="onDeleteRow" :rowId="row.item.id" />
+        </div>
       </template>
 
       <template #table-busy>
@@ -37,23 +45,29 @@
       <template #row-details="row">
         <!-- <b-card> -->
         <b-row class="mb-2">
-          <b-col><b>Цена заказчика:</b> {{ row.item.price_client }}</b-col>
+          <b-col class="d-flex align-items-center">
+            <div class="text">
+              <b>Цена заказчика:</b> {{ row.item.price_client }}
+            </div>
+          </b-col>
           <b-col class="text-right">
-            <EstimateModal
-              class="mr-2"
-              label="Материалы"
-              :childId="row.item.id"
-              type="materials"
-            />
-            <EstimateModal
-              class="mr-2"
-              label="Работы"
-              :childId="row.item.id"
-              type="works"
-            />
-            <!-- <b-button variant="info" @click="editEstimate(row.item.id)"
-              >Редактировать</b-button
-            > -->
+            <div class="text">
+              <EstimateModal
+                class="mr-2"
+                label="Материалы"
+                :childId="row.item.id"
+                type="materials"
+              />
+              <EstimateModal
+                class="mr-2"
+                label="Работы"
+                :childId="row.item.id"
+                type="works"
+              />
+              <b-button variant="info" @click="editEstimate(row.item.id)"
+                >Редактировать</b-button
+              >
+            </div>
           </b-col>
         </b-row>
         <!-- </b-card> -->

@@ -23,7 +23,13 @@
         bordered
         show-empty
         responsive
-      />
+      >
+        <template v-for="field in fields" v-slot:[`cell(${field.key})`]="row">
+          <div class="text" :key="field.key">
+            {{ row.item[field.key] }}
+          </div>
+        </template>
+      </b-table>
 
       <b-row>
         <b-col>
