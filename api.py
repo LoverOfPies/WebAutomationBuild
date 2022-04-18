@@ -18,7 +18,7 @@ def not_found(error):
 
 @app.errorhandler(MyAppException)
 def http_error_handler(error):
-    return make_response((error.message, 500))
+    return make_response(jsonify({'error': error.message}), 500)
 
 
 # TODO: Почему path с одним слешем не работает ???
