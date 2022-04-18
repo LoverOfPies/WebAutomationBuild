@@ -3,7 +3,7 @@ import json
 from typing import Optional
 
 from app import db
-from src import FilterUtils
+from src import FilterUtils, AutocompleteUtils
 from src.Cache import Cache
 
 cache = Cache()
@@ -57,7 +57,8 @@ def get_records(model, values) -> Optional[list]:
         return None
 
 
-def update_record(model, id_row, data):
+def update_record(collection, id_row, data):
+    model = get_model(collection)
     row = model.get_or_none(id=id_row)
     if row is None:
         return False
@@ -72,6 +73,8 @@ def update_record(model, id_row, data):
     query = model.update(**field_data).where(model.id == row.id)
     if query.execute() == 0:
         return False
+    if collection == 'product' and field != 'date_version':
+        return AutocompleteUtils.update_date_product(model, id_row)
     return True
 
 

@@ -28,6 +28,7 @@ def add_row(collection, data):
         AutocompleteUtils.base_size_autocomplete(obj)
     if collection == 'material':
         AutocompleteUtils.base_size_autocomplete(obj)
+        AutocompleteUtils.product_autocomplete(obj)
     row_object = model.select().where(model.id == obj)
     return row_object
 
@@ -99,7 +100,7 @@ def update_row(collection, id_row, data) -> bool:
                     obj.delete_instance()
             return True
 
-    return DataBaseUtils.update_record(model, id_row, data)
+    return DataBaseUtils.update_record(collection, id_row, data)
 
 
 def get_data_from_table(collection, request_params):
