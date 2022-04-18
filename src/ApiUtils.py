@@ -1,5 +1,7 @@
+from flask import Response, make_response
 from peewee import ForeignKeyField, DoubleField, IntegerField, BooleanField, DateField
 
+from MyAppException import MyAppException
 from src import FilterUtils
 from src import AutocompleteUtils
 from src.db import DataBaseUtils
@@ -376,3 +378,7 @@ def get_dict_info(collection, params) -> dict:
     data["actions"] = actions
 
     return data
+
+
+def init_error(message: str) -> Response:
+    raise MyAppException(message)

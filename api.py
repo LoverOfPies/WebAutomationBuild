@@ -2,17 +2,23 @@ from flask import jsonify, make_response, request, send_from_directory, send_fil
 from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
+from MyAppException import MyAppException
 from app import app
 from src.expimp import ExportImportUtils
 import src.ApiUtils
 import src.EstimateUtils
 
-api_version = '/api/v0.1'
+api_version = '/api/v0.2'
 
 
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
+
+
+@app.errorhandler(MyAppException)
+def http_error_handler(error):
+    return make_response((error.message, 500))
 
 
 # TODO: Почему path с одним слешем не работает ???
