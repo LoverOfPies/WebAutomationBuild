@@ -8,7 +8,7 @@ from src.expimp import ExportImportUtils
 import src.ApiUtils
 import src.EstimateUtils
 
-api_version = '/api/v0.2'
+api_version = '/api/v0.1'
 
 
 @app.errorhandler(404)
