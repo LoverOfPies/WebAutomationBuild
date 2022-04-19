@@ -3,6 +3,7 @@ from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
 from MyAppException import MyAppException
+import migrations
 from app import app
 from src.expimp import ExportImportUtils
 import src.ApiUtils

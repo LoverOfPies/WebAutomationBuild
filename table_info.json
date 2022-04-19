@@ -193,6 +193,11 @@
       "action": "route",
       "to": "project_technology",
       "table": "project"
+    },
+    {
+      "label": "Копировать группу",
+      "action": "copy",
+      "table": "work_group"
     }
   ],
   "sidebar_fields": [
