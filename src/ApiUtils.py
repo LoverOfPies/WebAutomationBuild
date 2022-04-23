@@ -5,6 +5,7 @@ from MyAppException import MyAppException
 from src import FilterUtils
 from src import AutocompleteUtils
 from src.db import DataBaseUtils
+from src.db.DataBaseUtils import GET_METH, ERROR_METH
 
 
 def add_row(collection, data):
@@ -382,3 +383,48 @@ def get_dict_info(collection, params) -> dict:
 
 def init_error(message: str) -> Response:
     raise MyAppException(message)
+
+
+def copy_work_group(id_work_group):
+    # Получаем родительскую группу работ
+    work_group_model = DataBaseUtils.get_model('work_group')
+    parent_work_group = DataBaseUtils.get_record(work_group_model, {'id': id_work_group})
+
+    # Создаём новую группу работ
+    new_work_group, meth = DataBaseUtils.get_or_insert(work_group_model,
+                                                       {'name': f'{parent_work_group.name} (Копия)',
+                                                        'work_stage': parent_work_group.work_stage})
+    if meth in (GET_METH, ERROR_METH):
+        if new_work_group:
+            raise MyAppException('Уже есть копия данного объекта, отредактируйте её')
+        raise MyAppException('Ошибка создания копии, оформите задачу на исправление')
+
+    # Получаем работы привязанные к этой группе
+    work_model = DataBaseUtils.get_model('work')
+    parent_works = DataBaseUtils.get_records(work_model, {'work_group': id_work_group})
+
+    # Создаём новые работы
+    for parent_work in parent_works:
+        new_work, meth = DataBaseUtils.get_or_insert(work_model,
+                                                     {'work_group': new_work_group,
+                                                      'name': f'{parent_work.name} ({parent_work_group.name})',
+                                                      'fix_price': parent_work.fix_price,
+                                                      'client_price': parent_work.client_price,
+                                                      'work_price': parent_work.work_price,
+                                                      'work_base': parent_work.work_base,
+                                                      'base_unit': parent_work.base_unit.id})
+
+        # Получаем используемые в работе материалы
+        work_material_model = DataBaseUtils.get_model('work_material')
+        parent_work_materials = DataBaseUtils.get_records(work_material_model, {'work': parent_work.id})
+
+        # Задаём для новых работ используемые материалы
+        for parent_work_material in parent_work_materials:
+            DataBaseUtils.get_or_insert(work_material_model,
+                                        {'work': new_work,
+                                         'material_coefficient': parent_work_material.material_coefficient,
+                                         'amount': parent_work_material.amount,
+                                         'material': parent_work_material.material.id})
+
+    # Возвращаем созданную запись
+    return work_group_model.get_or_none(id=new_work_group).__data__

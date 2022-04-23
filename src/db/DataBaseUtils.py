@@ -8,6 +8,10 @@ from src.Cache import Cache
 
 cache = Cache()
 
+ERROR_METH = 'error'
+INSERT_METH = 'insert'
+GET_METH = 'get'
+
 
 def get_model(name):
     """
@@ -83,7 +87,7 @@ def insert_record(model, values):
         try:
             obj = model.insert(values).execute()
             transaction.commit()
-        except:
+        except Exception as e:
             transaction.rollback()
             obj = None
     return obj
@@ -104,14 +108,14 @@ def delete_record(model, row):
 
 
 def get_or_insert(model, values):
-    meth = "error"
+    meth = ERROR_METH
     obj = get_record(model, values)
     if obj:
-        meth = "get"
+        meth = GET_METH
     else:
         obj = insert_record(model, values)
         if obj:
-            meth = "insert"
+            meth = INSERT_METH
     return obj, meth
 
 

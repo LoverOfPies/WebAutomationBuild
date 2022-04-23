@@ -326,3 +326,10 @@ def get_project_technologies(id_project):
 def create_estimate():
     estimate_id = src.EstimateUtils.create_estimate()
     return jsonify(estimate_id)
+
+
+@app.route(f'{api_version}/copy_work_group/<int:id_work_group>', methods=['GET'])
+@cross_origin()
+def copy_work_group(id_work_group):
+    new_work_group = src.ApiUtils.copy_work_group(id_work_group)
+    return jsonify(new_work_group)
