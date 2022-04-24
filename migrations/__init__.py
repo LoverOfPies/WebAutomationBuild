@@ -1,12 +1,15 @@
 import json
 
-from migrations import init_copy_work_group, actions_info_to_not_null, comment_to_project
+from migrations import (init_copy_work_group, actions_info_to_not_null, comment_to_project,
+                        versioning_add_enable_version, versioning_product_action)
 
 # Таблица с миграциями, признаки выполнения в json
 MIGRATIONS_LIST = {
     'actions_info_to_not_null': actions_info_to_not_null.run_script,
     'init_copy_work_group': init_copy_work_group.run_script,
-    'comment_to_project': comment_to_project.run_script
+    'comment_to_project': comment_to_project.run_script,
+    'versioning_add_enable_version': versioning_add_enable_version.run_script,
+    'versioning_product_action': versioning_product_action.run_script
 }
 
 

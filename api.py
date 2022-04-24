@@ -333,3 +333,17 @@ def create_estimate():
 def copy_work_group(id_work_group):
     new_work_group = src.ApiUtils.copy_work_group(id_work_group)
     return jsonify(new_work_group)
+
+
+@app.route(f'{api_version}/get_history/<string:collection>/<int:id_row>', methods=['GET'])
+@cross_origin()
+def get_history(collection, id_row):
+    data = src.ApiUtils.get_history(collection, id_row)
+    return jsonify(data)
+
+
+@app.route(f'{api_version}/get_history_dict/<string:collection>', methods=['GET'])
+@cross_origin()
+def get_history_dict(collection):
+    data = src.ApiUtils.get_history_dict_info(collection)
+    return jsonify(data)

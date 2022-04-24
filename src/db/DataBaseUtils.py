@@ -5,6 +5,7 @@ from typing import Optional
 from app import db
 from src import FilterUtils, AutocompleteUtils
 from src.Cache import Cache
+from src.db.models.extender.VersioningExtender import VersioningExtender
 
 cache = Cache()
 
@@ -72,13 +73,14 @@ def update_record(collection, id_row, data):
     value = data['value']
     if value is None:
         return False
+    if isinstance(row, VersioningExtender):
+        AutocompleteUtils.create_new_version(model, row, data)
+        return True
     field_data = dict(row.__data__)
     field_data[field] = value
     query = model.update(**field_data).where(model.id == row.id)
     if query.execute() == 0:
         return False
-    if collection == 'product' and field != 'date_version':
-        return AutocompleteUtils.update_date_product(model, id_row)
     return True
 
 

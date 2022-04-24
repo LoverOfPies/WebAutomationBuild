@@ -89,7 +89,7 @@ def update_row(collection, id_row, data) -> bool:
                     obj.delete_instance()
                 if current != -1:
                     values = {parent: parent_id, child: current}
-                    DataBaseUtils.insert_record(model, values)
+                    DataBaseUtils.get_or_insert(model, values)
             # classic many_to_many
             # add or remove record when switching checkbox
             else:
@@ -97,7 +97,7 @@ def update_row(collection, id_row, data) -> bool:
                 checked = data['value']
                 values = {parent: parent_id, child: child_id}
                 if checked:
-                    DataBaseUtils.insert_record(model, values)
+                    DataBaseUtils.get_or_insert(model, values)
                 else:
                     obj = DataBaseUtils.get_record(model, values)
                     obj.delete_instance()
@@ -130,6 +130,9 @@ def get_data_from_table(collection, request_params):
     else:
         # get all records from table
         data = [row for row in model.select().dicts()]
+    # Очередное некрасивое решение для версионности
+    if data and 'enable_version' in data[0]:
+        data = [row for row in data if row['enable_version']]
     return data
 
 
@@ -337,7 +340,7 @@ def get_dict_info(collection, params) -> dict:
     fields = []
     for field_name in model._meta.fields:
         # exclude fields that are not displayed
-        if field_name in ('id', 'uuid', 'version_number', parent_name):
+        if field_name in ('id', 'uuid', 'version_number', 'enable_version', parent_name):
             continue
         field_object = getattr(model, field_name)
         if table_info.many_to_many and parent_name:
@@ -428,3 +431,39 @@ def copy_work_group(id_work_group):
 
     # Возвращаем созданную запись
     return work_group_model.get_or_none(id=new_work_group).__data__
+
+
+def get_history(collection, id_row):
+    model = DataBaseUtils.get_model(collection)
+    row = model.get_or_none(id=id_row)
+    condition = FilterUtils.get_equals_filter(model, {'uuid': row.uuid})
+    data = [row for row in model.select().where(condition).dicts()]
+    return data
+
+
+def get_history_dict_info(collection) -> dict:
+    table_info = DataBaseUtils.cache.get_table_info(collection).get()
+    model = DataBaseUtils.get_model(collection)
+    data = {'title': f'История изменений {table_info.title}'}
+    fields = []
+    for field_name in model._meta.fields:
+        # exclude fields that are not displayed
+        if field_name in ('id', 'uuid'):
+            continue
+        field_object = getattr(model, field_name)
+        field_info = {"key": field_name, "label": field_object.verbose_name}
+        if field_name == 'name':
+            field_info["sortable"] = True
+        if isinstance(field_object, ForeignKeyField):
+            field_info["type"] = "selectable"
+        if isinstance(field_object, DoubleField):
+            field_info["type"] = "float"
+        if isinstance(field_object, IntegerField):
+            field_info["type"] = "integer"
+        if isinstance(field_object, BooleanField):
+            field_info["type"] = "boolean"
+        if isinstance(field_object, DateField):
+            field_info["type"] = "date"
+        fields.append(field_info)
+    data["fields"] = fields
+    return data

@@ -1,3 +1,4 @@
+import copy
 import datetime
 
 from src.db import DataBaseUtils
@@ -35,11 +36,14 @@ def material_cascade_delete(material):
         DataBaseUtils.delete_record(product_model, product)
 
 
-def update_date_product(model, id_row):
-    row = model.get_or_none(id=id_row)
+def create_new_version(model, row, data):
     field_data = dict(row.__data__)
-    field_data['date_version'] = datetime.datetime.now()
+    new_data = copy.deepcopy(field_data)
+    del new_data['id']
+    new_data[data['field']] = data['value']
+    new_data['version_number'] = new_data['version_number'] + 1
+    new_data['date_version'] = datetime.datetime.now()
+    DataBaseUtils.insert_record(model, new_data)
+    field_data['enable_version'] = False
     query = model.update(**field_data).where(model.id == row.id)
-    if query.execute() == 0:
-        return False
-    return True
+    query.execute()
