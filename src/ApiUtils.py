@@ -133,6 +133,12 @@ def get_data_from_table(collection, request_params):
     # Очередное некрасивое решение для версионности
     if data and 'enable_version' in data[0]:
         data = [row for row in data if row['enable_version']]
+    # Очередное некрасивое решение
+    if collection == 'product':
+        for row_dict in data:
+            material_model = DataBaseUtils.get_model('material')
+            row_material = material_model.get_or_none(id=row_dict['material'])
+            row_dict['unit'] = row_material.unit.name
     return data
 
 
@@ -364,8 +370,9 @@ def get_dict_info(collection, params) -> dict:
         if isinstance(field_object, DateField):
             field_info["type"] = "date"
         fields.append(field_info)
+        if collection == 'product' and field_name == "amount_for_one":
+            fields.append({"key": "unit", "type": "caption", "label": "Единицы измерения"})
     data["fields"] = fields
-
     filters = []
     filter_info_model = DataBaseUtils.cache.get_filter_info_model()
     filters_info = filter_info_model.select().where(filter_info_model.table == table_info) \
