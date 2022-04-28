@@ -3,7 +3,7 @@ import sys
 
 from peewee import Model
 
-from MyAppException import MyAppException
+from src.MyAppException import MyAppException
 
 
 def load_class(s):

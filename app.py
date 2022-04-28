@@ -3,7 +3,7 @@ import json
 from flask import Flask, send_from_directory, make_response, jsonify
 from flask_cors import CORS
 
-from MyAppException import MyAppException
+from src.MyAppException import MyAppException
 from src.db.Database import Database
 from src.api.estimate import estimate_api
 from src.api.base import base_api

@@ -126,40 +126,6 @@ def check_data(data, model):
     return True
 
 
-# TODO: Отказаться в пользу нормальных инициализаций пустой БД
-def init_base():
-    config = configparser.ConfigParser()
-    config.read('first.ini')
-    if config['BASE']['first_init'] == 'False':
-        return
-    config['BASE']['first_init'] = 'False'
-    with open('first.ini', 'w') as configfile:
-        config.write(configfile)
-    table_info_model = cache.get_table_info_model()
-    table_info_model.create_table()
-    filter_info_model = cache.get_filter_info_model()
-    filter_info_model.create_table()
-    action_info_model = cache.get_action_info_model()
-    action_info_model.create_table()
-    with open('table_info.json', 'r', encoding='utf-8') as f:
-        encode_json = json.load(f)
-    data_models_data = encode_json['models_info']
-    for value in data_models_data:
-        get_or_insert(table_info_model, value)
-    data_filter_data = encode_json['filters_info']
-    for value in data_filter_data:
-        value["table"] = table_info_model.select().where(table_info_model.name == value["table"]).get()
-        get_or_insert(filter_info_model, value)
-    data_action_data = encode_json['actions_info']
-    for value in data_action_data:
-        value["table"] = table_info_model.select().where(table_info_model.name == value["table"]).get()
-        get_or_insert(action_info_model, value)
-    table_info_all = (table_info_model.select())
-    for table_info in table_info_all:
-        table_model = get_model(table_info.name)
-        create_table_with_backref(table_model)
-
-
 def create_table_with_backref(model):
     backref_tables = model._meta.model_backrefs
     for ref in model._meta.refs:
