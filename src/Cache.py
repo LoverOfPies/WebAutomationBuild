@@ -1,6 +1,10 @@
 import json
 import sys
 
+from peewee import Model
+
+from MyAppException import MyAppException
+
 
 def load_class(s):
     path, klass = s.rsplit('.', 1)
@@ -45,10 +49,10 @@ class Cache(object):
                 self._sidebar_fields = data['sidebar_fields']
         return self._sidebar_fields
 
-    def get_model_by_name(self, name):
+    def get_model_by_name(self, name: str) -> Model:
         if not hasattr(self, name):
             model_path = self.get_table_info(name).get().path
             if model_path is None:
-                return None
+                raise MyAppException("Не указан путь модели в проекте, смотрите TableInfo")
             setattr(self, name, load_class(model_path))
         return getattr(self, name)

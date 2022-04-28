@@ -1,8 +1,9 @@
 import configparser
 import json
-from typing import Optional
+from typing import List
 
-from app import db
+from peewee import Model
+
 from src import FilterUtils, AutocompleteUtils
 from src.Cache import Cache
 from src.db.models.extender.VersioningExtender import VersioningExtender
@@ -14,11 +15,11 @@ INSERT_METH = 'insert'
 GET_METH = 'get'
 
 
-def get_model(name):
+def get_model(name: str) -> Model:
     """
     Return table object from cache
 
-    :param name: table name
+    :param: name (str): table name
 
     :return: table object
     """
@@ -44,7 +45,7 @@ def get_record(model, values):
     return obj
 
 
-def get_records(model, values) -> Optional[list]:
+def get_records(model, values) -> List:
     """
     Return records object by filter
 
@@ -56,10 +57,7 @@ def get_records(model, values) -> Optional[list]:
     condition = FilterUtils.get_equals_filter(model, values)
     if condition is None:
         return [row for row in model.select()]
-    try:
-        return [row for row in model.select().where(condition)]
-    except model.DoesNotExist:
-        return None
+    return [row for row in model.select().where(condition)]
 
 
 def update_record(collection, id_row, data):
@@ -85,7 +83,7 @@ def update_record(collection, id_row, data):
 
 
 def insert_record(model, values):
-    with db.database.atomic() as transaction:
+    with model._meta.database.atomic() as transaction:
         try:
             obj = model.insert(values).execute()
             transaction.commit()
@@ -128,7 +126,7 @@ def check_data(data, model):
     return True
 
 
-# TODO: Rewrite this
+# TODO: Отказаться в пользу нормальных инициализаций пустой БД
 def init_base():
     config = configparser.ConfigParser()
     config.read('first.ini')

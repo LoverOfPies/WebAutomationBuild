@@ -19,27 +19,26 @@ class Database(object):
         self.Model = self.get_model_class()
 
     def load_database(self):
-        self.database_config = dict(self.app.config['DATABASE'])
+        database_config = dict(self.app.config['DATABASE'])
         try:
-            self.database_name = self.database_config.pop('name')
-            self.database_engine = self.database_config.pop('engine')
+            database_name = database_config.pop('name')
+            database_engine = database_config.pop('engine')
         except KeyError:
             raise ImproperlyConfigured('Please specify a "name" and "engine" for your database')
         try:
-            self.database_class = load_class(self.database_engine)
-            assert issubclass(self.database_class, peewee.Database)
+            database_class = load_class(database_engine)
+            assert issubclass(database_class, peewee.Database)
         except ImportError:
-            raise ImproperlyConfigured('Unable to import: "%s"' % self.database_engine)
+            raise ImproperlyConfigured('Unable to import: "%s"' % database_engine)
         except AttributeError:
-            raise ImproperlyConfigured('Database engine not found: "%s"' % self.database_engine)
+            raise ImproperlyConfigured('Database engine not found: "%s"' % database_engine)
         except AssertionError:
-            raise ImproperlyConfigured('Database engine not a subclass of peewee.Database: "%s"' % self.database_engine)
+            raise ImproperlyConfigured('Database engine not a subclass of peewee.Database: "%s"' % database_engine)
 
-        if (os.environ.get("IS_CONTAINER")):
-            print("IM ON DOCKER BABY")
+        if os.environ.get("IS_CONTAINER"):
             self.database = connect(os.environ.get("POSTGRES_URL"))
         else:
-            self.database = self.database_class(self.database_name, **self.database_config)
+            self.database = database_class(database_name, **database_config)
 
     def get_model_class(self):
         class BaseModel(peewee.Model):

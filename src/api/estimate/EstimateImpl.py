@@ -1,21 +1,31 @@
 import datetime
 import math
+from typing import List
+
+from peewee import Model
 
 from src.db import DataBaseUtils
 
 
-def create_estimate():
-    estimate_model = DataBaseUtils.get_model('estimate')
-    if estimate_model is None:
-        return
-    estimate_data = dict([('active', False), ('create_date', datetime.datetime.today())])
-    estimate, meth = DataBaseUtils.get_or_insert(estimate_model, estimate_data)
+def create_estimate() -> int:
+    """
+    Метод для инициализации расчёта по кнопке "Добавить" на интерфейсе расчёта
+
+    :return: estimate_id (int) - ид созданного расчёта
+    """
+    # Создаём новый расчёт
+    estimate_model: Model = DataBaseUtils.get_model('estimate')
+    estimate_data: dict = {'active': False, 'create_date': datetime.datetime.today()}
+    estimate = DataBaseUtils.insert_record(estimate_model, estimate_data)
+
+    # Проставляем все возможные базовые единицы, как базовык размеры расчёта с значением 0
     estimate_base_size_model = DataBaseUtils.get_model('estimate_base_size')
-    data = {'estimate': estimate}
+    data = {'estimate': estimate.id}
     base_units = DataBaseUtils.get_records(DataBaseUtils.get_model('base_unit'), '')
     for base_unit in base_units:
         data['base_unit'] = base_unit
         DataBaseUtils.get_or_insert(estimate_base_size_model, data)
+
     return estimate
 
 
@@ -27,9 +37,11 @@ def get_estimate_records():
 
 
 def calculate_estimate(id_estimate, data):
+    # Получаем модель расчёта в БД
     estimate_model = DataBaseUtils.get_model('estimate')
     if estimate_model is None:
         return
+
     fio = data['client_info']
     use_base = data['use_base']
     DataBaseUtils.update_record(estimate_model, id_estimate,
@@ -100,15 +112,21 @@ def get_estimate_works(id_estimate):
     return data
 
 
-def delete_estimate(id_estimate):
-    delete_additional_estimate(id_estimate)
+def delete_estimate(id_estimate: int):
+    """
+    Метод для удаления расчёта по кнопке "Удалить" на интерфейсе расчёта
 
-    delete_estimate_technology(id_estimate)
-
-    delete_estimate_work(id_estimate)
-
-    delete_estimate_material(id_estimate)
-
+    :param: id_estimate (int) ид расчёта
+    """
+    # Удаляем дополнительные работы для расчёта
+    cascade_delete_estimate(id_estimate, 'estimate_additional')
+    # Удаляем основные технологии работ для расчёта
+    cascade_delete_estimate(id_estimate, 'estimate_technology')
+    # Удаляем основные работы работ для расчёта
+    cascade_delete_estimate(id_estimate, 'estimate_work')
+    # Удаляем материалы для расчёта
+    cascade_delete_estimate(id_estimate, 'estimate_material')
+    # Удаляем расчёт
     estimate_model = DataBaseUtils.get_model('estimate')
     estimate_record = DataBaseUtils.get_record(estimate_model, ({'id': id_estimate}))
     DataBaseUtils.delete_record(estimate_model, estimate_record)
@@ -144,7 +162,7 @@ def edit_estimate(id_estimate, data):
                 technologies_data = [dict([('estimate', id_estimate), ('work_technology', work_technology_id)])
                                      for work_technology_id in estimate_technologies]
         # Собираем работы из технологий
-        delete_estimate_technology(id_estimate)
+        cascade_delete_estimate(id_estimate, 'estimate_technology')
         works = calc_estimate_works(technologies_data)
         work_model = DataBaseUtils.get_model('work')
         # Перезаписываем дополнительные работы
@@ -153,16 +171,16 @@ def edit_estimate(id_estimate, data):
             additional_works = data['additional_works']
             additional_data = [dict([('estimate', id_estimate), ('work', work_id)])
                                for work_id in additional_works]
-            delete_additional_estimate(id_estimate)
+            cascade_delete_estimate(id_estimate, 'estimate_additional')
             for additional in additional_data:
                 additional_work_id, _ = DataBaseUtils.get_or_insert(additional_model, additional)
                 additional_work_object = DataBaseUtils.get_record(work_model, ({'id': additional['work']}))
                 works.add(additional_work_object)
-        delete_estimate_work(id_estimate)
+        cascade_delete_estimate(id_estimate, 'estimate_work')
         estimate_price_client = calc_estimate_works_price(id_estimate, works, project_id)
         DataBaseUtils.update_record(estimate_model, id_estimate,
                                     dict([('field', 'price_client'), ('value', estimate_price_client)]))
-        delete_estimate_material(id_estimate)
+        cascade_delete_estimate(id_estimate, 'estimate_material')
         estimate_price_client += calc_estimate_materials_price(id_estimate, project_id, works)
         DataBaseUtils.update_record(estimate_model, id_estimate,
                                     dict([('field', 'price_client'), ('value', estimate_price_client)]))
@@ -254,32 +272,17 @@ def calc_estimate_materials_price(id_estimate, project_id, works) -> int:
     return estimate_price_client
 
 
-def delete_additional_estimate(id_estimate):
-    estimate_additional_model = DataBaseUtils.get_model('estimate_additional')
-    estimate_additional_records = DataBaseUtils.get_records(estimate_additional_model, ({'estimate': id_estimate}))
-    for estimate_additional in estimate_additional_records:
-        DataBaseUtils.delete_record(estimate_additional_model, estimate_additional)
+def cascade_delete_estimate(id_estimate: int, collection: str) -> None:
+    """
+    Метод для каскадного удаления из таблиц связанных с расчётом
 
-
-def delete_estimate_technology(id_estimate):
-    estimate_technology_model = DataBaseUtils.get_model('estimate_technology')
-    estimate_technology_records = DataBaseUtils.get_records(estimate_technology_model, ({'estimate': id_estimate}))
-    for estimate_technology in estimate_technology_records:
-        DataBaseUtils.delete_record(estimate_technology_model, estimate_technology)
-
-
-def delete_estimate_work(id_estimate):
-    estimate_work_model = DataBaseUtils.get_model('estimate_work')
-    estimate_work_records = DataBaseUtils.get_records(estimate_work_model, ({'estimate': id_estimate}))
-    for estimate_work in estimate_work_records:
-        DataBaseUtils.delete_record(estimate_work_model, estimate_work)
-
-
-def delete_estimate_material(id_estimate):
-    estimate_material_model = DataBaseUtils.get_model('estimate_material')
-    estimate_material_records = DataBaseUtils.get_records(estimate_material_model, ({'estimate': id_estimate}))
-    for estimate_material in estimate_material_records:
-        DataBaseUtils.delete_record(estimate_material_model, estimate_material)
+    :param: id_estimate (int) ид расчёта
+    """
+    cascade_model: Model = DataBaseUtils.get_model(collection)
+    cascade_records: List[object] = \
+        DataBaseUtils.get_records(cascade_model, {'estimate': id_estimate})
+    for cascade_record in cascade_records:
+        DataBaseUtils.delete_record(cascade_model, cascade_record)
 
 
 def get_project_technologies(id_project):
