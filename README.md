@@ -12,7 +12,7 @@
 
 # FrontEnd
 
-Запустить live-сервер: ```npm run strat```
+Запустить live-сервер: ```npm run start```
 
 Собрать проект: ```npm run build```
 
