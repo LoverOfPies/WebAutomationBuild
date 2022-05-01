@@ -9,6 +9,8 @@
       id="table"
       class="text-nowrap"
       head-variant="light"
+      empty-text="Нет записей"
+      empty-filtered-text="По вашему запросу не найдено данных"
       bordered
       responsive
       show-empty

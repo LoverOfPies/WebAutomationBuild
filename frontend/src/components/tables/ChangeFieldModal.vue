@@ -16,7 +16,8 @@
     <b-modal
       :id="fieldModal.id"
       :title="fieldModal.title"
-      footer-bg-variant="secondary"
+      scrollable
+      footer-bg-variant=""
       centered
       @hide="resetFieldModal"
     >
@@ -28,10 +29,13 @@
         :per-page="perPage"
         :current-page="currentPage"
         :filter="searchFilter"
+        empty-text="Нет записей"
+        empty-filtered-text="По вашему запросу не найдено данных"
         bordered
         show-empty
         responsive
         class="modal-table"
+        @filtered="onSearched"
       >
         <template #cell(actions)="row">
           <b-button variant="primary" @click="selectRow(row.item)">
@@ -40,36 +44,38 @@
         </template>
       </b-table>
 
-      <b-row>
-        <b-col>
-          <b-pagination
-            v-model="currentPage"
-            :total-rows="rows"
-            :per-page="perPage"
-            :aria-controls="tableId"
-            first-number
-            last-number
-          ></b-pagination>
-        </b-col>
+      <template #modal-footer>
+        <b-row style="width: 100%">
+          <b-col class="pl-0">
+            <b-pagination
+              v-model="currentPage"
+              :total-rows="rows"
+              :per-page="perPage"
+              :aria-controls="tableId"
+              first-number
+              last-number
+            ></b-pagination>
+          </b-col>
 
-        <b-col cols="4">
-          <b-button
-            v-if="resetBtn"
-            variant="danger"
-            class="d-block ms-auto"
-            @click="resetFilters"
-          >
-            Сбросить
-          </b-button>
-        </b-col>
-      </b-row>
+          <b-col cols="4">
+            <b-button
+              v-if="resetBtn"
+              variant="danger"
+              class="d-block ms-auto"
+              @click="resetFilters"
+            >
+              Сбросить
+            </b-button>
+          </b-col>
+        </b-row>
+      </template>
 
       <!--  -->
-      <template #modal-footer>
+      <!-- <template #modal-footer>
         <div class="d-none"></div>
-        <!-- <b-button variant="danger" @click="cancel()"> Отмена </b-button>
-                <b-button variant="success" @click="ok()"> OK </b-button> -->
-      </template>
+        <b-button variant="danger" @click="cancel()"> Отмена </b-button>
+                <b-button variant="success" @click="ok()"> OK </b-button>
+      </template> -->
     </b-modal>
   </div>
 </template>
@@ -99,11 +105,12 @@ export default {
         title: "Выберите из списка",
       },
       tableId: `table-modal-${uid}`,
-      perPage: 8,
+      perPage: 150,
       currentPage: 1,
       filter: null,
       labelReplacement: "",
       searchFilter: null,
+      searchedRows: 0,
     };
   },
   methods: {
@@ -112,10 +119,14 @@ export default {
     },
     onFilterChange(newValue) {
       this.searchFilter = newValue;
+      this.currentPage = 1;
     },
     resetFilters() {
       this.$emit("resetFilters", this.rowId);
       this.$bvModal.hide(this.fieldModal.id);
+    },
+    onSearched(_arr, len) {
+      this.searchedRows = len;
     },
     resetFieldModal() {},
     selectRow(item) {
@@ -137,11 +148,14 @@ export default {
   computed: {
     fields() {
       return [
-        { key: "name", sortable: false },
+        { key: "name", sortable: true, label: "Наименование" },
         { key: "actions", label: " " },
       ];
     },
     rows() {
+      if (this.searchFilter) {
+        return this.searchedRows;
+      }
       return this.items ? this.items.length : 0;
     },
     displayedLabel() {

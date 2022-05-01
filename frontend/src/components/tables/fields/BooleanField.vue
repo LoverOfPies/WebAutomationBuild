@@ -7,6 +7,7 @@
         :unchecked-value="unchecked"
         :disabled="readOnly"
         size="lg"
+        @change="onUserChange"
       />
     </div>
   </div>
@@ -22,16 +23,23 @@ export default {
       unchecked: false,
     };
   },
-  watch: {
-    input: function (newValue) {
+  methods: {
+    onUserChange(newState) {
+      this.input = newState;
+
       let fields = {
         field: this?.field ? this.field : this.model,
-        value: newValue,
+        value: newState,
       };
       this.$emit("updateField", {
         id: this?.rowId ? this.rowId : -1,
         fields: fields,
       });
+    },
+  },
+  watch: {
+    state: function (newValue) {
+      this.input = newValue;
     },
   },
 };

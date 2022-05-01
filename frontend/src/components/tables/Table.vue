@@ -3,7 +3,8 @@
     <b-col>
       <b-table
         id="table"
-        class="text-nowrap"
+        class="text-nowrap table-scrollable"
+        :style="{ height: tableHeight }"
         :items="itemsData.list"
         :fields="localFields"
         :per-page="perPage"
@@ -11,11 +12,16 @@
         :busy="isBusy"
         :filter="filter"
         :sort-desc.sync="SDesc"
+        :sticky-header="tableHeight"
+        no-border-collapse
+        empty-text="Нет записей"
+        empty-filtered-text="По вашему запросу не найдено данных"
         sort-by="id"
         head-variant="light"
         bordered
         responsive
         show-empty
+        @filtered="onFiltered"
       >
         <!-- TODO: readonly states management -->
         <template
@@ -106,11 +112,27 @@
               >
                 <b-button class="mr-2">{{ action.label }}</b-button>
               </router-link>
+              <b-button
+                v-if="action.action === 'copy'"
+                class="mr-2"
+                :title="action.label"
+                @click="copyWorkGroup({ id: row.item.id })"
+              >
+                <b-icon icon="back"></b-icon>
+              </b-button>
+              <router-link
+                v-if="action.action === 'versioning'"
+                :to="name + '/versioning/' + row.item.id"
+              >
+                <b-button class="mr-2" :title="action.label"
+                  ><b-icon icon="clock-history"></b-icon
+                ></b-button>
+              </router-link>
               <delete-row-btn
-                @deleteRow="onDeleteRow"
                 v-if="action.action == 'delete'"
                 :label="action.label"
                 :rowId="row.item.id"
+                @deleteRow="onDeleteRow"
               />
             </span>
           </div>
@@ -157,6 +179,7 @@ export default {
     "perPage",
     "currentPage",
     "name",
+    "tableSpacing",
   ],
   data() {
     return {
@@ -171,9 +194,12 @@ export default {
       }
       return this.fieldsData.list;
     },
+    tableHeight() {
+      return `calc(100vh - ${this.tableSpacing}px)`;
+    },
   },
   methods: {
-    ...mapActions(["deleteRow"]),
+    ...mapActions(["deleteRow", "copyWorkGroup"]),
     ...mapMutations(["updateTableItem"]),
     onUpdateField({ id, fields: { field, value } }) {
       console.log("[upd]", this.name, id, field, value);
@@ -192,6 +218,9 @@ export default {
       }
       return "";
     },
+    onFiltered(arr, len) {
+      this.$emit("filtered", arr, len);
+    }
   },
 };
 </script>
