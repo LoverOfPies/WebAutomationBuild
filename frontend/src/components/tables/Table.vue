@@ -76,6 +76,12 @@
               :items="fieldsData.models[field.key]"
               @updateField="onUpdateField"
             />
+            <span v-else-if="data.field.type === 'caption'">
+              <text-field
+                :value="data.item[field.key]"
+                :isEditable="false"
+              />
+            </span>
             <text-field
               v-else
               :value="data.item[field.key]"
@@ -220,7 +226,7 @@ export default {
     },
     onFiltered(arr, len) {
       this.$emit("filtered", arr, len);
-    }
+    },
   },
 };
 </script>
