@@ -1,36 +1,16 @@
-from flask import jsonify, make_response, request, send_from_directory, send_file, g
+from flask import jsonify, request, Blueprint
 from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
-from MyAppException import MyAppException
-import migrations
-from app import app
+
+from src.api import API_VERSION
 from src.expimp import ExportImportUtils
-import src.ApiUtils
-import src.EstimateUtils
+import src.api.base.ApiImpl
 
-api_version = '/api/v0.1'
-
-
-@app.errorhandler(404)
-def not_found(error):
-    return make_response(jsonify({'error': 'Not found'}), 404)
+base_api = Blueprint('base_api', __name__)
 
 
-@app.errorhandler(MyAppException)
-def http_error_handler(error):
-    return make_response(jsonify({'error': error.message}), 500)
-
-
-# TODO: Почему path с одним слешем не работает ???
-@app.route('/', defaults={'path': ''})
-@app.route('/dict/<path:path>')
-@app.route('/settings')
-def index(path):
-    return send_from_directory(app.static_folder, 'index.html')
-
-
-@app.route(f'{api_version}/get/<string:collection>', methods=['GET'])
+@base_api.route(f'{API_VERSION}/get/<string:collection>', methods=['GET'])
 @cross_origin()
 def get_data(collection):
     """
@@ -58,11 +38,11 @@ def get_data(collection):
         ...
     ]
     """
-    data = src.ApiUtils.get_data_from_table(collection, request.args)
+    data = src.api.base.ApiImpl.get_data_from_table(collection, request.args)
     return jsonify(data)
 
 
-@app.route(f'{api_version}/add/<string:collection>', methods=['POST'])
+@base_api.route(f'{API_VERSION}/add/<string:collection>', methods=['POST'])
 @cross_origin()
 def add_value(collection):
     """
@@ -85,7 +65,7 @@ def add_value(collection):
         }
     ]
     """
-    result = src.ApiUtils.add_row(collection, request.json)
+    result = src.api.base.ApiImpl.add_row(collection, request.json)
     if result:
         # TODO: Костыль [0]
         data = [row for row in result.dicts()][0]
@@ -93,7 +73,7 @@ def add_value(collection):
     return abort(404)
 
 
-@app.route(f'{api_version}/update/<string:collection>/<int:id_row>', methods=['PUT'])
+@base_api.route(f'{API_VERSION}/update/<string:collection>/<int:id_row>', methods=['PUT'])
 @cross_origin()
 def edit_value(collection, id_row):
     """
@@ -118,13 +98,13 @@ def edit_value(collection, id_row):
     """
     if not request.json:
         abort(400)
-    result = src.ApiUtils.update_row(collection, id_row, request.json)
+    result = src.api.base.ApiImpl.update_row(collection, id_row, request.json)
     if result:
         return jsonify({'result': True})
     return abort(404)
 
 
-@app.route(f'{api_version}/delete/<string:collection>/<int:id_row>', methods=['DELETE'])
+@base_api.route(f'{API_VERSION}/delete/<string:collection>/<int:id_row>', methods=['DELETE'])
 @cross_origin()
 def delete_value(collection, id_row):
     """
@@ -135,7 +115,7 @@ def delete_value(collection, id_row):
 
     :return: json
     """
-    result = src.ApiUtils.delete_row(collection, id_row)
+    result = src.api.base.ApiImpl.delete_row(collection, id_row)
     if result:
         return jsonify({'result': True})
     return abort(404)
@@ -145,7 +125,7 @@ def delete_value(collection, id_row):
 # К примеру, если у таблицы есть фильтры, отдавать признак
 # После чего уже запрашивать фильтры
 # С действиями возможно так же
-@app.route(f'{api_version}/get_dict/<string:collection>', methods=['GET'])
+@base_api.route(f'{API_VERSION}/get_dict/<string:collection>', methods=['GET'])
 @cross_origin()
 def get_dict(collection):
     """
@@ -190,11 +170,11 @@ def get_dict(collection):
         ]
     }
     """
-    data = src.ApiUtils.get_dict_info(collection, request.args)
+    data = src.api.base.ApiImpl.get_dict_info(collection, request.args)
     return jsonify(data)
 
 
-@app.route(f'{api_version}/get_dict', methods=['GET'])
+@base_api.route(f'{API_VERSION}/get_dict', methods=['GET'])
 @cross_origin()
 def get_dicts():
     """
@@ -210,11 +190,11 @@ def get_dicts():
         ...
     ]
     """
-    data = src.ApiUtils.get_dicts_info()
+    data = src.api.base.ApiImpl.get_dicts_info()
     return jsonify(data)
 
 
-@app.route(f'{api_version}/sidebar', methods=['GET'])
+@base_api.route(f'{API_VERSION}/sidebar', methods=['GET'])
 @cross_origin()
 def get_sidebar():
     """
@@ -231,11 +211,11 @@ def get_sidebar():
         ...
     ]
     """
-    sidebar = src.ApiUtils.create_sidebar()
+    sidebar = src.api.base.ApiImpl.create_sidebar()
     return jsonify(sidebar)
 
 
-@app.route(f'{api_version}/import/<string:collection>', methods=['POST'])
+@base_api.route(f'{API_VERSION}/import/<string:collection>', methods=['POST'])
 @cross_origin()
 def file_import(collection):
     if request.method == 'POST':
@@ -248,102 +228,29 @@ def file_import(collection):
     return jsonify('True')
 
 
-@app.route(f'{api_version}/export/<string:collection>', methods=['GET'])
+@base_api.route(f'{API_VERSION}/export/<string:collection>', methods=['GET'])
 @cross_origin()
 def file_export(collection):
     ExportImportUtils.export_table(collection)
     return jsonify('True')
 
 
-@app.route(f'{api_version}/get_estimate_records', methods=['GET'])
-@cross_origin()
-def get_estimate_records():
-    data = src.EstimateUtils.get_estimate_records()
-    return jsonify(data)
-
-
-@app.route(f'{api_version}/calculate_estimate/<int:id_estimate>', methods=['POST'])
-@cross_origin()
-def calculate_estimate(id_estimate):
-    """
-
-    :return:
-    """
-    # Принимаем json { client_fio, use_base, project_id
-    # additional_works: [1, 2, ...] (optional),
-    # work_technologies: [1, 2, ...] (optional) }
-    src.EstimateUtils.calculate_estimate(id_estimate, request.json)
-    return jsonify('True')
-
-
-@app.route(f'{api_version}/delete_estimate/<int:id_estimate>', methods=['DELETE'])
-@cross_origin()
-def delete_estimate(id_estimate):
-    src.EstimateUtils.delete_estimate(id_estimate)
-    return jsonify('True')
-
-
-@app.route(f'{api_version}/edit_estimate/<int:id_estimate>', methods=['PUT'])
-@cross_origin()
-def edit_estimate(id_estimate):
-    # Принимаем json { client_fio, use_base, project_id
-    # additional_works: [1, 2, ...] (optional),
-    # work_technologies: [1, 2, ...] (optional) }
-    src.EstimateUtils.edit_estimate(id_estimate, request.json)
-    return jsonify('True')
-
-
-@app.route(f'{api_version}/get_estimate_materials/<int:id_estimate>', methods=['GET'])
-@cross_origin()
-def get_estimate_materials(id_estimate):
-    data = src.EstimateUtils.get_estimate_materials(id_estimate)
-    return jsonify(data)
-
-
-@app.route(f'{api_version}/get_estimate_works/<int:id_estimate>', methods=['GET'])
-@cross_origin()
-def get_estimate_works(id_estimate):
-    data = src.EstimateUtils.get_estimate_works(id_estimate)
-    return jsonify(data)
-
-
-@app.route(f'{api_version}/export_estimate/<int:id_estimate>', methods=['GET'])
-@cross_origin()
-def export_estimate(id_estimate):
-    src.EstimateUtils.export_estimate(id_estimate)
-    return jsonify('True')
-
-
-@app.route(f'{api_version}/get_project_technologies/<int:id_project>', methods=['GET'])
-@cross_origin()
-def get_project_technologies(id_project):
-    data = src.EstimateUtils.get_project_technologies(id_project)
-    return jsonify(data)
-
-
-@app.route(f'{api_version}/create_estimate/', methods=['GET'])
-@cross_origin()
-def create_estimate():
-    estimate_id = src.EstimateUtils.create_estimate()
-    return jsonify(estimate_id)
-
-
-@app.route(f'{api_version}/copy_work_group/<int:id_work_group>', methods=['GET'])
+@base_api.route(f'{API_VERSION}/copy_work_group/<int:id_work_group>', methods=['GET'])
 @cross_origin()
 def copy_work_group(id_work_group):
-    new_work_group = src.ApiUtils.copy_work_group(id_work_group)
+    new_work_group = src.api.base.ApiImpl.copy_work_group(id_work_group)
     return jsonify(new_work_group)
 
 
-@app.route(f'{api_version}/get_history/<string:collection>/<int:id_row>', methods=['GET'])
+@base_api.route(f'{API_VERSION}/get_history/<string:collection>/<int:id_row>', methods=['GET'])
 @cross_origin()
 def get_history(collection, id_row):
-    data = src.ApiUtils.get_history(collection, id_row)
+    data = src.api.base.ApiImpl.get_history(collection, id_row)
     return jsonify(data)
 
 
-@app.route(f'{api_version}/get_history_dict/<string:collection>', methods=['GET'])
+@base_api.route(f'{API_VERSION}/get_history_dict/<string:collection>', methods=['GET'])
 @cross_origin()
 def get_history_dict(collection):
-    data = src.ApiUtils.get_history_dict_info(collection)
+    data = src.api.base.ApiImpl.get_history_dict_info(collection)
     return jsonify(data)

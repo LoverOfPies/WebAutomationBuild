@@ -1,8 +1,9 @@
 import configparser
 import json
-from typing import Optional
+from typing import List
 
-from app import db
+from peewee import Model
+
 from src import FilterUtils, AutocompleteUtils
 from src.Cache import Cache
 from src.db.models.extender.VersioningExtender import VersioningExtender
@@ -14,11 +15,11 @@ INSERT_METH = 'insert'
 GET_METH = 'get'
 
 
-def get_model(name):
+def get_model(name: str) -> Model:
     """
     Return table object from cache
 
-    :param name: table name
+    :param: name (str): table name
 
     :return: table object
     """
@@ -44,7 +45,7 @@ def get_record(model, values):
     return obj
 
 
-def get_records(model, values) -> Optional[list]:
+def get_records(model, values) -> List:
     """
     Return records object by filter
 
@@ -56,10 +57,7 @@ def get_records(model, values) -> Optional[list]:
     condition = FilterUtils.get_equals_filter(model, values)
     if condition is None:
         return [row for row in model.select()]
-    try:
-        return [row for row in model.select().where(condition)]
-    except model.DoesNotExist:
-        return None
+    return [row for row in model.select().where(condition)]
 
 
 def update_record(collection, id_row, data):
@@ -85,7 +83,7 @@ def update_record(collection, id_row, data):
 
 
 def insert_record(model, values):
-    with db.database.atomic() as transaction:
+    with model._meta.database.atomic() as transaction:
         try:
             obj = model.insert(values).execute()
             transaction.commit()
@@ -126,40 +124,6 @@ def check_data(data, model):
         if not hasattr(model, field):
             return False
     return True
-
-
-# TODO: Rewrite this
-def init_base():
-    config = configparser.ConfigParser()
-    config.read('first.ini')
-    if config['BASE']['first_init'] == 'False':
-        return
-    config['BASE']['first_init'] = 'False'
-    with open('first.ini', 'w') as configfile:
-        config.write(configfile)
-    table_info_model = cache.get_table_info_model()
-    table_info_model.create_table()
-    filter_info_model = cache.get_filter_info_model()
-    filter_info_model.create_table()
-    action_info_model = cache.get_action_info_model()
-    action_info_model.create_table()
-    with open('table_info.json', 'r', encoding='utf-8') as f:
-        encode_json = json.load(f)
-    data_models_data = encode_json['models_info']
-    for value in data_models_data:
-        get_or_insert(table_info_model, value)
-    data_filter_data = encode_json['filters_info']
-    for value in data_filter_data:
-        value["table"] = table_info_model.select().where(table_info_model.name == value["table"]).get()
-        get_or_insert(filter_info_model, value)
-    data_action_data = encode_json['actions_info']
-    for value in data_action_data:
-        value["table"] = table_info_model.select().where(table_info_model.name == value["table"]).get()
-        get_or_insert(action_info_model, value)
-    table_info_all = (table_info_model.select())
-    for table_info in table_info_all:
-        table_model = get_model(table_info.name)
-        create_table_with_backref(table_model)
 
 
 def create_table_with_backref(model):

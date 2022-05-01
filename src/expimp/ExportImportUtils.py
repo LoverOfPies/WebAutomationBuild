@@ -5,16 +5,16 @@ from peewee import ForeignKeyField, Model
 from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
 
-from app import app
 from src.db import DataBaseUtils
+from src.expimp import config
 
 
 def allowed_file(file_ext, extensions):
-    return file_ext in app.config[extensions]
+    return file_ext in config[extensions]
 
 
 def get_path(filename):
-    return safe_join(app.config['UPLOAD_FOLDER'], filename)
+    return safe_join(config['UPLOAD_FOLDER'], filename)
 
 
 def get_file_name(path):
