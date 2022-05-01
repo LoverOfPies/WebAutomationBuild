@@ -57,7 +57,7 @@
       </b-card>
       <!--  -->
     </div>
-    <span v-else>
+    <span v-else class="text">
       {{ value }}
     </span>
   </div>
