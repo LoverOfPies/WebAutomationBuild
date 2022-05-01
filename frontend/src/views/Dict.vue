@@ -2,7 +2,7 @@
   <div>
     <Title :title="localTitle" back="true" />
 
-    <b-container fluid class="p-4">
+    <b-container fluid class="pt-4 pl-4">
       <b-row>
         <b-col cols="12">
           <!-- search bar -->
@@ -13,7 +13,7 @@
           />
           <!-- filters -->
           <Filters
-            v-if="filtersData.model.length != 0"
+            v-if="!!filtersData.model.length"
             :filtersData="filtersData"
             @applyFilters="onApplyFilters"
             @resetFilters="onResetFilters"
@@ -31,6 +31,7 @@
             :perPage="perPage"
             :currentPage="currentPage"
             :name="name"
+            :tableSpacing="tableSpacing"
           />
           <!-- select group -->
           <b-row>
@@ -53,7 +54,7 @@
             </b-col>
           </b-row>
           <!-- bottom navigation -->
-          <b-row v-if="mode == null">
+          <b-row v-if="mode == null" class="pt-2 pb-2">
             <b-col cols="8">
               <!-- pagination -->
               <Pagination
@@ -109,9 +110,10 @@ export default {
   data() {
     return {
       searchFilter: null,
-      perPage: 10,
+      perPage: 150,
       currentPage: 1,
       isReadOnly: false,
+      tableSpacing: 0,
     };
   },
   computed: {
@@ -128,6 +130,7 @@ export default {
       "itemRowsLength",
       "filtersData",
       "filterParams",
+      "historyTableFieldsData",
     ]),
     localTitle() {
       if (this.mode === "many_to_many" && this.parent) {
@@ -165,6 +168,8 @@ export default {
       "applyFilters",
       "addNewRow",
       "getParentNameById",
+      "getHistoryTableData",
+      "getHistoryItemsData",
     ]),
     ...mapMutations([
       "updateFieldsList",
@@ -205,46 +210,54 @@ export default {
       this.resetFilters(0);
       this.addNewRow({ table_name: this.name, row: item });
     },
+    calcTableHeight() {
+      const SEARCH_BAR_HEIGHT = 38 + 24;
+      const HEADER_HEIGHT = 56;
+      const TABLE_PADDING = 24;
+      const ADD_ROW_HEIGHT = 38 + 24;
+      const FILTER_ROW_HEIGHT = 50;
+      const FILTER_BOTTOM_MARGIN = 8;
+
+      const isSearchBarVisible = this.mode === null;
+      const isFiltersVisible = !!this.filtersData.model.length;
+
+      this.tableSpacing =
+        HEADER_HEIGHT +
+        (isSearchBarVisible ? SEARCH_BAR_HEIGHT : 0) +
+        (isFiltersVisible
+          ? FILTER_ROW_HEIGHT * this.filtersData.model.length
+          : 0) +
+        (isFiltersVisible ? FILTER_BOTTOM_MARGIN : 0) +
+        TABLE_PADDING +
+        ADD_ROW_HEIGHT;
+    },
     async init() {
       this.searchFilter = null;
-      await this.getTableInfo({ name: this.name });
-      this.getItems({ name: this.name, params: this.compiledParams });
 
-      /*
-        Sticky table fix
-        FIXME: rewrite using https://bootstrap-vue.org/docs/directives/visible 
-      */
-      // function isElementInViewport(el) {
-      //   var rect = el.getBoundingClientRect();
-      //   return (
-      //     rect.top >= 0 &&
-      //     rect.left >= 0 &&
-      //     rect.bottom <=
-      //       (window.innerHeight || document.documentElement.clientHeight) &&
-      //     rect.right <=
-      //       (window.innerWidth || document.documentElement.clientWidth)
-      //   );
-      // }
-      // const table = document.querySelector(".table-responsive");
-      // if (table != null) {
-        // setTimeout(function () {
-        //   if (!isElementInViewport(table)) {
-        //     table.classList.add("b-table-sticky-header");
-        //     table.style.maxHeight = "500px";
-        //   } else {
-        //     table.classList.remove("b-table-sticky-header");
-        //     table.style.maxHeight = "unset";
-        //   }
-        // }, 500);
-      // }
+      if (this.name === "versioning") {
+        await this.getHistoryTableData({ table_name: this.parent });
+        await this.getHistoryItemsData({
+          table_name: this.parent,
+          row_id: this.id,
+        });
+      } else {
+        await this.getTableInfo({ name: this.name });
+        await this.getItems({ name: this.name, params: this.compiledParams });
+      }
     },
   },
   mounted() {
     this.init();
   },
+  beforeUpdate() {
+    this.calcTableHeight();
+  },
   watch: {
     name: function () {
       this.init();
+    },
+    "filtersData.model": function () {
+      this.calcTableHeight();
     },
   },
 };

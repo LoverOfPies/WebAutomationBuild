@@ -51,8 +51,6 @@
               right
               locale="ru-RU"
               @context="onContext"
-              @shown="onDatePickerShown"
-              @hidden="onDatePickerHidden"
             />
           </b-input-group-append>
         </b-input-group>
@@ -96,11 +94,8 @@ export default {
     };
   },
   methods: {
-    showChangeInput(state) {
-      if (!state) {
-        this.input = this.value;
-      }
-
+    showChangeInput(state) {        
+      this.input = this.value;
       this.dateEditInput = this.simplifiedDate;
       this.editing = state;
 
@@ -110,12 +105,7 @@ export default {
     },
     onContext(ctx) {
       this.selected = ctx.selectedYMD;
-    },
-    onDatePickerShown() {
-      document.querySelector("#table").parentElement.style.minHeight = "500px";
-    },
-    onDatePickerHidden() {
-      document.querySelector("#table").parentElement.style.minHeight = "unset";
+      this.dateEditInput = this.simplifyDate(ctx.selectedYMD);
     },
     updateField() {
       const fields = {
@@ -134,8 +124,7 @@ export default {
   },
   computed: {
     isSelectedDate() {
-      if (this.selected) return true;
-      return false;
+      return !!this.selected;
     },
     simplifiedDate() {
       const dateString = this.input ? this.input : "12.12.1999";

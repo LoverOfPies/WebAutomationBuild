@@ -41,7 +41,7 @@ export default {
     ...mapActions(["getGroupTitles"]),
     getGroupTitle(index) {
       return this.groupTitles.filter(
-        (x) => x.id == this.groupSelections[index]
+        (x) => x.id === this.radioGroups[index][0][this.groupField]
       )[0]["name"];
     },
   },

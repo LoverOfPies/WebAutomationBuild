@@ -1,5 +1,5 @@
 <template>
-  <b-row class="mb-4">
+  <b-row class="mb-2">
     <b-col>
       <b-row>
         <b-col

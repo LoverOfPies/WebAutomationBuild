@@ -106,12 +106,15 @@ export default {
   methods: {
     showAddModal(button) {
       this.$bvModal.show(this.addModal.id, button);
+      // keys listener
+      window.addEventListener("keypress", this.keyAction);
     },
     resetAddModal() {
       for (let field in this.addModal.fields) {
         this.addModal.fields[field] = "";
         delete this.addModal.fields[field];
       }
+      window.removeEventListener("keypress", this.keyAction);
     },
     onLabelChange({ id: itemId, model }) {
       this.$refs[`change-field-${model}`][0].labelReplacement =
@@ -121,6 +124,7 @@ export default {
       this.$set(this.addModal.fields, fields.field, fields.value);
     },
     addNewRow(ok) {
+      console.log(ok);
       const fields = {};
 
       Object.keys(this.addModal.fields).forEach((key) => {
@@ -137,6 +141,16 @@ export default {
     getFieldById(id, model, field) {
       return this.fieldsModels[model].find((x) => x.id == id)[field];
     },
+    keyAction(e) {
+      if (e.key === "Enter" && e.target.classList.contains("modal-content")) {
+        this.addNewRow(() => {
+          this.$bvModal.hide(this.addModal.id);
+        });
+      }
+    },
+  },
+  destroyed() {
+    window.removeEventListener("keypress", this.keyAction);
   },
 };
 </script>
