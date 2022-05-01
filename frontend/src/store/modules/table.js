@@ -223,6 +223,30 @@ export default {
 		},
 		fieldsList(state) {
 			let fields = state.table.fields.list;
+
+			for (let field of fields) {
+				if (field.type === "selectable") {
+					field["filterByFormatted"] = true;
+					field["formatter"] = (value, key, _item) => {
+						return state.table.fields.models[key].find((x) => x.id === value)["name"];
+					};
+				}
+				if (field.type === "date") {
+					field["filterByFormatted"] = true;
+					field["formatter"] = (value, _key, _item) => {
+						return new Date(value).toLocaleDateString("ru-RU");
+					};
+				}
+				if (field.type === "boolean") {
+					field["filterByFormatted"] = true;
+					field["formatter"] = (value, _key, _item) => {
+						return value ? 'A' : 'Z';
+					};
+				}
+
+				field["sortable"] = true;
+			}
+
 			fields.push({
 				key: "actions",
 				label: "Действия",

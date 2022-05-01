@@ -21,6 +21,7 @@
         bordered
         responsive
         show-empty
+        @filtered="onFiltered"
       >
         <!-- TODO: readonly states management -->
         <template
@@ -217,6 +218,9 @@ export default {
       }
       return "";
     },
+    onFiltered(arr, len) {
+      this.$emit("filtered", arr, len);
+    }
   },
 };
 </script>

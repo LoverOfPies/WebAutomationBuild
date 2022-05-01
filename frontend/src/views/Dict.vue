@@ -32,6 +32,7 @@
             :currentPage="currentPage"
             :name="name"
             :tableSpacing="tableSpacing"
+            @filtered="onTableSearched"
           />
           <!-- select group -->
           <b-row>
@@ -58,7 +59,7 @@
             <b-col cols="8">
               <!-- pagination -->
               <Pagination
-                :rows="itemRowsLength"
+                :rows="localItemRowsLength"
                 :perPage="perPage"
                 :currentPage="currentPage"
                 @pageChange="onPageChange"
@@ -114,6 +115,7 @@ export default {
       currentPage: 1,
       isReadOnly: false,
       tableSpacing: 0,
+      searchedRows: 0
     };
   },
   computed: {
@@ -140,6 +142,12 @@ export default {
         }`;
       }
       return this.title;
+    },
+    localItemRowsLength() {
+      if (this.searchFilter) {
+        return this.searchedRows;
+      }
+      return this.itemRowsLength;
     },
     compiledParams() {
       let initialParams = {};
@@ -194,11 +202,15 @@ export default {
       }
       this.getItems({ name: [this.name], params });
     },
+    onTableSearched(_arr, len) {
+      this.searchedRows = len;
+    },
     onResetFilters(id) {
       this.resetFilters(id);
     },
     onFilterChange(newValue) {
       this.searchFilter = newValue;
+      this.currentPage = 1;
     },
     onFilterLabelChange({ itemId, model }) {
       this.updateFilterLabel({ itemId, model });
