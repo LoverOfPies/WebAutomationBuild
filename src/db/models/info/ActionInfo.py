@@ -1,10 +1,10 @@
 import peewee
 
-from app import db
-from src.db.models.info.TableInfo import TableInfo
+from db import BaseModel
+from db.models.info.TableInfo import TableInfo
 
 
-class ActionInfo(db.Model):
+class ActionInfo(BaseModel):
     action = peewee.CharField(verbose_name='Действие на клиенте (route)')
     label = peewee.CharField(verbose_name='Наименование')
     to = peewee.CharField(verbose_name='Если route, то экран для перехода', null=True)

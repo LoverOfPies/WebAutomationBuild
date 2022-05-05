@@ -1,11 +1,11 @@
 from peewee import ForeignKeyField, CharField, IntegerField, BooleanField, DoubleField, DateField
 
-from app import db
-from src.db.models.project.Project import Project
+from db import BaseModel
+from db.models.project.Project import Project
 
 
 # Расчёт
-class Estimate(db.Model):
+class Estimate(BaseModel):
     number = IntegerField(unique=True, verbose_name='Номер', null=True)
     client_fio = CharField(verbose_name='ФИО клиента', null=True)
     use_base = BooleanField(verbose_name='Базовая комплектация', null=True)

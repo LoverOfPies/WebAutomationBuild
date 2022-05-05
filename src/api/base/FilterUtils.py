@@ -1,4 +1,7 @@
-def get_equals_filter(model, values):
+from peewee import Model
+
+
+def get_equals_filter(model: Model, values: dict):
     """
     Return equals filter by fields and values
     format: {"field": value, ...}
@@ -8,6 +11,8 @@ def get_equals_filter(model, values):
 
     :return: filter
     """
+    if not values:
+        return None
     filters = []
     for value in values:
         if hasattr(model, value):

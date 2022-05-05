@@ -1,10 +1,10 @@
 from peewee import CharField
 
-from app import db
+from db import BaseModel
 
 
 # Свойства для материалов (длина, ширина и т.д.)
-class Prop(db.Model):
+class Prop(BaseModel):
     name = CharField(unique=True, verbose_name='Наименование')
 
     class Meta:

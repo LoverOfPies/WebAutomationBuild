@@ -1,6 +1,6 @@
 from openpyxl import Workbook
 from dataclasses import dataclass
-from src.api.base.ApiImpl import get_data_from_table
+from api.base.ApiImpl import get_data_from_table
 import pprint
 
 @dataclass

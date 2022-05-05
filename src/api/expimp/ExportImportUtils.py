@@ -5,8 +5,8 @@ from peewee import ForeignKeyField, Model
 from werkzeug.security import safe_join
 from werkzeug.utils import secure_filename
 
-from src.db import DataBaseUtils
-from src.expimp import config
+from api.base import DataBaseUtils
+from api.expimp import config
 
 
 def allowed_file(file_ext, extensions):

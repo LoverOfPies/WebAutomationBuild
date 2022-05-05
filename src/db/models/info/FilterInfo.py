@@ -1,10 +1,10 @@
 import peewee
 
-from app import db
-from src.db.models.info.TableInfo import TableInfo
+from db import BaseModel
+from db.models.info.TableInfo import TableInfo
 
 
-class FilterInfo(db.Model):
+class FilterInfo(BaseModel):
     key = peewee.CharField(verbose_name='Таблица фильтра')
     label = peewee.CharField(verbose_name='Наименование')
     multiple = peewee.CharField(verbose_name='Наименование во множественном числе')

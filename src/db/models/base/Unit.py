@@ -1,10 +1,10 @@
 from peewee import CharField
 
-from app import db
+from db import BaseModel
 
 
 # Единица измерения (метры, сантиметры, шт., кубы и т.д.)
-class Unit(db.Model):
+class Unit(BaseModel):
     name = CharField(unique=True, verbose_name='Наименование')
 
     class Meta:

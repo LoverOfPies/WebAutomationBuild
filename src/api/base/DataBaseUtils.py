@@ -1,12 +1,9 @@
-import configparser
-import json
 from typing import List
 
 from peewee import Model
 
-from src import FilterUtils, AutocompleteUtils
-from src.Cache import Cache
-from src.db.models.extender.VersioningExtender import VersioningExtender
+from api.base import FilterUtils, AutocompleteUtils
+from api.base.Cache import Cache
 
 cache = Cache()
 
@@ -71,7 +68,8 @@ def update_record(collection, id_row, data):
     value = data['value']
     if value is None:
         return False
-    if isinstance(row, VersioningExtender):
+    versioning_model = get_model('versioning')
+    if isinstance(row, versioning_model):
         AutocompleteUtils.create_new_version(model, row, data)
         return True
     field_data = dict(row.__data__)

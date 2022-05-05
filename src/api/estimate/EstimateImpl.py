@@ -4,7 +4,7 @@ from typing import List
 
 from peewee import Model
 
-from src.db import DataBaseUtils
+from api.base import DataBaseUtils
 
 
 def create_estimate() -> int:

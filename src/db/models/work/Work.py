@@ -1,12 +1,12 @@
 from peewee import CharField, ForeignKeyField, DoubleField, BooleanField
 
-from app import db
-from src.db.models.base.BaseUnit import BaseUnit
-from src.db.models.work.WorkGroup import WorkGroup
+from db import BaseModel
+from db.models.base.BaseUnit import BaseUnit
+from db.models.work.WorkGroup import WorkGroup
 
 
 # Работа
-class Work(db.Model):
+class Work(BaseModel):
     name = CharField(unique=True, verbose_name='Наименование')
     fix_price = BooleanField(default=False, verbose_name='Фиксированная цена', null=True)
     client_price = DoubleField(default=0, verbose_name='Тариф клиента', null=True)

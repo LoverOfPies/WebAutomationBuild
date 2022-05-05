@@ -3,14 +3,14 @@ from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
 
-from src.api import API_VERSION
-from src.expimp import ExportImportUtils
-import src.api.base.ApiImpl
+from api import __version__ as api_varsion
+from api.expimp import ExportImportUtils
+import api.base.ApiImpl
 
 base_api = Blueprint('base_api', __name__)
 
 
-@base_api.route(f'{API_VERSION}/get/<string:collection>', methods=['GET'])
+@base_api.route(f'{api_varsion}/get/<string:collection>', methods=['GET'])
 @cross_origin()
 def get_data(collection):
     """
@@ -38,11 +38,11 @@ def get_data(collection):
         ...
     ]
     """
-    data = src.api.base.ApiImpl.get_data_from_table(collection, request.args)
+    data = api.base.ApiImpl.get_data_from_table(collection, request.args)
     return jsonify(data)
 
 
-@base_api.route(f'{API_VERSION}/add/<string:collection>', methods=['POST'])
+@base_api.route(f'{api_varsion}/add/<string:collection>', methods=['POST'])
 @cross_origin()
 def add_value(collection):
     """
@@ -65,7 +65,7 @@ def add_value(collection):
         }
     ]
     """
-    result = src.api.base.ApiImpl.add_row(collection, request.json)
+    result = api.base.ApiImpl.add_row(collection, request.json)
     if result:
         # TODO: Костыль [0]
         data = [row for row in result.dicts()][0]
@@ -73,7 +73,7 @@ def add_value(collection):
     return abort(404)
 
 
-@base_api.route(f'{API_VERSION}/update/<string:collection>/<int:id_row>', methods=['PUT'])
+@base_api.route(f'{api_varsion}/update/<string:collection>/<int:id_row>', methods=['PUT'])
 @cross_origin()
 def edit_value(collection, id_row):
     """
@@ -98,13 +98,13 @@ def edit_value(collection, id_row):
     """
     if not request.json:
         abort(400)
-    result = src.api.base.ApiImpl.update_row(collection, id_row, request.json)
+    result = api.base.ApiImpl.update_row(collection, id_row, request.json)
     if result:
         return jsonify({'result': True})
     return abort(404)
 
 
-@base_api.route(f'{API_VERSION}/delete/<string:collection>/<int:id_row>', methods=['DELETE'])
+@base_api.route(f'{api_varsion}/delete/<string:collection>/<int:id_row>', methods=['DELETE'])
 @cross_origin()
 def delete_value(collection, id_row):
     """
@@ -115,7 +115,7 @@ def delete_value(collection, id_row):
 
     :return: json
     """
-    result = src.api.base.ApiImpl.delete_row(collection, id_row)
+    result = api.base.ApiImpl.delete_row(collection, id_row)
     if result:
         return jsonify({'result': True})
     return abort(404)
@@ -125,7 +125,7 @@ def delete_value(collection, id_row):
 # К примеру, если у таблицы есть фильтры, отдавать признак
 # После чего уже запрашивать фильтры
 # С действиями возможно так же
-@base_api.route(f'{API_VERSION}/get_dict/<string:collection>', methods=['GET'])
+@base_api.route(f'{api_varsion}/get_dict/<string:collection>', methods=['GET'])
 @cross_origin()
 def get_dict(collection):
     """
@@ -170,11 +170,11 @@ def get_dict(collection):
         ]
     }
     """
-    data = src.api.base.ApiImpl.get_dict_info(collection, request.args)
+    data = api.base.ApiImpl.get_dict_info(collection, request.args)
     return jsonify(data)
 
 
-@base_api.route(f'{API_VERSION}/get_dict', methods=['GET'])
+@base_api.route(f'{api_varsion}/get_dict', methods=['GET'])
 @cross_origin()
 def get_dicts():
     """
@@ -190,11 +190,11 @@ def get_dicts():
         ...
     ]
     """
-    data = src.api.base.ApiImpl.get_dicts_info()
+    data = api.base.ApiImpl.get_dicts_info()
     return jsonify(data)
 
 
-@base_api.route(f'{API_VERSION}/sidebar', methods=['GET'])
+@base_api.route(f'{api_varsion}/sidebar', methods=['GET'])
 @cross_origin()
 def get_sidebar():
     """
@@ -211,11 +211,11 @@ def get_sidebar():
         ...
     ]
     """
-    sidebar = src.api.base.ApiImpl.create_sidebar()
+    sidebar = api.base.ApiImpl.create_sidebar()
     return jsonify(sidebar)
 
 
-@base_api.route(f'{API_VERSION}/import/<string:collection>', methods=['POST'])
+@base_api.route(f'{api_varsion}/import/<string:collection>', methods=['POST'])
 @cross_origin()
 def file_import(collection):
     if request.method == 'POST':
@@ -228,29 +228,29 @@ def file_import(collection):
     return jsonify('True')
 
 
-@base_api.route(f'{API_VERSION}/export/<string:collection>', methods=['GET'])
+@base_api.route(f'{api_varsion}/export/<string:collection>', methods=['GET'])
 @cross_origin()
 def file_export(collection):
     ExportImportUtils.export_table(collection)
     return jsonify('True')
 
 
-@base_api.route(f'{API_VERSION}/copy_work_group/<int:id_work_group>', methods=['GET'])
+@base_api.route(f'{api_varsion}/copy_work_group/<int:id_work_group>', methods=['GET'])
 @cross_origin()
 def copy_work_group(id_work_group):
-    new_work_group = src.api.base.ApiImpl.copy_work_group(id_work_group)
+    new_work_group = api.base.ApiImpl.copy_work_group(id_work_group)
     return jsonify(new_work_group)
 
 
-@base_api.route(f'{API_VERSION}/get_history/<string:collection>/<int:id_row>', methods=['GET'])
+@base_api.route(f'{api_varsion}/get_history/<string:collection>/<int:id_row>', methods=['GET'])
 @cross_origin()
 def get_history(collection, id_row):
-    data = src.api.base.ApiImpl.get_history(collection, id_row)
+    data = api.base.ApiImpl.get_history(collection, id_row)
     return jsonify(data)
 
 
-@base_api.route(f'{API_VERSION}/get_history_dict/<string:collection>', methods=['GET'])
+@base_api.route(f'{api_varsion}/get_history_dict/<string:collection>', methods=['GET'])
 @cross_origin()
 def get_history_dict(collection):
-    data = src.api.base.ApiImpl.get_history_dict_info(collection)
+    data = api.base.ApiImpl.get_history_dict_info(collection)
     return jsonify(data)

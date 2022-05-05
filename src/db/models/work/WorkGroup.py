@@ -1,11 +1,11 @@
 from peewee import CharField, ForeignKeyField
 
-from app import db
-from src.db.models.work.WorkStage import WorkStage
+from db import BaseModel
+from db.models.work.WorkStage import WorkStage
 
 
 # Группа работ
-class WorkGroup(db.Model):
+class WorkGroup(BaseModel):
     name = CharField(unique=True, verbose_name='Наименование')
     work_stage = ForeignKeyField(WorkStage, backref='work_groups', verbose_name='Стадия работ')
 

@@ -1,7 +1,7 @@
 import copy
 import datetime
 
-from src.db import DataBaseUtils
+from api.base import DataBaseUtils
 
 
 def base_size_autocomplete(project_id):

@@ -1,10 +1,10 @@
 from peewee import CharField
 
-from app import db
+from db import BaseModel
 
 
 # Стадии работ
-class WorkStage(db.Model):
+class WorkStage(BaseModel):
     name = CharField(unique=True, verbose_name='Наименование')
 
     class Meta:

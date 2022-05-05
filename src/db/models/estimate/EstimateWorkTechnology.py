@@ -1,12 +1,12 @@
 from peewee import ForeignKeyField
 
-from app import db
-from src.db.models.estimate.Estimate import Estimate
-from src.db.models.work.WorkTechnology import WorkTechnology
+from db import BaseModel
+from db.models.estimate.Estimate import Estimate
+from db.models.work.WorkTechnology import WorkTechnology
 
 
 # ManyToMany Технологии работ для расчёта
-class EstimateWorkTechnology(db.Model):
+class EstimateWorkTechnology(BaseModel):
     estimate = ForeignKeyField(Estimate, backref='estimates')
     work_technology = ForeignKeyField(WorkTechnology, backref='work_technologies')
 

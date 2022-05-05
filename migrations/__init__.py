@@ -1,16 +1,12 @@
 import json
 
-from migrations import (init_copy_work_group, actions_info_to_not_null, comment_to_project,
-                        versioning_add_enable_version, versioning_product_action, estimate_add_columns)
+from migrations import (add_sidebar_column, edit_models_paths, add_sidebar_values)
 
 # Таблица с миграциями, признаки выполнения в json
 MIGRATIONS_LIST = {
-    'actions_info_to_not_null': actions_info_to_not_null.run_script,
-    'init_copy_work_group': init_copy_work_group.run_script,
-    'comment_to_project': comment_to_project.run_script,
-    'versioning_add_enable_version': versioning_add_enable_version.run_script,
-    'versioning_product_action': versioning_product_action.run_script,
-    'estimate_add_columns': estimate_add_columns.run_script
+    'add_sidebar_column': add_sidebar_column.run_script,
+    'edit_models_paths': edit_models_paths.run_script,
+    'add_sidebar_values': add_sidebar_values.run_script
 }
 
 
@@ -20,7 +16,7 @@ with open('migrations/migration_list.json', 'r', encoding='utf-8') as migration_
 
 # Запуск скриптов
 for script_name, script in MIGRATIONS_LIST.items():
-    if not migration_enable[script_name]:
+    if migration_enable[script_name] is 0:
         res = script()
         if res:
             migration_enable[script_name] = 1

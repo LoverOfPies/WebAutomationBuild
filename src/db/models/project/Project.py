@@ -1,10 +1,10 @@
 from peewee import CharField
 
-from app import db
+from db import BaseModel
 
 
 # Проект
-class Project(db.Model):
+class Project(BaseModel):
     name = CharField(unique=True, verbose_name='Наименование')
     comment = CharField(verbose_name='Комментарий', null=True)
 

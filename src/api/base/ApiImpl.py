@@ -1,11 +1,11 @@
 from flask import Response
 from peewee import ForeignKeyField, DoubleField, IntegerField, BooleanField, DateField
 
-from src.MyAppException import MyAppException
-from src import FilterUtils
-from src import AutocompleteUtils
-from src.db import DataBaseUtils
-from src.db.DataBaseUtils import GET_METH, ERROR_METH
+from api.base.MyAppException import MyAppException
+from api.base import FilterUtils
+from api.base import AutocompleteUtils
+from api.base import DataBaseUtils
+from api.base.DataBaseUtils import GET_METH, ERROR_METH
 
 
 def add_row(collection, data):

@@ -1,16 +1,9 @@
 import json
-import sys
 
 from peewee import Model
 
-from src.MyAppException import MyAppException
-
-
-def load_class(s):
-    path, klass = s.rsplit('.', 1)
-    __import__(path)
-    mod = sys.modules[path]
-    return getattr(mod, klass)
+from api import load_class
+from api.base.MyAppException import MyAppException
 
 
 class Cache(object):
@@ -44,9 +37,9 @@ class Cache(object):
 
     def get_sidebar_fields(self):
         if not self._sidebar_fields:
-            with open('table_info.json', 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                self._sidebar_fields = data['sidebar_fields']
+            table_info_model = self.get_table_info_model()
+            self._sidebar_fields = [row.name for row in
+                               table_info_model.select().where(table_info_model.show_in_sidebar == True)]
         return self._sidebar_fields
 
     def get_model_by_name(self, name: str) -> Model:

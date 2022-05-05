@@ -1,11 +1,10 @@
-from uuid import uuid4
 import os
 
 import peewee
 from peewee import ImproperlyConfigured
 from playhouse.db_url import connect
 
-from src.Cache import load_class
+from api import load_class
 
 
 class Database(object):
@@ -15,8 +14,6 @@ class Database(object):
 
         if self.database is None:
             self.load_database()
-
-        self.Model = self.get_model_class()
 
     def load_database(self):
         database_config = dict(self.app.config['DATABASE'])
@@ -39,13 +36,3 @@ class Database(object):
             self.database = connect(os.environ.get("POSTGRES_URL"))
         else:
             self.database = database_class(database_name, **database_config)
-
-    def get_model_class(self):
-        class BaseModel(peewee.Model):
-            id = peewee.PrimaryKeyField(unique=True, null=False)
-            uuid = peewee.UUIDField(default=uuid4)
-
-            class Meta:
-                database = self.database
-                order_by = 'id'
-        return BaseModel
