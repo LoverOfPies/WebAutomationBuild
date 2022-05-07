@@ -19,7 +19,7 @@ class Cache(object):
 
     def get_table_info_model(self):
         if not self._table_info_model:
-            self._table_info_model = load_class("src.db.models.info.TableInfo.TableInfo")
+            self._table_info_model = load_class("db.models.info.TableInfo.TableInfo")
         return self._table_info_model
 
     def get_table_info(self, name):
@@ -27,12 +27,12 @@ class Cache(object):
 
     def get_filter_info_model(self):
         if not self._filter_info_model:
-            self._filter_info_model = load_class("src.db.models.info.FilterInfo.FilterInfo")
+            self._filter_info_model = load_class("db.models.info.FilterInfo.FilterInfo")
         return self._filter_info_model
 
     def get_action_info_model(self):
         if not self._action_info_model:
-            self._action_info_model = load_class("src.db.models.info.ActionInfo.ActionInfo")
+            self._action_info_model = load_class("db.models.info.ActionInfo.ActionInfo")
         return self._action_info_model
 
     def get_sidebar_fields(self):
