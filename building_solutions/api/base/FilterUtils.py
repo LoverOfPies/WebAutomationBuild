@@ -14,10 +14,9 @@ def get_equals_filter(model: Model, values: dict):
     if not values:
         return None
     filters = []
-    for value in values:
-        if hasattr(model, value):
-            filter_field = getattr(model, value)
-            filter_value = values[value]
+    for field, filter_value in values.items():
+        if hasattr(model, field):
+            filter_field = getattr(model, field)
             filters.append(filter_field == filter_value)
     condition = None
     for i, filter_obj in enumerate(filters):
