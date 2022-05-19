@@ -42,7 +42,7 @@ def get_record(model, values):
     return obj
 
 
-def get_records(model, values) -> List:
+def get_records(model, values=None) -> List:
     """
     Return records object by filter
 

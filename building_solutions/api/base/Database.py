@@ -8,6 +8,9 @@ from api import load_class
 
 
 class Database(object):
+    """
+    Класс для связки БД и приложения flask
+    """
     def __init__(self, app, database=None):
         self.app = app
         self.database = database
@@ -16,6 +19,9 @@ class Database(object):
             self.load_database()
 
     def load_database(self):
+        """
+        Создаём БД из конфига
+        """
         database_config = dict(self.app.config['DATABASE'])
         try:
             database_name = database_config.pop('name')

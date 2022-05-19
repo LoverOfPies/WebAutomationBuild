@@ -22,7 +22,7 @@ def create_estimate() -> int:
     # Проставляем все возможные базовые единицы, как базовые размеры расчёта с значением 0
     estimate_base_size_model = DataBaseUtils.get_model('estimate_base_size')
     data = {'estimate': estimate.id}
-    base_units = DataBaseUtils.get_records(DataBaseUtils.get_model('base_unit'), '')
+    base_units = DataBaseUtils.get_records(DataBaseUtils.get_model('base_unit'))
     for base_unit in base_units:
         data['base_unit'] = base_unit
         DataBaseUtils.get_or_insert(estimate_base_size_model, data)

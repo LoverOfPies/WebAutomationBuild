@@ -1,5 +1,3 @@
-import json
-
 from peewee import Model
 
 from api import load_class
@@ -7,6 +5,9 @@ from api.base.MyAppException import MyAppException
 
 
 class Cache(object):
+    """
+    Класс для кэширования объектов моделей БД и мета ифнормации проекта
+    """
     _table_info_model = None
     _filter_info_model = None
     _action_info_model = None

@@ -1,4 +1,7 @@
 class MyAppException(Exception):
+    """
+    Класс ошибки для вызова в popup
+    """
     def __init__(self, message):
         if message:
             self.message = message
