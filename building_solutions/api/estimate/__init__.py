@@ -39,16 +39,6 @@ def delete_estimate(id_estimate: int) -> Response:
     return jsonify('True')
 
 
-@estimate_api.route(f'{api_version}/edit_estimate/<int:id_estimate>', methods=['PUT'])
-@cross_origin()
-def edit_estimate(id_estimate: int) -> Response:
-    # Принимаем json { client_fio, use_base, project_id
-    # additional_works: [1, 2, ...] (optional),
-    # work_technologies: [1, 2, ...] (optional) }
-    api.estimate.EstimateImpl.edit_estimate(id_estimate, request.json)
-    return jsonify('True')
-
-
 @estimate_api.route(f'{api_version}/calculate_estimate/<int:id_estimate>', methods=['POST'])
 @cross_origin()
 def calculate_estimate(id_estimate):

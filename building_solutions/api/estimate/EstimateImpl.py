@@ -30,30 +30,34 @@ def create_estimate() -> int:
     return estimate
 
 
-def get_estimate_records():
+def get_estimate_records() -> List[dict]:
+    """
+    Метод получения информации о записях расчёта
+
+    :return: estimate_records (List[dict[) - информация о записях расчёта
+    """
     model = DataBaseUtils.get_model('estimate')
     if model is None:
-        return None
+        return []
     return [row for row in model.select().dicts()]
 
 
-def calculate_estimate(id_estimate: int, data: dict):
+def calculate_estimate(id_estimate: int, data: dict) -> None:
+    """
+    Метод вычисления и заполнения данных расчёта
+    """
     # Получаем модель расчёта в БД
     # TODO: Сделать обработку в одной транзакции
     estimate_model = DataBaseUtils.get_model('estimate')
-    if estimate_model is None:
-        return
 
     fio = data['client_info']
     if not fio:
         raise MyAppException('Не заполнено поле ФИО')
-    use_base = data['use_base']
+    use_base = data.get('use_base', False)
     DataBaseUtils.update_record(estimate_model, id_estimate,
                                 {'field': 'client_fio', 'value': fio})
     DataBaseUtils.update_record(estimate_model, id_estimate,
                                 {'field': 'use_base', 'value': use_base})
-    DataBaseUtils.update_record(estimate_model, id_estimate,
-                                {'field': 'active', 'value': True})
 
     # Смотрим наличие проекта и привязываем, если есть
     project_id = data.get('project_id', None)
@@ -61,21 +65,32 @@ def calculate_estimate(id_estimate: int, data: dict):
         DataBaseUtils.update_record(estimate_model, id_estimate,
                                     {'field': 'project', 'value': project_id})
 
+    if not use_base and not project_id:
+        raise MyAppException('Не задан проект для базового расчёта')
+
     # Проставляем номер равный id
     DataBaseUtils.update_record(estimate_model, id_estimate,
                                 {'field': 'number', 'value': id_estimate})
 
     # Получаем технологии для расчёта кастомные или из проекта
     technologies_data = []
-    if 'work_technologies' in data and not data['use_base']:
-        technologies_data = [{'estimate': id_estimate, 'work_technology': work_technology_id}
-                             for work_technology_id in data['work_technologies']]
+    if use_base:
+        project_technology_model = DataBaseUtils.get_model('project_technology')
+        technologies_project = DataBaseUtils.get_records(project_technology_model, {'project': project_id})
+        technologies_data = [
+            {'estimate': id_estimate, 'work_technology': technology_project.work_technology.id}
+            for technology_project in technologies_project
+        ]
     else:
-        technologies_data = get_technology_from_project(id_estimate, project_id)
+        work_technologies = data.get('work_technologies', None)
+        if work_technologies:
+            technologies_data = [{'estimate': id_estimate, 'work_technology': work_technology_id}
+                                 for work_technology_id in work_technologies]
 
     # Собираем работы из технологий
     works = calc_estimate_works(technologies_data)
     work_model = DataBaseUtils.get_model('work')
+
     # Собираем дополнительные работы
     if 'additional_works' in data:
         additional_model = DataBaseUtils.get_model('estimate_additional')
@@ -91,12 +106,15 @@ def calculate_estimate(id_estimate: int, data: dict):
     # Записываем цену клиента в БД
     DataBaseUtils.update_record(estimate_model, id_estimate,
                                 {'field': 'price_client', 'value': estimate_price_client})
+    DataBaseUtils.update_record(estimate_model, id_estimate,
+                                {'field': 'active', 'value': True})
 
 
 def get_estimate_materials(id_estimate):
+    """
+    Получение используемых материалов в расчёте
+    """
     model = DataBaseUtils.get_model('estimate_material')
-    if model is None:
-        return None
     data = [row for row in model.select().where(model.estimate == id_estimate).dicts()]
     product_model = DataBaseUtils.get_model('product')
     for value in data:
@@ -106,9 +124,10 @@ def get_estimate_materials(id_estimate):
 
 
 def get_estimate_works(id_estimate):
+    """
+    Получение используемых работ в расчэте
+    """
     model = DataBaseUtils.get_model('estimate_work')
-    if model is None:
-        return None
     data = [row for row in model.select().where(model.estimate == id_estimate).dicts()]
     work_model = DataBaseUtils.get_model('work')
     for value in data:
@@ -133,73 +152,25 @@ def delete_estimate(id_estimate: int):
     cascade_delete_estimate(id_estimate, 'estimate_material')
     # Удаляем расчёт
     estimate_model = DataBaseUtils.get_model('estimate')
-    estimate_record = DataBaseUtils.get_record(estimate_model, ({'id': id_estimate}))
+    estimate_record = DataBaseUtils.get_record(estimate_model, {'id': id_estimate})
     DataBaseUtils.delete_record(estimate_model, estimate_record)
 
 
-def edit_estimate(id_estimate, data):
-    estimate_model = DataBaseUtils.get_model('estimate')
-    estimate_object = DataBaseUtils.get_record(estimate_model, ({'id': id_estimate}))
-    if estimate_model is None:
-        return
-    fio = data['client_info']
-    if fio != estimate_object.client_fio:
-        DataBaseUtils.update_record(estimate_model, id_estimate,
-                                    dict([('field', 'client_fio'), ('value', fio)]))
-    use_base = data['use_base']
-    project_id = None
-    if 'project_id' in data.keys():
-        project_id = data['project_id']
-        if project_id != estimate_object.project.id:
-            DataBaseUtils.update_record(estimate_model, id_estimate,
-                                        dict([('field', 'project'), ('value', project_id)]))
-    if use_base != estimate_object.use_base or project_id != estimate_object.project.id:
-        DataBaseUtils.update_record(estimate_model, id_estimate,
-                                    dict([('field', 'use_base'), ('value', use_base)]))
-        technologies_data = []
-        if use_base:
-            # берём работы у проекта
-            technologies_data = get_technology_from_project(id_estimate, project_id)
-        else:
-            # берём работы кастомные
-            if 'work_technologies' in data and not use_base:
-                estimate_technologies = data['work_technologies']
-                technologies_data = [dict([('estimate', id_estimate), ('work_technology', work_technology_id)])
-                                     for work_technology_id in estimate_technologies]
-        # Собираем работы из технологий
-        cascade_delete_estimate(id_estimate, 'estimate_technology')
-        works = calc_estimate_works(technologies_data)
-        work_model = DataBaseUtils.get_model('work')
-        # Перезаписываем дополнительные работы
-        if 'additional_works' in data:
-            additional_model = DataBaseUtils.get_model('estimate_additional')
-            additional_works = data['additional_works']
-            additional_data = [dict([('estimate', id_estimate), ('work', work_id)])
-                               for work_id in additional_works]
-            cascade_delete_estimate(id_estimate, 'estimate_additional')
-            for additional in additional_data:
-                additional_work_id, _ = DataBaseUtils.get_or_insert(additional_model, additional)
-                additional_work_object = DataBaseUtils.get_record(work_model, ({'id': additional['work']}))
-                works.add(additional_work_object)
-        cascade_delete_estimate(id_estimate, 'estimate_work')
-        estimate_price_client = __calc_estimate_works_price(id_estimate, works, project_id)
-        DataBaseUtils.update_record(estimate_model, id_estimate,
-                                    dict([('field', 'price_client'), ('value', estimate_price_client)]))
-        cascade_delete_estimate(id_estimate, 'estimate_material')
-        estimate_price_client += __calc_estimate_materials_price(id_estimate, project_id, works)
-        DataBaseUtils.update_record(estimate_model, id_estimate,
-                                    dict([('field', 'price_client'), ('value', estimate_price_client)]))
+def cascade_delete_estimate(id_estimate: int, collection: str) -> None:
+    """
+    Метод для каскадного удаления из таблиц связанных с расчётом
+
+    :param: id_estimate (int) ид расчёта
+    """
+    cascade_model: Model = DataBaseUtils.get_model(collection)
+    cascade_records: List[object] = \
+        DataBaseUtils.get_records(cascade_model, {'estimate': id_estimate})
+    for cascade_record in cascade_records:
+        DataBaseUtils.delete_record(cascade_model, cascade_record)
 
 
 def export_estimate(id_estimate):
     pass
-
-
-def get_technology_from_project(estimate_id: int, project_id: int) -> List[dict]:
-    project_technology_model = DataBaseUtils.get_model('project_technology')
-    technologies_project = DataBaseUtils.get_records(project_technology_model, {'project': project_id})
-    return [{'estimate': estimate_id, 'work_technology': technology_project.work_technology.id}
-            for technology_project in technologies_project]
 
 
 def calc_estimate_works(technologies_data) -> list:
@@ -294,23 +265,8 @@ def __calc_estimate_materials_price(id_estimate, project_id, works) -> int:
     return estimate_price_client
 
 
-def cascade_delete_estimate(id_estimate: int, collection: str) -> None:
-    """
-    Метод для каскадного удаления из таблиц связанных с расчётом
-
-    :param: id_estimate (int) ид расчёта
-    """
-    cascade_model: Model = DataBaseUtils.get_model(collection)
-    cascade_records: List[object] = \
-        DataBaseUtils.get_records(cascade_model, {'estimate': id_estimate})
-    for cascade_record in cascade_records:
-        DataBaseUtils.delete_record(cascade_model, cascade_record)
-
-
 def get_project_technologies(id_project):
     model = DataBaseUtils.get_model('project_technology')
-    if model is None:
-        return None
     data = [row for row in model.select().where(model.project == id_project).dicts()]
     work_technology_model = DataBaseUtils.get_model('work_technology')
     for value in data:
