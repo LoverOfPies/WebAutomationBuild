@@ -7,6 +7,7 @@ from api.base.MyAppException import MyAppException
 from api.base.Database import Database
 from api.estimate import estimate_api
 from api.base import base_api
+from api.history import history_api
 
 app = Flask(__name__, static_url_path='', static_folder='static')
 CORS(app)
@@ -14,6 +15,7 @@ CORS(app)
 app.config.from_file("config.json", load=json.load)
 app.register_blueprint(estimate_api)
 app.register_blueprint(base_api)
+app.register_blueprint(history_api)
 
 db = Database(app)
 

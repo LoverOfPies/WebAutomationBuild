@@ -1,9 +1,10 @@
 from typing import List
 
-from peewee import Model
+from peewee import Model, ForeignKeyField, DoubleField, IntegerField, BooleanField, DateField, CharField
 
 from api.base import FilterUtils, AutocompleteUtils
 from api.base.Cache import Cache
+from api.base.MyAppException import MyAppException
 
 cache = Cache()
 
@@ -60,14 +61,8 @@ def get_records(model, values=None) -> List:
 def update_record(collection, id_row, data):
     model = get_model(collection)
     row = model.get_or_none(id=id_row)
-    if row is None:
-        return False
     field = data['field']
-    if field is None:
-        return False
     value = data['value']
-    if value is None:
-        return False
     versioning_model = get_model('versioning')
     if isinstance(row, versioning_model):
         AutocompleteUtils.create_new_version(model, row, data)
@@ -117,18 +112,23 @@ def get_or_insert(model, values):
     return obj, meth
 
 
-def check_data(data, model):
-    for field in data.keys():
-        if not hasattr(model, field):
-            return False
-    return True
-
-
-def create_table_with_backref(model):
-    backref_tables = model._meta.model_backrefs
-    for ref in model._meta.refs:
-        if not ref.rel_model.table_exists():
-            create_table_with_backref(ref.rel_model)
-    model.create_table()
-    for backref_table in backref_tables:
-        create_table_with_backref(backref_table)
+def get_field_type(field_object):
+    """
+    Метод для получения типа поля
+    """
+    field_type = None
+    if isinstance(field_object, CharField):
+        field_type = "text"
+    if isinstance(field_object, ForeignKeyField):
+        field_type = "selectable"
+    if isinstance(field_object, DoubleField):
+        field_type = "float"
+    if isinstance(field_object, IntegerField):
+        field_type = "integer"
+    if isinstance(field_object, BooleanField):
+        field_type = "boolean"
+    if isinstance(field_object, DateField):
+        field_type = "date"
+    if not field_type:
+        raise MyAppException(f'Не определён тип данных для поля {field_object}')
+    return field_type

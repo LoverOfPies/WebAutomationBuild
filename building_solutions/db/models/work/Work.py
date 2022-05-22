@@ -11,7 +11,7 @@ class Work(BaseModel):
     fix_price = BooleanField(default=False, verbose_name='Фиксированная цена', null=True)
     client_price = DoubleField(default=0, verbose_name='Тариф клиента', null=True)
     work_price = DoubleField(default=0, verbose_name='Тариф себестоимости', null=True)
-    work_base = BooleanField(verbose_name='Базовая работа', null=True)
+    work_base = BooleanField(verbose_name='Базовая работа', default=False)
     base_unit = ForeignKeyField(BaseUnit, backref='works', verbose_name='Базовая единица')
     work_group = ForeignKeyField(WorkGroup, backref='works', verbose_name='Группа работ')
 

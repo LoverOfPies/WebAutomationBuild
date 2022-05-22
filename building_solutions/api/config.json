@@ -5,7 +5,7 @@
     "DATABASE": {
         "name": "automation_build",
         "engine": "peewee.PostgresqlDatabase",
-        "password": "masterkey",
-        "user": "sysdba"
+        "password": "ilya_antipov",
+        "user": ""
     }
 }

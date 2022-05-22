@@ -1,12 +1,13 @@
 import json
 
-from migrations import (add_sidebar_column, edit_models_paths, add_sidebar_values)
+from migrations import (add_sidebar_column, edit_models_paths, add_sidebar_values, work_base_default)
 
 # Таблица с миграциями, признаки выполнения в json
 MIGRATIONS_LIST = {
     'add_sidebar_column': add_sidebar_column.run_script,
     'edit_models_paths': edit_models_paths.run_script,
-    'add_sidebar_values': add_sidebar_values.run_script
+    'add_sidebar_values': add_sidebar_values.run_script,
+    'work_base_default': work_base_default.run_script
 }
 
 

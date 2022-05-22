@@ -1,5 +1,4 @@
-from flask import Response
-from peewee import ForeignKeyField, DoubleField, IntegerField, BooleanField, DateField
+from typing import List
 
 from api.base.MyAppException import MyAppException
 from api.base import FilterUtils
@@ -17,16 +16,16 @@ def add_row(collection, data):
 
     :return: new record or None
     """
+    # TODO: добавить обозначение в моделях, какие поля обязательны к уникальности
+    #  метод get
     model = DataBaseUtils.get_model(collection)
-    if model is None:
-        return None
-    if not DataBaseUtils.check_data(data, model):
-        return None
-    if collection == 'work' and 'work_base' not in data:
-        data['work_base'] = False
+    for field in data:
+        if not hasattr(model, field):
+            raise MyAppException('Неправильно переданы поля модели')
     obj, meth = DataBaseUtils.get_or_insert(model, data)
     if meth == "get":
-        return None
+        raise MyAppException('Похожая запись уже существует')
+    # TODO: Переделать механизм автозаполнения
     if collection == 'project' or collection == 'base_unit':
         AutocompleteUtils.base_size_autocomplete(obj)
     if collection == 'material':
@@ -46,11 +45,8 @@ def delete_row(collection, id_row) -> bool:
     :return: bool
     """
     model = DataBaseUtils.get_model(collection)
-    if model is None:
-        return False
     row = model.get_or_none(id=id_row)
-    if row is None:
-        return False
+    # TODO: Переделать механизм автозаполнения
     if collection == 'base_unit' or collection == 'project':
         AutocompleteUtils.base_size_cascade_delete(row, collection)
     if collection == 'material':
@@ -58,6 +54,7 @@ def delete_row(collection, id_row) -> bool:
     return DataBaseUtils.delete_record(model, row)
 
 
+# TODO: Переписать
 def update_row(collection, id_row, data) -> bool:
     """
     Update record field by id
@@ -69,10 +66,7 @@ def update_row(collection, id_row, data) -> bool:
     :return: bool
     """
     model = DataBaseUtils.get_model(collection)
-    if model is None:
-        return False
-
-    if 'mode' in data.keys():
+    if 'mode' in data:
         if data['mode'] == 'many_to_many':
             parent = data['parent']
             parent_id = data['parent_id']
@@ -80,7 +74,7 @@ def update_row(collection, id_row, data) -> bool:
             # radiobutton change
             # current = -1 - remove flag
             # prev = -1 - first init
-            if 'prev' in data.keys():
+            if 'prev' in data:
                 prev = data['prev']
                 current = data['current']
                 if prev != -1:
@@ -106,10 +100,9 @@ def update_row(collection, id_row, data) -> bool:
     return DataBaseUtils.update_record(collection, id_row, data)
 
 
+# TODO: Переписать
 def get_data_from_table(collection, request_params):
     model = DataBaseUtils.get_model(collection)
-    if model is None:
-        return None
     data = None
     if request_params:
         values = dict(request_params)
@@ -142,6 +135,7 @@ def get_data_from_table(collection, request_params):
     return data
 
 
+# TODO: Переписать
 def get_filter_data(model, values) -> list:
     """
     Return records from table
@@ -206,6 +200,7 @@ def recursive_filter(model_name, keys, obj_ids, parent_model) -> list:
         return data
 
 
+# TODO: Разнести на два метода get_group_data и get_many_data
 def get_many_data(model, values):
     """
     Return data for many_to_many mode
@@ -218,9 +213,8 @@ def get_many_data(model, values):
     data = []
     child_name = values['child']
     del values['child']
-    group_field = None
-    if 'group_field' in values.keys():
-        group_field = values['group_field']
+    group_field = values('group_field', None)
+    if group_field:
         del values['group_field']
     # data for many_to_many with checked field
     if hasattr(model, child_name):
@@ -293,7 +287,7 @@ def get_group_data(group_field, data) -> list:
     return res_data
 
 
-def create_sidebar() -> list:
+def create_sidebar() -> List[dict]:
     """
     Return information for sidebar from cache
 
@@ -306,7 +300,7 @@ def create_sidebar() -> list:
     return data
 
 
-def get_dicts_info() -> list:
+def get_dicts_info() -> List[dict]:
     """
     Return displayed titles for all tables from cache
 
@@ -333,9 +327,7 @@ def get_dict_info(collection, params) -> dict:
     model = DataBaseUtils.get_model(collection)
     data = {}
     # get parent name from params for many_to_many mode
-    parent_name = None
-    if 'parent' in params.keys():
-        parent_name = params['parent']
+    parent_name = params.get('parent', None)
 
     data["title"] = table_info.title
     if table_info.many_to_many:
@@ -349,6 +341,8 @@ def get_dict_info(collection, params) -> dict:
         if field_name in ('id', 'uuid', 'version_number', 'enable_version', parent_name):
             continue
         field_object = getattr(model, field_name)
+
+        # TODO: Вынести, подумать над работой режимов
         if table_info.many_to_many and parent_name:
             if field_name != parent_name:
                 # only name field for the column in many_to_many mode
@@ -356,23 +350,18 @@ def get_dict_info(collection, params) -> dict:
                 # add a parameter 'child' with the name of the child table
                 data['child'] = field_name
             continue
-        field_info = {"key": field_name, "label": field_object.verbose_name}
-        if field_name == 'name':
-            field_info["sortable"] = True
-        if isinstance(field_object, ForeignKeyField):
-            field_info["type"] = "selectable"
-        if isinstance(field_object, DoubleField):
-            field_info["type"] = "float"
-        if isinstance(field_object, IntegerField):
-            field_info["type"] = "integer"
-        if isinstance(field_object, BooleanField):
-            field_info["type"] = "boolean"
-        if isinstance(field_object, DateField):
-            field_info["type"] = "date"
+
+        field_info = {"key": field_name,
+                      "label": field_object.verbose_name,
+                      "type": DataBaseUtils.get_field_type(field_object)}
         fields.append(field_info)
+
+        # TODO: Костыль, надо убрать
         if collection == 'product' and field_name == "amount_for_one":
             fields.append({"key": "unit", "type": "caption", "label": "Единицы измерения"})
+
     data["fields"] = fields
+
     filters = []
     filter_info_model = DataBaseUtils.cache.get_filter_info_model()
     filters_info = filter_info_model.select().where(filter_info_model.table == table_info) \
@@ -391,10 +380,7 @@ def get_dict_info(collection, params) -> dict:
     return data
 
 
-def init_error(message: str) -> Response:
-    raise MyAppException(message)
-
-
+# TODO: Вынести функционал и переработать интерфейс
 def copy_work_group(id_work_group):
     # Получаем родительскую группу работ
     work_group_model = DataBaseUtils.get_model('work_group')
@@ -438,39 +424,3 @@ def copy_work_group(id_work_group):
 
     # Возвращаем созданную запись
     return work_group_model.get_or_none(id=new_work_group).__data__
-
-
-def get_history(collection, id_row):
-    model = DataBaseUtils.get_model(collection)
-    row = model.get_or_none(id=id_row)
-    condition = FilterUtils.get_equals_filter(model, {'uuid': row.uuid})
-    data = [row for row in model.select().where(condition).dicts()]
-    return data
-
-
-def get_history_dict_info(collection) -> dict:
-    table_info = DataBaseUtils.cache.get_table_info(collection).get()
-    model = DataBaseUtils.get_model(collection)
-    data = {'title': f'История изменений {table_info.title}'}
-    fields = []
-    for field_name in model._meta.fields:
-        # exclude fields that are not displayed
-        if field_name in ('id', 'uuid'):
-            continue
-        field_object = getattr(model, field_name)
-        field_info = {"key": field_name, "label": field_object.verbose_name}
-        if field_name == 'name':
-            field_info["sortable"] = True
-        if isinstance(field_object, ForeignKeyField):
-            field_info["type"] = "selectable"
-        if isinstance(field_object, DoubleField):
-            field_info["type"] = "float"
-        if isinstance(field_object, IntegerField):
-            field_info["type"] = "integer"
-        if isinstance(field_object, BooleanField):
-            field_info["type"] = "boolean"
-        if isinstance(field_object, DateField):
-            field_info["type"] = "date"
-        fields.append(field_info)
-    data["fields"] = fields
-    return data

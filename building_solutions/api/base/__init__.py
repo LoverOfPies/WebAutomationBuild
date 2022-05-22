@@ -3,14 +3,14 @@ from flask_cors import cross_origin
 from werkzeug.exceptions import abort
 
 
-from api import __version__ as api_varsion
+from api import __version__ as api_version
 from api.expimp import ExportImportUtils
 import api.base.ApiImpl
 
 base_api = Blueprint('base_api', __name__)
 
 
-@base_api.route(f'{api_varsion}/get/<string:collection>', methods=['GET'])
+@base_api.route(f'{api_version}/get/<string:collection>', methods=['GET'])
 @cross_origin()
 def get_data(collection):
     """
@@ -42,7 +42,7 @@ def get_data(collection):
     return jsonify(data)
 
 
-@base_api.route(f'{api_varsion}/add/<string:collection>', methods=['POST'])
+@base_api.route(f'{api_version}/add/<string:collection>', methods=['POST'])
 @cross_origin()
 def add_value(collection):
     """
@@ -73,7 +73,7 @@ def add_value(collection):
     return abort(404)
 
 
-@base_api.route(f'{api_varsion}/update/<string:collection>/<int:id_row>', methods=['PUT'])
+@base_api.route(f'{api_version}/update/<string:collection>/<int:id_row>', methods=['PUT'])
 @cross_origin()
 def edit_value(collection, id_row):
     """
@@ -104,7 +104,7 @@ def edit_value(collection, id_row):
     return abort(404)
 
 
-@base_api.route(f'{api_varsion}/delete/<string:collection>/<int:id_row>', methods=['DELETE'])
+@base_api.route(f'{api_version}/delete/<string:collection>/<int:id_row>', methods=['DELETE'])
 @cross_origin()
 def delete_value(collection, id_row):
     """
@@ -115,17 +115,15 @@ def delete_value(collection, id_row):
 
     :return: json
     """
-    result = api.base.ApiImpl.delete_row(collection, id_row)
-    if result:
-        return jsonify({'result': True})
-    return abort(404)
+    api.base.ApiImpl.delete_row(collection, id_row)
+    return jsonify({'result': True})
 
 
 # TODO: разбить на несколько методов
 # К примеру, если у таблицы есть фильтры, отдавать признак
 # После чего уже запрашивать фильтры
 # С действиями возможно так же
-@base_api.route(f'{api_varsion}/get_dict/<string:collection>', methods=['GET'])
+@base_api.route(f'{api_version}/get_dict/<string:collection>', methods=['GET'])
 @cross_origin()
 def get_dict(collection):
     """
@@ -174,7 +172,7 @@ def get_dict(collection):
     return jsonify(data)
 
 
-@base_api.route(f'{api_varsion}/get_dict', methods=['GET'])
+@base_api.route(f'{api_version}/get_dict', methods=['GET'])
 @cross_origin()
 def get_dicts():
     """
@@ -194,7 +192,7 @@ def get_dicts():
     return jsonify(data)
 
 
-@base_api.route(f'{api_varsion}/sidebar', methods=['GET'])
+@base_api.route(f'{api_version}/sidebar', methods=['GET'])
 @cross_origin()
 def get_sidebar():
     """
@@ -215,7 +213,7 @@ def get_sidebar():
     return jsonify(sidebar)
 
 
-@base_api.route(f'{api_varsion}/import/<string:collection>', methods=['POST'])
+@base_api.route(f'{api_version}/import/<string:collection>', methods=['POST'])
 @cross_origin()
 def file_import(collection):
     if request.method == 'POST':
@@ -228,29 +226,15 @@ def file_import(collection):
     return jsonify('True')
 
 
-@base_api.route(f'{api_varsion}/export/<string:collection>', methods=['GET'])
+@base_api.route(f'{api_version}/export/<string:collection>', methods=['GET'])
 @cross_origin()
 def file_export(collection):
     ExportImportUtils.export_table(collection)
     return jsonify('True')
 
 
-@base_api.route(f'{api_varsion}/copy_work_group/<int:id_work_group>', methods=['GET'])
+@base_api.route(f'{api_version}/copy_work_group/<int:id_work_group>', methods=['GET'])
 @cross_origin()
 def copy_work_group(id_work_group):
     new_work_group = api.base.ApiImpl.copy_work_group(id_work_group)
     return jsonify(new_work_group)
-
-
-@base_api.route(f'{api_varsion}/get_history/<string:collection>/<int:id_row>', methods=['GET'])
-@cross_origin()
-def get_history(collection, id_row):
-    data = api.base.ApiImpl.get_history(collection, id_row)
-    return jsonify(data)
-
-
-@base_api.route(f'{api_varsion}/get_history_dict/<string:collection>', methods=['GET'])
-@cross_origin()
-def get_history_dict(collection):
-    data = api.base.ApiImpl.get_history_dict_info(collection)
-    return jsonify(data)
